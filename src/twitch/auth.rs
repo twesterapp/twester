@@ -42,7 +42,9 @@ impl AuthBody {
             client_id: TWITCH_CLIENT_ID.to_string(),
             undelete_user: false,
             remember_me: true,
-            captcha: Some(Captcha { proof: body.captcha.to_string() }),
+            captcha: Some(Captcha {
+                proof: body.captcha.to_string(),
+            }),
             authy_token: Some(body.two_fa),
             twitchguard_code: None,
         }
@@ -55,7 +57,9 @@ impl AuthBody {
             client_id: TWITCH_CLIENT_ID.to_string(),
             undelete_user: false,
             remember_me: true,
-            captcha: Some(Captcha { proof: body.captcha.to_string() }),
+            captcha: Some(Captcha {
+                proof: body.captcha.to_string(),
+            }),
             authy_token: None,
             twitchguard_code: Some(body.code),
         }
@@ -159,9 +163,7 @@ impl Controller {
             two_fa: body.two_fa.to_string(),
         };
 
-        let response = AuthClient::new()
-            .send_two_fa(two_fa_body)
-            .await;
+        let response = AuthClient::new().send_two_fa(two_fa_body).await;
 
         let json = response.unwrap().json::<Value>().await.unwrap();
         HttpResponse::Ok().json(json)
@@ -175,9 +177,7 @@ impl Controller {
             code: body.code.to_string(),
         };
 
-        let response = AuthClient::new()
-            .send_code(code_body)
-            .await;
+        let response = AuthClient::new().send_code(code_body).await;
 
         let json = response.unwrap().json::<Value>().await.unwrap();
         HttpResponse::Ok().json(json)

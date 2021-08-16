@@ -18,7 +18,7 @@ async fn main() -> std::io::Result<()> {
                 web::scope("/auth")
                     .route("", web::post().to(auth::Controller::login))
                     .route("/two-fa", web::post().to(auth::Controller::two_fa))
-                    .route("/code", web::post().to(auth::Controller::code))
+                    .route("/code", web::post().to(auth::Controller::code)),
             )
             .app_data(web::JsonConfig::default().error_handler(|err, _req| {
                 error::InternalError::from_response(
