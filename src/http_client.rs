@@ -21,12 +21,15 @@ pub struct HttpClient {
     client: Client,
 }
 
-impl HttpClient {
-    pub fn new() -> Self {
+impl Default for HttpClient {
+    fn default() -> Self {
         let client = Client::new();
         HttpClient { client }
     }
 
+}
+
+impl HttpClient {
     async fn request<D>(
         &self,
         method: Method,

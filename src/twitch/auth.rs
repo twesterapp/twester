@@ -24,8 +24,8 @@ struct AuthBody {
 impl AuthBody {
     fn for_login(username: String, password: String) -> Self {
         AuthBody {
-            username: username,
-            password: password,
+            username,
+            password,
             client_id: TWITCH_CLIENT_ID.to_string(),
             undelete_user: false,
             remember_me: true,
@@ -70,15 +70,17 @@ pub struct AuthClient {
     http: HttpClient,
 }
 
-impl AuthClient {
-    fn new() -> Self {
+impl Default for AuthClient {
+    fn default() -> Self {
         AuthClient {
-            http: HttpClient::new(),
+            http: HttpClient::default(),
         }
     }
+}
 
+impl AuthClient {
     fn get_headers(&self) -> Headers {
-        let mut headers = HeaderMap::new();
+        let mut headers = HeaderMap::default();
         headers.insert("Client-Id", TWITCH_CLIENT_ID.parse().unwrap());
         headers.insert("User-Agent", UserAgent::chrome().parse().unwrap());
         headers
@@ -147,7 +149,7 @@ impl Controller {
     pub async fn login(body: web::Json<LoginReqBody>) -> HttpResponse {
         let username = body.username.to_string();
         let password = body.password.to_string();
-        let response = AuthClient::new()
+        let response = AuthClient::default()
             .send_username_password(username, password)
             .await;
 
@@ -163,7 +165,7 @@ impl Controller {
             two_fa: body.two_fa.to_string(),
         };
 
-        let response = AuthClient::new().send_two_fa(two_fa_body).await;
+        let response = AuthClient::default().send_two_fa(two_fa_body).await;
 
         let json = response.unwrap().json::<Value>().await.unwrap();
         HttpResponse::Ok().json(json)
@@ -177,7 +179,7 @@ impl Controller {
             code: body.code.to_string(),
         };
 
-        let response = AuthClient::new().send_code(code_body).await;
+        let response = AuthClient::default().send_code(code_body).await;
 
         let json = response.unwrap().json::<Value>().await.unwrap();
         HttpResponse::Ok().json(json)
