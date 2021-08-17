@@ -1,8 +1,9 @@
 use crate::http_client::{ClientResult, Headers, HttpClient, UserAgent, TWITCH_CLIENT_ID};
-use actix_web::{web, HttpResponse};
+use crate::auth::model::{CodeReqBody, TwoFaReqBody};
+
 use reqwest::header::HeaderMap;
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
+use serde_json::{json};
 
 #[derive(Serialize, Deserialize)]
 struct Captcha {
@@ -114,74 +115,5 @@ impl AuthClient {
         self.http
             .post("https://passport.twitch.tv/login", Some(&headers), &payload)
             .await
-    }
-}
-
-///
-/// Models for request and response body.
-///
-
-#[derive(Deserialize, Debug)]
-pub struct LoginReqBody {
-    username: String,
-    password: String,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct TwoFaReqBody {
-    username: String,
-    password: String,
-    captcha: String,
-    two_fa: String,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct CodeReqBody {
-    username: String,
-    password: String,
-    captcha: String,
-    code: String,
-}
-
-pub struct Controller;
-
-impl Controller {
-    pub async fn login(body: web::Json<LoginReqBody>) -> HttpResponse {
-        let username = body.username.to_string();
-        let password = body.password.to_string();
-        let response = AuthClient::default()
-            .send_username_password(username, password)
-            .await;
-
-        let json = response.unwrap().json::<Value>().await.unwrap();
-        HttpResponse::Ok().json(json)
-    }
-
-    pub async fn two_fa(body: web::Json<TwoFaReqBody>) -> HttpResponse {
-        let two_fa_body = TwoFaReqBody {
-            username: body.username.to_string(),
-            password: body.password.to_string(),
-            captcha: body.captcha.to_string(),
-            two_fa: body.two_fa.to_string(),
-        };
-
-        let response = AuthClient::default().send_two_fa(two_fa_body).await;
-
-        let json = response.unwrap().json::<Value>().await.unwrap();
-        HttpResponse::Ok().json(json)
-    }
-
-    pub async fn code(body: web::Json<CodeReqBody>) -> HttpResponse {
-        let code_body = CodeReqBody {
-            username: body.username.to_string(),
-            password: body.password.to_string(),
-            captcha: body.captcha.to_string(),
-            code: body.code.to_string(),
-        };
-
-        let response = AuthClient::default().send_code(code_body).await;
-
-        let json = response.unwrap().json::<Value>().await.unwrap();
-        HttpResponse::Ok().json(json)
     }
 }

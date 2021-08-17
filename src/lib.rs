@@ -1,2 +1,2 @@
-pub mod http_client;
-pub mod twitch;
+mod http_client;
+pub mod auth;
