@@ -2,16 +2,13 @@ import styled from "styled-components";
 
 export interface InputOptions extends React.HTMLAttributes<HTMLInputElement> {
   width?: string;
-  password?: boolean;
 }
 
 export function Input({
   width = "",
-  password = false,
   ...rest
-}: Omit<InputOptions, "type">) {
-  const inputType = password ? "password" : "text";
-  return <StyledInput type={inputType} width={width} {...rest} />;
+}: InputOptions) {
+  return <StyledInput width={width} {...rest} />;
 }
 
 const StyledInput = styled.input<{ width: string }>`
