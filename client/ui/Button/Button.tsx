@@ -12,7 +12,7 @@ export function Button({
   text,
   width = "",
   disabled = false,
-  type="button",
+  type = "button",
   ...rest
 }: ButtonOptions) {
   return (
