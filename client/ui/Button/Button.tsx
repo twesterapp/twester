@@ -38,6 +38,8 @@ const StyledButton = styled.button<{ disabled: boolean; width: string }>`
   font-family: Poppins, sans-serif;
   letter-spacing: 0.5px;
 
+  transition: background-color 200ms ease-out;
+
   &:hover {
     background: ${(props) => !props.disabled && "#1484CF"};
   }
