@@ -1,17 +1,21 @@
 import styled from "styled-components";
 
-export interface InputOptions extends React.HTMLAttributes<HTMLInputElement> {
+export interface InputTextOptions
+  extends React.HTMLAttributes<HTMLInputElement> {
+  variant?: "email" | "number" | "password" | "search" | "tel" | "text" | "url";
   width?: string;
+  value?: string | number;
 }
 
-export function Input({
+export function InputText({
   width = "",
+  variant = "text",
   ...rest
-}: InputOptions) {
-  return <StyledInput width={width} {...rest} />;
+}: Omit<InputTextOptions, "type">) {
+  return <StyledInput {...rest} type={variant} width={width} />;
 }
 
-const StyledInput = styled.input<{ width: string }>`
+const StyledInput = styled.input<InputTextOptions>`
   font-size: 0.875rem;
   border-radius: 12px;
   padding: 0.875em;

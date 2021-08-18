@@ -16,7 +16,7 @@ export function Button({
   ...rest
 }: ButtonOptions) {
   return (
-    <StyledButton disabled={disabled} type={type} width={width} {...rest}>
+    <StyledButton {...rest} disabled={disabled} type={type} width={width}>
       {text}
     </StyledButton>
   );
