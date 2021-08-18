@@ -1,5 +1,5 @@
 [package]
-name = "backend"
+name = "twitch-harvester-server"
 version = "0.1.0"
 authors = ["Shikhar Sharma <ceoshikhar@gmail.com>"]
 edition = "2018"

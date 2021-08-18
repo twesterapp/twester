@@ -1,7 +1,3 @@
-//!
-//! Models for request and response body.
-//!
-
 use serde::{Deserialize};
 
 #[derive(Deserialize, Debug)]

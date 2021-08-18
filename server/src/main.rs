@@ -1,5 +1,5 @@
 use actix_web::{error, get, web, App, HttpResponse, HttpServer, Result};
-use backend::auth;
+use twitch_harvester_server::auth;
 use serde_json::json;
 
 /// Check the status of the API.
