@@ -4,5 +4,6 @@
 </div>
 
 Twitch Harvester has two main components working together:
-    - `client` : What the `user` interacts with from their browser
-    - `server` : What the `client` interacts with and it does the actual work
+
+- client : What the **user** interacts with from their browser
+- server : What the **client** interacts with and it does the actual work
