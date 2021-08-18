@@ -1,4 +1,5 @@
 use actix_web::{error, get, web, App, HttpResponse, HttpServer, Result};
+use actix_cors::Cors;
 use twitch_harvester_server::auth;
 use serde_json::json;
 
@@ -12,7 +13,10 @@ async fn status() -> Result<HttpResponse> {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
+        let cors = Cors::permissive();
+
         App::new()
+            .wrap(cors)
             .service(status)
             .service(
                 web::scope("/auth")
