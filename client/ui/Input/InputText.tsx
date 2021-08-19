@@ -15,7 +15,7 @@ export function InputText({
   return <StyledInput {...rest} type={variant} width={width} />;
 }
 
-const StyledInput = styled.input<InputTextOptions>`
+const StyledInput = styled.input<Omit<InputTextOptions, "variant">>`
   font-size: 0.875rem;
   border-radius: 12px;
   padding: 0.875em;
@@ -26,6 +26,7 @@ const StyledInput = styled.input<InputTextOptions>`
   box-sizing: border-box;
   font-family: Poppins, sans-serif;
   color: ${(props) => props.theme.color.textPrimary};
+  text-align: ${(props) => props.type === "number" && "center"};
 
   width: ${(props) => props.width};
 
@@ -48,5 +49,11 @@ const StyledInput = styled.input<InputTextOptions>`
     background: #000000;
     outline: none;
     color: ${(props) => props.theme.color.textPrimary};
+  }
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
   }
 `;
