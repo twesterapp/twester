@@ -1,11 +1,11 @@
 import { useEffect } from "react";
 import { useRouter } from "next/router";
-
-const isServer = () => typeof window === "undefined";
+import { isServer } from "@/utils";
 
 function Home() {
   const router = useRouter();
   const isAuth = !isServer() && !!window.localStorage.getItem("access-token");
+  const username = !isServer() ? window.localStorage.getItem("username") : "";
 
   useEffect(() => {
     if (!isAuth) {
@@ -13,8 +13,16 @@ function Home() {
     }
   }, []);
 
-  // TODO: Instead of the <h1> tag we will render the <App />
-  return isAuth ? <h1>You are logged in !</h1> : null;
+  // TODO: We will render the <App />
+  if (isAuth) {
+    return (
+      <>
+        <h1>You are logged in as {username}</h1>
+      </>
+    );
+  }
+
+  return null;
 }
 
 export default Home;
