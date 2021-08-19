@@ -47,13 +47,13 @@ impl HttpClient {
         }
         request = add_data(request);
 
-        println!("[HttpClient REQUEST] - {} : {}", method, url);
+        println!("[HttpClient] - {} {}", method, url);
         //println!("#######  HEADERS \n {:#?}", headers);
 
         let response = request.send().await?;
 
         let status = &response.status();
-        println!("[HttpClient RESPONSE] - {}", status);
+        println!("[HttpClient] - {}", status);
 
         Ok(response)
     }
