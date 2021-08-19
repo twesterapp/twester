@@ -4,25 +4,32 @@ import styled from "styled-components";
 export interface ButtonOptions extends React.HTMLAttributes<HTMLButtonElement> {
   text: string;
   disabled?: boolean;
+  loading?: boolean;
   width?: string;
-  type?: "submit" | "reset" | "button";
+  variant?: "submit" | "reset" | "button";
 }
 
 export function Button({
   text,
   width = "",
   disabled = false,
-  type = "button",
+  loading = false,
+  variant = "button",
   ...rest
-}: ButtonOptions) {
+}: Omit<ButtonOptions, "type">) {
   return (
-    <StyledButton {...rest} disabled={disabled} type={type} width={width}>
+    <StyledButton
+      {...rest}
+      disabled={disabled || loading}
+      type={variant}
+      width={width}
+    >
       {text}
     </StyledButton>
   );
 }
 
-const StyledButton = styled.button<{ disabled: boolean; width: string }>`
+const StyledButton = styled.button<Omit<ButtonOptions, "text">>`
   background: ${(props) =>
     props.disabled ? "#464649" : props.theme.color.primary};
   color: ${(props) =>
