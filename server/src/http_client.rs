@@ -29,6 +29,21 @@ impl Default for HttpClient {
 }
 
 impl HttpClient {
+    pub fn with_headers(headers: HeaderMap) -> Self {
+        let client = Client::builder().default_headers(headers).build().unwrap();
+        HttpClient { client }
+    }
+
+    pub async fn post(
+        &self,
+        url: &str,
+        headers: Option<&Headers>,
+        payload: &Value,
+    ) -> ClientResult {
+        self.request(Method::POST, url, headers, |req| req.json(payload))
+            .await
+    }
+
     async fn request<D>(
         &self,
         method: Method,
@@ -55,15 +70,5 @@ impl HttpClient {
         println!("[HttpClient] - {}", status);
 
         Ok(response)
-    }
-
-    pub async fn post(
-        &self,
-        url: &str,
-        headers: Option<&Headers>,
-        payload: &Value,
-    ) -> ClientResult {
-        self.request(Method::POST, url, headers, |req| req.json(payload))
-            .await
     }
 }
