@@ -1,9 +1,9 @@
-use crate::http_client::{ClientResult, Headers, HttpClient, UserAgent, TWITCH_CLIENT_ID};
 use crate::auth::model::{CodeReqBody, TwoFaReqBody};
+use crate::http_client::{ClientResult, Headers, HttpClient, UserAgent, TWITCH_CLIENT_ID};
 
 use reqwest::header::HeaderMap;
 use serde::{Deserialize, Serialize};
-use serde_json::{json};
+use serde_json::json;
 
 #[derive(Serialize, Deserialize)]
 struct Captcha {

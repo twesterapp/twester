@@ -26,7 +26,6 @@ impl Default for HttpClient {
         let client = Client::new();
         HttpClient { client }
     }
-
 }
 
 impl HttpClient {

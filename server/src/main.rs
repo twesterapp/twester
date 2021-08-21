@@ -1,7 +1,7 @@
-use actix_web::{error, get, web, App, HttpResponse, HttpServer, Result};
 use actix_cors::Cors;
-use twitch_harvester_server::auth;
+use actix_web::{error, get, web, App, HttpResponse, HttpServer, Result};
 use serde_json::json;
+use twitch_harvester_server::auth;
 
 /// Check the status of the API.
 /// If the API is up and running is will return a 200 OK response.
