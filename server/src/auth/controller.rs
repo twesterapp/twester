@@ -47,7 +47,7 @@ pub async fn code(body: web::Json<CodeReqBody>) -> HttpResponse {
         captcha: body.captcha.to_string(),
         code: body.code.to_string(),
     };
-    let response = AuthClient::default().send_code(code_body).await;
+    let response = AuthClient::default().send_twitchguard_code(code_body).await;
     let twitch_auth_response = response
         .unwrap()
         .json::<TwitchAuthResponse>()

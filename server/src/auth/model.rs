@@ -71,11 +71,25 @@ impl TwitchAuthError {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
+pub struct Error {
+    pub code: Option<i32>,
+    pub message: Option<String>,
+}
+
+impl Error {
+    pub fn new(code: i32, message: String) -> Self {
+        Error {
+            code: Some(code),
+            message: Some(message),
+        }
+    }
+}
+
+#[derive(Deserialize, Serialize, Debug)]
 pub struct AuthResponse {
     pub access_token: Option<String>,
     pub captcha: Option<String>,
-    pub error_code: Option<i32>,
-    pub error_message: Option<String>,
+    pub error: Option<Error>,
     pub email: Option<String>,
 }
 
@@ -84,8 +98,7 @@ impl Default for AuthResponse {
         AuthResponse {
             access_token: None,
             captcha: None,
-            error_code: None,
-            error_message: None,
+            error: None,
             email: None,
         }
     }
@@ -104,8 +117,8 @@ impl AuthResponse {
         }
 
         if let Some(code) = response.error_code {
-            auth_response.error_code = Some(code);
-            auth_response.error_message = Some(TwitchAuthError::new(code).get_message());
+            let message = TwitchAuthError::new(code).get_message();
+            auth_response.error = Some(Error::new(code, message));
         };
 
         if let Some(email) = response.obscured_email {
