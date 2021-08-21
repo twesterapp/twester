@@ -55,20 +55,16 @@ impl TwitchAuthError {
         }
     }
 
-    pub fn get_error_message(&self) -> String {
+    pub fn get_message(&self) -> String {
         match self {
-            Self::InvalidLoginCredentials => "Invalid username or password".to_string(),
-            Self::TwoFaTokenRequired => "Two factor authentication token required".to_string(),
-            Self::InvalidTwoFaToken => "Invalid two factor authentication token".to_string(),
-            Self::TwitchguardCodeRequired => "Twitchguard verification code required".to_string(),
-            Self::InvalidTwitchguardCode => "Invalid Twitchguard verification code".to_string(),
-            Self::TooManyInvalidLoginAttempts => {
-                "You have made several failed login attempts. You will have to
-                wait for sometime(typically several hours) and try again. This
-                happens because a CAPTCHA SOLVING is required by Twitch and we
-                cannot do that."
-                    .to_string()
-            }
+            Self::InvalidLoginCredentials => "Invalid username or password.".to_string(),
+            Self::TwoFaTokenRequired => "Two factor authentication token required.".to_string(),
+            Self::InvalidTwoFaToken => "Invalid two factor authentication token.".to_string(),
+            Self::TwitchguardCodeRequired => "Twitchguard verification code required.".to_string(),
+            Self::InvalidTwitchguardCode => "Invalid Twitchguard verification code.".to_string(),
+            // How TF do I split this long String to multiple lines without
+            // adding "\n               " when sent to client as JSON object.
+            Self::TooManyInvalidLoginAttempts => "You have made several failed login attempts. You will have to wait for sometime(typically several hours) before trying again. This occurs because a CAPTCHA SOLVING is required by Twitch and we cannot do that.".to_string(),
             Self::Unknown => "Something unexpected happened".to_string(),
         }
     }
@@ -109,7 +105,7 @@ impl AuthResponse {
 
         if let Some(code) = response.error_code {
             auth_response.error_code = Some(code);
-            auth_response.error_message = Some(TwitchAuthError::new(code).get_error_message());
+            auth_response.error_message = Some(TwitchAuthError::new(code).get_message());
         };
 
         if let Some(email) = response.obscured_email {
