@@ -22,7 +22,8 @@ function LoginFlow() {
   const [verifyOptions, setVerifyOptions] = useState<VerifyOptions>({
     username: "",
     password: "",
-    captcha: ""
+    captcha: "",
+    email: ""
   });
 
   function handleNextStepCallback(step: FlowStep, data: VerifyOptions) {
@@ -34,7 +35,7 @@ function LoginFlow() {
     if (isAuth) {
       router.push("/");
     }
-  }, []);
+  }, [isAuth, router]);
 
   if (!isAuth) {
     if (flowStep === FlowStep.TWITCHGUARD_CODE) {
@@ -58,10 +59,13 @@ interface AskForLoginCredentialsOptions {
 function AskForLoginCredentials({
   nextStepCallback
 }: AskForLoginCredentialsOptions) {
+  const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [loginErr, setLoginErr] = useState("");
+  const [err, setErr] = useState("");
   const [sendingReq, setSendingReq] = useState(false);
+
+  const isButtonDisabled = !username.trim() || !password.trim();
 
   function handleUsernameOnChange(e: React.ChangeEvent<HTMLInputElement>) {
     setUsername(e.target.value);
@@ -74,8 +78,7 @@ function AskForLoginCredentials({
   async function handleSubmit(event: React.FormEvent<EventTarget>) {
     event.preventDefault();
     setSendingReq(true);
-
-    console.log({ username, password });
+    setErr("");
 
     const res = await axios.post("http://localhost:7878/auth", {
       username,
@@ -84,23 +87,30 @@ function AskForLoginCredentials({
 
     setSendingReq(false);
 
-    if (res.data.captcha_proof) {
+    if (res.data.access_token) {
+      window.localStorage.setItem("access-token", res.data.access_token);
+      window.localStorage.setItem("username", username);
+      router.push("/");
+    }
+
+    if (res.data.captcha) {
       const data: VerifyOptions = {
         username,
         password,
-        captcha: res.data.captcha_proof
+        captcha: res.data.captcha,
+        email: res.data?.email
       };
 
-      if (res.data.error_code === 3011) {
+      if (res.data.error.code === 3011) {
         nextStepCallback(FlowStep.TWO_FA_TOKEN, data);
         return;
-      } else if (res.data.error_code === 3022) {
+      } else if (res.data.error.code === 3022) {
         nextStepCallback(FlowStep.TWITCHGUARD_CODE, data);
         return;
       }
     }
 
-    setLoginErr(res.data?.error_description);
+    setErr(res.data?.error?.message);
   }
 
   return (
@@ -124,13 +134,13 @@ function AskForLoginCredentials({
           value={password}
           onChange={handlePasswordOnChange}
         />
-        {loginErr && <p style={{ color: "orange" }}>{loginErr}</p>}
+        {err && <p style={{ color: "orange" }}>{err}</p>}
         <Button
           variant="submit"
           text="Login"
           width="300px"
-          disabled={false}
           onClick={handleSubmit}
+          disabled={isButtonDisabled}
           loading={sendingReq}
         />
       </Form>
@@ -151,23 +161,31 @@ const Container = styled.div`
 const Form = styled.form`
   display: flex;
   flex-direction: column;
+  max-width: 300px;
 `;
 
 interface VerifyOptions {
   username: string;
   password: string;
   captcha: string;
+  email: string;
 }
 
-function VerifyWithCode({ username, password, captcha }: VerifyOptions) {
+function VerifyWithCode({
+  username,
+  password,
+  captcha,
+  email = ""
+}: VerifyOptions) {
   const router = useRouter();
-  const [code, setCode] = useState();
+  const [code, setCode] = useState("");
   const [err, setErr] = useState("");
   const [sendingReq, setSendingReq] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<EventTarget>) {
     event.preventDefault();
     setSendingReq(true);
+    setErr("");
 
     const res = await axios.post("http://localhost:7878/auth/code", {
       username,
@@ -178,33 +196,35 @@ function VerifyWithCode({ username, password, captcha }: VerifyOptions) {
 
     setSendingReq(false);
 
-    if (!isServer() && res.data.access_token) {
+    if (res.data.access_token) {
       window.localStorage.setItem("access-token", res.data.access_token);
       window.localStorage.setItem("username", username);
       router.push("/");
     }
 
-    setErr(res.data?.error_description);
+    setErr(res.data?.error?.message);
   }
 
   return (
     <Container>
-      <h1 style={{ marginBottom: px2em(43) }}>
-        Enter the verification code sent you to
-      </h1>
+      <h1 style={{ marginBottom: 0 }}>Enter the verification code sent to</h1>
+      <p style={{ marginBottom: px2em(43) }}>{email}</p>
       <Form onSubmit={handleSubmit}>
         <InputText
           variant="number"
           value={code}
           onChange={(e: any) => setCode(e.target.value)}
+          width="300px"
           style={{ marginBottom: px2em(52) }}
         />
         {err && <p style={{ color: "orange" }}>{err}</p>}
         <Button
           text="Verify"
           variant="submit"
+          width="300px"
           onClick={handleSubmit}
           loading={sendingReq}
+          disabled={!code.trim()}
         />
       </Form>
     </Container>
@@ -213,13 +233,14 @@ function VerifyWithCode({ username, password, captcha }: VerifyOptions) {
 
 function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
   const router = useRouter();
-  const [twoFa, setTwoFa] = useState();
+  const [twoFa, setTwoFa] = useState("");
   const [err, setErr] = useState("");
   const [sendingReq, setSendingReq] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<EventTarget>) {
     event.preventDefault();
     setSendingReq(true);
+    setErr("");
 
     const res = await axios.post("http://localhost:7878/auth/two-fa", {
       username,
@@ -230,19 +251,19 @@ function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
 
     setSendingReq(false);
 
-    if (!isServer() && res.data.access_token) {
+    if (res.data.access_token) {
       window.localStorage.setItem("access-token", res.data.access_token);
       window.localStorage.setItem("username", username);
       router.push("/");
     }
 
-    setErr(res.data?.error_description);
+    setErr(res.data?.error?.message);
   }
 
   return (
     <Container>
       <h1 style={{ marginBottom: px2em(43) }}>
-        Enter the code found in your authenticator app
+        Enter the token from your authenticator app
       </h1>
       <Form onSubmit={handleSubmit}>
         <InputText
@@ -259,6 +280,7 @@ function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
           variant="submit"
           onClick={handleSubmit}
           loading={sendingReq}
+          disabled={!twoFa.trim()}
         />
       </Form>
     </Container>
