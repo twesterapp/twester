@@ -1,18 +1,38 @@
+import { px2em } from "@/utils";
 import styled from "styled-components";
 
 export interface InputTextOptions
   extends React.HTMLAttributes<HTMLInputElement> {
+  labelText?: string;
   variant?: "email" | "number" | "password" | "search" | "tel" | "text" | "url";
   width?: string;
   value?: string | number;
 }
 
 export function InputText({
+  labelText = "",
   width = "",
   variant = "text",
   ...rest
 }: Omit<InputTextOptions, "type">) {
-  return <StyledInput {...rest} type={variant} width={width} />;
+  const RenderInput = <StyledInput {...rest} type={variant} width={width} />;
+
+  if (labelText) {
+    const { id } = rest;
+
+    if (!id) {
+      console.warn('Please provide an "id" to the "InputText".');
+    }
+
+    return (
+      <>
+        <StyledLabel htmlFor={id}>{labelText}</StyledLabel>
+        {RenderInput}
+      </>
+    );
+  }
+
+  return RenderInput;
 }
 
 const StyledInput = styled.input<Omit<InputTextOptions, "variant">>`
@@ -56,4 +76,9 @@ const StyledInput = styled.input<Omit<InputTextOptions, "variant">>`
     -webkit-appearance: none;
     margin: 0;
   }
+`;
+
+const StyledLabel = styled.label`
+  text-align: left;
+  margin-bottom: ${px2em(8)};
 `;
