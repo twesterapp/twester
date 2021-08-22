@@ -1,41 +1,76 @@
+import React, { useState } from "react";
 import { px2em } from "@/utils";
 import styled from "styled-components";
 
 export interface InputTextOptions
-  extends React.HTMLAttributes<HTMLInputElement> {
+  extends React.InputHTMLAttributes<HTMLInputElement> {
   labelText?: string;
   variant?: "email" | "number" | "password" | "search" | "tel" | "text" | "url";
   width?: string;
   value?: string | number;
 }
 
-export function InputText({
-  labelText = "",
-  width = "",
-  variant = "text",
-  ...rest
-}: Omit<InputTextOptions, "type">) {
-  const RenderInput = <StyledInput {...rest} type={variant} width={width} />;
+export const InputText = React.forwardRef(
+  (
+    {
+      labelText = "",
+      width = "",
+      variant = "text",
+      placeholder = "",
+      onFocus,
+      onBlur,
+      ...rest
+    }: Omit<InputTextOptions, "type">,
+    ref
+  ) => {
+    const [placeholderText, setPlaceholderText] = useState(placeholder);
 
-  if (labelText) {
-    const { id } = rest;
-
-    if (!id) {
-      console.warn('Please provide an "id" to the "InputText".');
+    function handleOnFocus(event: React.FocusEvent<HTMLInputElement>) {
+      setPlaceholderText("");
+      if (onFocus) onFocus(event);
     }
 
-    return (
-      <>
-        <StyledLabel htmlFor={id}>{labelText}</StyledLabel>
-        {RenderInput}
-      </>
+    function handleOnBlur(event: React.FocusEvent<HTMLInputElement>) {
+      setPlaceholderText(placeholder);
+      if (onBlur) onBlur(event);
+    }
+
+    const RenderInput = (
+      <StyledInput
+        {...rest}
+        placeholder={placeholderText}
+        ref={ref}
+        type={variant}
+        width={width}
+        onFocus={handleOnFocus}
+        onBlur={handleOnBlur}
+      />
     );
+
+    if (labelText) {
+      const { id } = rest;
+
+      if (!id) {
+        console.warn(
+          'Option "id" is missing in "InputText". This can cause unexpected behavior.'
+        );
+      }
+
+      return (
+        <>
+          <StyledLabel htmlFor={id}>{labelText}</StyledLabel>
+          {RenderInput}
+        </>
+      );
+    }
+
+    return RenderInput;
   }
+);
 
-  return RenderInput;
-}
+InputText.displayName = "InputText";
 
-const StyledInput = styled.input<Omit<InputTextOptions, "variant">>`
+const StyledInput = styled.input<InputTextOptions & { ref: any }>`
   font-size: 0.875rem;
   border-radius: 12px;
   padding: 0.875em;
