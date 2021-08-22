@@ -1,21 +1,25 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { isServer } from "@/utils";
 import { Button } from "@/ui/Button";
 
 function Home() {
   const router = useRouter();
-  const isAuth = !isServer() && !!window.localStorage.getItem("access-token");
-  const username = !isServer() ? window.localStorage.getItem("username") : "";
+  const [username, setUsername] = useState("");
+  const [isAuth, setIsAuth] = useState(false);
 
   useEffect(() => {
-    if (!isAuth) {
-      router.push("/login");
+    const _isAuth = !!window.localStorage.getItem("access-token");
+    const _username = window.localStorage.getItem("username") || "";
+    setIsAuth(_isAuth);
+    setUsername(_username);
+
+    if (!_isAuth) {
+      router.push("/auth");
     }
   }, [isAuth, router]);
 
-  // TODO: We will render the <App />
   if (isAuth) {
+    // TODO: We will render the <App />
     return (
       <>
         <h1>You are logged in as {username}</h1>

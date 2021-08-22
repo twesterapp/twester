@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import styled from "styled-components";
 import axios from "axios";
@@ -14,7 +14,14 @@ enum FlowStep {
   TWO_FA_TOKEN = "two_fa_token"
 }
 
-// TODO: Clean this mess. Create a wrapper component for Verification step.
+interface VerifyOptions {
+  username: string;
+  password: string;
+  captcha: string;
+  email: string;
+}
+
+// TODO: Clean this mess.
 function LoginFlow() {
   const router = useRouter();
   const isAuth = !isServer() && !!window.localStorage.getItem("access-token");
@@ -118,7 +125,7 @@ function AskForLoginCredentials({
       <h1 style={{ marginBottom: px2em(43) }}>
         Login to your Twitch account to start
       </h1>
-      <Form>
+      <Form onSubmit={handleSubmit}>
         <InputText
           width="300px"
           placeholder="Username"
@@ -163,13 +170,6 @@ const Form = styled.form`
   flex-direction: column;
   max-width: 300px;
 `;
-
-interface VerifyOptions {
-  username: string;
-  password: string;
-  captcha: string;
-  email: string;
-}
 
 function VerifyWithCode({
   username,
@@ -236,6 +236,7 @@ function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
   const [twoFa, setTwoFa] = useState("");
   const [err, setErr] = useState("");
   const [sendingReq, setSendingReq] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   async function handleSubmit(event: React.FormEvent<EventTarget>) {
     event.preventDefault();
@@ -260,6 +261,10 @@ function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
     setErr(res.data?.error?.message);
   }
 
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
   return (
     <Container>
       <h1 style={{ marginBottom: px2em(43) }}>
@@ -267,6 +272,8 @@ function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
       </h1>
       <Form onSubmit={handleSubmit}>
         <InputText
+          ref={inputRef}
+          placeholder="2FA Token"
           width="300px"
           variant="number"
           value={twoFa}
