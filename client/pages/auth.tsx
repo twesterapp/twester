@@ -122,7 +122,7 @@ function AskForLoginCredentials({
 
   return (
     <Container>
-      <h1 style={{ marginBottom: px2em(43) }}>
+      <h1 style={{ margin: 0, marginBottom: px2em(43) }}>
         Login to your Twitch account to start
       </h1>
       <Form onSubmit={handleSubmit}>
