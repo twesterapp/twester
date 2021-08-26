@@ -1,13 +1,12 @@
 use actix_cors::Cors;
 use actix_web::{error, get, web, App, HttpResponse, HttpServer, Result};
 use serde_json::json;
-use twitch_harvester_server::auth;
 
-/// Check the status of the API.
-/// If the API is up and running is will return a 200 OK response.
-#[get("/status")]
-async fn status() -> Result<HttpResponse> {
-    Ok(HttpResponse::Ok().json(json!({ "status": "running" })))
+use twester::auth;
+
+#[get("/")]
+async fn running_status() -> Result<HttpResponse> {
+    Ok(HttpResponse::Ok().json(json!({ "running": "yes" })))
 }
 
 #[actix_web::main]
@@ -17,7 +16,7 @@ async fn main() -> std::io::Result<()> {
 
         App::new()
             .wrap(cors)
-            .service(status)
+            .service(running_status)
             .service(
                 web::scope("/auth")
                     .route("", web::post().to(auth::controller::login))
