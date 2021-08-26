@@ -207,10 +207,11 @@ function VerifyWithCode({
 
   return (
     <Container>
-      <h1 style={{ marginBottom: 0 }}>Enter the verification code sent to</h1>
+      <h1 style={{ margin: 0 }}>Enter the verification code sent to</h1>
       <p style={{ marginBottom: px2em(43) }}>{email}</p>
       <Form onSubmit={handleSubmit}>
         <InputText
+          placeholder="Code"
           variant="number"
           value={code}
           onChange={(e: any) => setCode(e.target.value)}
@@ -267,13 +268,13 @@ function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
 
   return (
     <Container>
-      <h1 style={{ marginBottom: px2em(43) }}>
+      <h1 style={{ marginTop: 0, marginBottom: px2em(43) }}>
         Enter the token from your authenticator app
       </h1>
       <Form onSubmit={handleSubmit}>
         <InputText
           ref={inputRef}
-          placeholder="2FA Token"
+          placeholder="Token"
           width="300px"
           variant="number"
           value={twoFa}

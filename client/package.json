@@ -1,5 +1,5 @@
 {
-  "name": "twitch-harvester-client",
+  "name": "twester",
   "version": "0.1.0",
   "private": true,
   "scripts": {

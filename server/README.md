@@ -1,1 +1,1 @@
-# Twitch Harvester Server
+# Twester's Server
