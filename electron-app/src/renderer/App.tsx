@@ -1,51 +1,44 @@
 import React from 'react';
+import { ThemeProvider } from 'styled-components';
 import { MemoryRouter as Router, Switch, Route } from 'react-router-dom';
-import icon from '../../assets/icon.svg';
-import './App.global.css';
+import 'typeface-poppins';
+import 'typeface-karla';
 
-const Hello = () => {
+import { darkTheme, GlobalStyle } from './ui/theme';
+import { Button } from './ui/Button';
+import { InputText } from './ui/Input';
+
+const HomePage = () => {
   return (
-    <div>
-      <div className="Hello">
-        <img width="200px" alt="icon" src={icon} />
-      </div>
-      <h1>electron-react-boilerplate</h1>
-      <div className="Hello">
-        <a
-          href="https://electron-react-boilerplate.js.org/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <button type="button">
-            <span role="img" aria-label="books">
-              📚
-            </span>
-            Read our docs
-          </button>
-        </a>
-        <a
-          href="https://github.com/sponsors/electron-react-boilerplate"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <button type="button">
-            <span role="img" aria-label="books">
-              🙏
-            </span>
-            Donate
-          </button>
-        </a>
-      </div>
+    <div
+      style={{
+        width: '100vw',
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+      }}
+    >
+      <h1>Twester</h1>
+      <InputText
+        placeholder="Default"
+        width="300px"
+        style={{ marginBottom: '1em' }}
+      />
+      <Button text="Default" width="300px" />
     </div>
   );
 };
 
-export default function App() {
+export function App() {
   return (
-    <Router>
-      <Switch>
-        <Route path="/" component={Hello} />
-      </Switch>
-    </Router>
+    <ThemeProvider theme={darkTheme}>
+      <GlobalStyle />
+      <Router>
+        <Switch>
+          <Route path="/" component={HomePage} />
+        </Switch>
+      </Router>
+    </ThemeProvider>
   );
 }
