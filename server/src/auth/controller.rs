@@ -109,9 +109,16 @@ impl Error {
 
 #[derive(Deserialize, Serialize, Debug)]
 struct AuthResponse {
+    #[serde(skip_serializing_if = "Option::is_none")]
     access_token: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     captcha: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     error: Option<Error>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     email: Option<String>,
 }
 

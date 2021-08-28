@@ -11,6 +11,8 @@ async fn running_status() -> Result<HttpResponse> {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    println!("Server up and running on 127.0.0.1:7878");
+
     HttpServer::new(|| {
         let cors = Cors::permissive();
 
