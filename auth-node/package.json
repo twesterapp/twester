@@ -1,0 +1,26 @@
+{
+  "name": "auth-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc -p .",
+    "dev": "nodemon dist/server.js",
+    "prebuild": "rm -rf dist",
+    "start": "node dist/server.js",
+    "watch": "tsc -p . -w"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/node": "^16.7.2",
+    "nodemon": "^2.0.12",
+    "typescript": "^4.4.2"
+  }
+}
