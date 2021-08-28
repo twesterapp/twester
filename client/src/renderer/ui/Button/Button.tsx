@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { Spinner } from '../Spinner';
+
 export interface ButtonOptions extends React.HTMLAttributes<HTMLButtonElement> {
   text: string;
   disabled?: boolean;
@@ -24,12 +26,15 @@ export function Button({
       type={variant}
       width={width}
     >
-      {text}
+      {loading ? <Spinner /> : <StyledText>{text}</StyledText>}
     </StyledButton>
   );
 }
 
+const StyledText = styled.span``;
+
 const StyledButton = styled.button<Omit<ButtonOptions, 'text'>>`
+  position: relative;
   background: ${(props) =>
     props.disabled ? '#464649' : props.theme.color.primary};
   color: ${(props) =>
