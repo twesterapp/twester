@@ -1,17 +1,21 @@
 import React from 'react';
 import styled from 'styled-components';
 
-export const Spinner = () => {
-  return <StyledSpinner></StyledSpinner>;
+export interface SpinnerOptions {
+  size?: number;
+}
+
+export const Spinner = ({ size = 16 }: SpinnerOptions) => {
+  return <StyledSpinner size={size}></StyledSpinner>;
 };
 
-const StyledSpinner = styled.div`
-  height: 18px;
+const StyledSpinner = styled.div<{ size: number }>`
+  height: ${(props) => `${props.size + 2}px`};
   &::after {
     content: '';
     position: absolute;
-    width: 16px;
-    height: 16px;
+    width: ${(props) => `${props.size}px`};
+    height: ${(props) => `${props.size}px`};
     top: 0;
     left: 0;
     right: 0;

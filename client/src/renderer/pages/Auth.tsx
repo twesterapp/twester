@@ -3,8 +3,8 @@ import { useHistory } from 'react-router';
 import styled from 'styled-components';
 import axios from 'axios';
 
-import { Button } from '../ui/Button';
-import { InputText } from '../ui/Input';
+import { Button } from '../ui';
+import { InputText } from '../ui';
 import { isAuth, px2em } from '../utils';
 
 enum FlowStep {
