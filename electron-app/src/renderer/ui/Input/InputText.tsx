@@ -70,6 +70,7 @@ export const InputText = React.forwardRef(
 
 InputText.displayName = 'InputText';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const StyledInput = styled.input<InputTextOptions & { ref: any }>`
   font-size: 0.875rem;
   border-radius: 12px;

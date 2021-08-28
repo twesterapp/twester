@@ -7,17 +7,17 @@ interface Color {
 }
 
 export interface Theme {
-  name: "dark" | "light";
+  name: 'dark' | 'light';
   color: Color;
 }
 
 export const darkTheme: Theme = {
-  name: "dark",
+  name: 'dark',
   color: {
-    background: "#18171F",
-    background2: "#242329",
-    primary: "#3498DB",
-    onPrimary: "#FFFFFF",
-    textPrimary: "#F1F1F1"
-  }
+    background: '#18171F',
+    background2: '#242329',
+    primary: '#3498DB',
+    onPrimary: '#FFFFFF',
+    textPrimary: '#F1F1F1',
+  },
 };

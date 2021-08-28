@@ -1,22 +1,22 @@
-import React from "react";
-import styled from "styled-components";
+import React from 'react';
+import styled from 'styled-components';
 
 export interface ButtonOptions extends React.HTMLAttributes<HTMLButtonElement> {
   text: string;
   disabled?: boolean;
   loading?: boolean;
   width?: string;
-  variant?: "submit" | "reset" | "button";
+  variant?: 'submit' | 'reset' | 'button';
 }
 
 export function Button({
   text,
-  width = "",
+  width = '',
   disabled = false,
   loading = false,
-  variant = "button",
+  variant = 'button',
   ...rest
-}: Omit<ButtonOptions, "type">) {
+}: Omit<ButtonOptions, 'type'>) {
   return (
     <StyledButton
       {...rest}
@@ -29,18 +29,18 @@ export function Button({
   );
 }
 
-const StyledButton = styled.button<Omit<ButtonOptions, "text">>`
+const StyledButton = styled.button<Omit<ButtonOptions, 'text'>>`
   background: ${(props) =>
-    props.disabled ? "#464649" : props.theme.color.primary};
+    props.disabled ? '#464649' : props.theme.color.primary};
   color: ${(props) =>
-    props.disabled ? "#A0A0A0" : props.theme.color.onPrimary};
+    props.disabled ? '#A0A0A0' : props.theme.color.onPrimary};
   font-size: 1rem;
   font-weight: 700;
   padding: 0.875em;
   width: ${(props) => props.width};
   border-radius: 14px;
   border: none;
-  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+  cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
   box-sizing: border-box;
   font-family: Poppins, sans-serif;
   letter-spacing: 0.5px;
@@ -48,7 +48,7 @@ const StyledButton = styled.button<Omit<ButtonOptions, "text">>`
   transition: background-color 200ms ease-out;
 
   &:hover {
-    background: ${(props) => !props.disabled && "#1484CF"};
+    background: ${(props) => !props.disabled && '#1484CF'};
   }
 
   &:active {

@@ -8,6 +8,9 @@ module.exports = {
     'react/jsx-props-no-spreading': 'off',
     'no-console': 'off',
     'import/prefer-default-export': 'off',
+    '@typescript-eslint/no-shadow': 'off',
+    'prefer-destructuring': 'off',
+    'react/no-unused-prop-types': 'off',
   },
   parserOptions: {
     ecmaVersion: 2020,

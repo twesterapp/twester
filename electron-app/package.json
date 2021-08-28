@@ -30,8 +30,8 @@
     ]
   },
   "build": {
-    "productName": "ElectronReact",
-    "appId": "org.erb.ElectronReact",
+    "productName": "Twester",
+    "appId": "org.erb.Twester",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
     "files": [
@@ -174,6 +174,7 @@
     "@testing-library/react": "^11.2.7",
     "@types/enzyme": "^3.10.9",
     "@types/enzyme-adapter-react-16": "^1.0.6",
+    "@types/express": "^4.17.13",
     "@types/history": "4.7.8",
     "@types/jest": "^26.0.24",
     "@types/node": "15.0.2",
@@ -247,9 +248,11 @@
     "yarn-deduplicate": "^3.1.0"
   },
   "dependencies": {
+    "axios": "^0.21.1",
     "electron-debug": "^3.2.0",
     "electron-log": "^4.3.5",
     "electron-updater": "^4.3.8",
+    "express": "^4.17.1",
     "history": "4.x.x",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",

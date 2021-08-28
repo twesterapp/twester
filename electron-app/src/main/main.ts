@@ -16,6 +16,7 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import { startServer } from './server';
 
 export default class AppUpdater {
   constructor() {
@@ -59,6 +60,10 @@ const installExtensions = async () => {
 };
 
 const createWindow = async () => {
+  // TODO: Only start the server if the user is not authenticated and shut it
+  // down once the user is authenticated.
+  startServer();
+
   if (
     process.env.NODE_ENV === 'development' ||
     process.env.DEBUG_PROD === 'true'

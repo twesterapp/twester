@@ -1,14 +1,29 @@
 import React from 'react';
 import { ThemeProvider } from 'styled-components';
-import { MemoryRouter as Router, Switch, Route } from 'react-router-dom';
+import {
+  MemoryRouter as Router,
+  Switch,
+  Route,
+  useHistory,
+} from 'react-router-dom';
 import 'typeface-poppins';
 import 'typeface-karla';
 
 import { darkTheme, GlobalStyle } from './ui/theme';
 import { Button } from './ui/Button';
-import { InputText } from './ui/Input';
+import { Auth } from './pages/Auth';
+import { isAuth, px2em } from './utils';
 
-const HomePage = () => {
+function Welcome() {
+  const history = useHistory();
+  const username = window.localStorage.getItem('username');
+
+  React.useEffect(() => {
+    if (!isAuth) {
+      history.push('/auth');
+    }
+  }, [history]);
+
   return (
     <div
       style={{
@@ -17,18 +32,21 @@ const HomePage = () => {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
       }}
     >
-      <h1>Twester</h1>
-      <InputText
-        placeholder="Default"
-        width="300px"
-        style={{ marginBottom: '1em' }}
+      <h1 style={{ lineHeight: px2em(22) }}>Authenticated as {username}</h1>
+      <Button
+        text="Logout"
+        onClick={() => {
+          window.localStorage.removeItem('access-token');
+          window.location.reload();
+        }}
       />
-      <Button text="Default" width="300px" />
     </div>
   );
-};
+}
 
 export function App() {
   return (
@@ -36,7 +54,8 @@ export function App() {
       <GlobalStyle />
       <Router>
         <Switch>
-          <Route path="/" component={HomePage} />
+          <Route path="/" exact component={Welcome} />
+          <Route path="/auth" component={Auth} />
         </Switch>
       </Router>
     </ThemeProvider>
