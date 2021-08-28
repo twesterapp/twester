@@ -1,34 +1,29 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Logs
+logs
+*.log
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
+# Runtime data
+pids
+*.pid
+*.seed
 
-# testing
-/coverage
+# Coverage directory used by tools like istanbul
+coverage
+.eslintcache
 
-# next.js
-/.next/
-/out/
+# Dependency directory
+# https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
+node_modules
 
-# production
-/build
-
-# misc
+# OSX
 .DS_Store
-*.pem
 
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+build/app/dist
+build/release
+.erb/dll
 
-# local env files
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# vercel
-.vercel
+.idea
+npm-debug.log.*
+*.css.d.ts
+*.sass.d.ts
+*.scss.d.ts

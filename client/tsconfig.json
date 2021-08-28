@@ -1,24 +1,27 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
+    "target": "ES2018",
+    "module": "CommonJS",
+    "lib": ["dom", "esnext"],
+    "declaration": true,
+    "declarationMap": true,
     "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
+    "jsx": "react",
+    "strict": true,
+    "pretty": true,
+    "sourceMap": true,
+    "baseUrl": "./src",
+    /* Additional Checks */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    /* Module Resolution Options */
     "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "baseUrl": ".",
-      "paths": {
-        "@/ui/*": ["ui/*"],
-        "@/utils": ["utils.ts"],
-    }
+    "allowJs": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+  "exclude": ["test", "build/release", "build/app/dist", ".erb/dll"]
 }
