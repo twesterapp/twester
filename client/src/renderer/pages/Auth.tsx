@@ -3,8 +3,9 @@ import { useHistory } from 'react-router';
 import styled from 'styled-components';
 import axios from 'axios';
 
-import { Button } from '../ui';
-import { InputText } from '../ui';
+import { LoadingScreen } from 'renderer/components';
+import { Button, InputText } from '../ui';
+
 import { isAuth, px2em } from '../utils';
 
 enum FlowStep {
@@ -37,12 +38,12 @@ export function Auth() {
   }
 
   useEffect(() => {
-    if (isAuth) {
+    if (isAuth()) {
       history.push('/');
     }
   }, [history]);
 
-  if (!isAuth) {
+  if (!isAuth()) {
     if (flowStep === FlowStep.TWITCHGUARD_CODE) {
       return <VerifyWithCode {...verifyOptions} />;
     }
@@ -53,7 +54,7 @@ export function Auth() {
     return <AskForLoginCredentials nextStepCallback={handleNextStepCallback} />;
   }
 
-  return null;
+  return <LoadingScreen />;
 }
 
 const Container = styled.div`
@@ -267,6 +268,7 @@ function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
       window.localStorage.setItem('access-token', res.data.access_token);
       window.localStorage.setItem('username', username);
       history.push('/');
+      return;
     }
 
     setErr(res.data?.error?.message);

@@ -22,13 +22,15 @@ function Welcome() {
   const [showLoading, setShowLoading] = React.useState(true);
 
   React.useEffect(() => {
-    setTimeout(() => {
-      if (!isAuth) {
+    const timeoutId = setTimeout(() => {
+      if (!isAuth()) {
         history.push('/auth');
       }
 
       setShowLoading(false);
     }, 1000);
+
+    return () => clearTimeout(timeoutId);
   }, [history]);
 
   if (showLoading) return <LoadingScreen />;
