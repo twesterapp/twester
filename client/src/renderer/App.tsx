@@ -13,16 +13,25 @@ import { darkTheme, GlobalStyle } from './ui/theme';
 import { Button } from './ui/Button';
 import { Auth } from './pages/Auth';
 import { isAuth, px2em } from './utils';
+import { LoadingScreen } from './components';
 
 function Welcome() {
   const history = useHistory();
   const username = window.localStorage.getItem('username');
+  const [btnLoading, setBtnLoading] = React.useState(false);
+  const [showLoading, setShowLoading] = React.useState(true);
 
   React.useEffect(() => {
-    if (!isAuth) {
-      history.push('/auth');
-    }
+    setTimeout(() => {
+      if (!isAuth) {
+        history.push('/auth');
+      }
+
+      setShowLoading(false);
+    }, 1000);
   }, [history]);
+
+  if (showLoading) return <LoadingScreen />;
 
   return (
     <div
@@ -39,9 +48,20 @@ function Welcome() {
       <h1 style={{ lineHeight: px2em(22) }}>Authenticated as {username}</h1>
       <Button
         text="Logout"
+        width="300px"
         onClick={() => {
           window.localStorage.removeItem('access-token');
+          window.localStorage.removeItem('username');
           window.location.reload();
+        }}
+      />
+      <br />
+      <Button
+        text="Click me"
+        width="300px"
+        loading={btnLoading}
+        onClick={() => {
+          setBtnLoading(true);
         }}
       />
     </div>
