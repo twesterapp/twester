@@ -61,7 +61,8 @@ type TwitchAuthErrorCodes =
   | 3012
   | 3022
   | 3023
-  | 1000;
+  | 1000
+  | 1014;
 
 interface AuthBody {
   username: string;
@@ -87,27 +88,27 @@ function getTwitchAuthErrorMessage(code: TwitchAuthErrorCodes) {
 
   switch (code) {
     case 3001 || 3002 || 3003: {
-      message = 'Invalid username or password.';
+      message = 'Invalid username or password';
       break;
     }
 
     case 3011: {
-      message = 'Two factor authentication token required.';
+      message = 'Two factor authentication token required';
       break;
     }
 
     case 3012: {
-      message = 'Invalid two factor authentication token.';
+      message = 'Invalid two factor authentication token';
       break;
     }
 
     case 3022: {
-      message = 'Twitchguard verification code required.';
+      message = 'Twitchguard verification code required';
       break;
     }
 
     case 3023: {
-      message = 'Invalid Twitchguard verification code.';
+      message = 'Invalid Twitchguard verification code';
       break;
     }
 
@@ -117,8 +118,13 @@ function getTwitchAuthErrorMessage(code: TwitchAuthErrorCodes) {
       break;
     }
 
+    case 1014: {
+      message = 'User does not exist';
+      break;
+    }
+
     default: {
-      message = 'Something unexpected happened.';
+      message = 'Something unexpected happened';
       break;
     }
   }
