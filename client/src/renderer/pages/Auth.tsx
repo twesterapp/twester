@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useHistory } from 'react-router';
 import styled from 'styled-components';
 import axios from 'axios';
 
@@ -23,7 +22,6 @@ interface VerifyOptions {
 
 // TODO: Clean this mess.
 export function Auth() {
-  const history = useHistory();
   const [flowStep, setFlowStep] = useState<FlowStep>(FlowStep.CREDENTIALS);
   const [verifyOptions, setVerifyOptions] = useState<VerifyOptions>({
     username: '',
@@ -36,12 +34,6 @@ export function Auth() {
     setFlowStep(step);
     setVerifyOptions(data);
   }
-
-  useEffect(() => {
-    if (isAuth()) {
-      history.push('/');
-    }
-  }, [history]);
 
   if (!isAuth()) {
     if (flowStep === FlowStep.TWITCHGUARD_CODE) {
@@ -82,7 +74,6 @@ interface AskForLoginCredentialsOptions {
 function AskForLoginCredentials({
   nextStepCallback,
 }: AskForLoginCredentialsOptions) {
-  const history = useHistory();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [err, setErr] = useState('');
@@ -113,8 +104,7 @@ function AskForLoginCredentials({
     if (res.data.access_token) {
       window.localStorage.setItem('access-token', res.data.access_token);
       window.localStorage.setItem('username', username);
-      history.push('/');
-      return;
+      window.location.reload();
     }
 
     if (res.data.captcha) {
@@ -179,7 +169,6 @@ function VerifyWithCode({
   captcha,
   email = '',
 }: VerifyOptions) {
-  const history = useHistory();
   const [code, setCode] = useState('');
   const [err, setErr] = useState('');
   const [sendingReq, setSendingReq] = useState(false);
@@ -205,8 +194,7 @@ function VerifyWithCode({
     if (res.data.access_token) {
       window.localStorage.setItem('access-token', res.data.access_token);
       window.localStorage.setItem('username', username);
-      history.push('/');
-      return;
+      window.location.reload();
     }
 
     setErr(res.data?.error?.message);
@@ -240,7 +228,6 @@ function VerifyWithCode({
 }
 
 function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
-  const history = useHistory();
   const [twoFa, setTwoFa] = useState('');
   const [err, setErr] = useState('');
   const [sendingReq, setSendingReq] = useState(false);
@@ -267,8 +254,7 @@ function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
     if (res.data.access_token) {
       window.localStorage.setItem('access-token', res.data.access_token);
       window.localStorage.setItem('username', username);
-      history.push('/');
-      return;
+      window.location.reload();
     }
 
     setErr(res.data?.error?.message);
