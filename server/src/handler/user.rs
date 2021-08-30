@@ -45,11 +45,13 @@ pub async fn get_me(req: HttpRequest, query: web::Query<GetMeQuery>) -> HttpResp
         .await
         .unwrap();
 
+    let user = &response.data[0];
+
     let my_response = json!({
-        "id": response.data[0].id,
-        "login": response.data[0].login,
-        "display_name": response.data[0].display_name,
-        "profile_image_url": response.data[0].profile_image_url,
+        "display_name": user.display_name,
+        "id": user.id,
+        "login": user.login,
+        "profile_image_url": user.profile_image_url,
     });
 
     HttpResponse::Ok().json(my_response)
