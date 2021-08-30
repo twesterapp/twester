@@ -9,7 +9,7 @@ import { darkTheme, GlobalStyle } from './ui';
 import { Auth, Home, Watch } from './pages';
 
 import { isAuth, fakeLogin } from './utils';
-import { Sidebar } from './components/Sidebar/Sidebar';
+import { Sidebar } from './components';
 
 export function App() {
   // fakeLogin();
