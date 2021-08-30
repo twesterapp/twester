@@ -14,25 +14,23 @@ import { Sidebar } from './components';
 export function App() {
   // fakeLogin();
   const Dashboard = () => (
-    <Router>
-      <Switch>
-        <Layout>
-          <SidebarContainer>
-            <Sidebar />
-          </SidebarContainer>
-          <DashboardContainer>
-            <Route path="/" exact component={HomePage} />
-            <Route path="/watch" exact component={WatchPage} />
-          </DashboardContainer>
-        </Layout>
-      </Switch>
-    </Router>
+    <Layout>
+      <SidebarContainer>
+        <Sidebar />
+      </SidebarContainer>
+      <DashboardContainer>
+        <Route path="/" exact component={HomePage} />
+        <Route path="/watch" exact component={WatchPage} />
+      </DashboardContainer>
+    </Layout>
   );
 
   return (
     <ThemeProvider theme={darkTheme}>
       <GlobalStyle />
-      {isAuth() ? <Dashboard /> : <AuthPage />}
+      <Router>
+        <Switch>{isAuth() ? <Dashboard /> : <AuthPage />}</Switch>
+      </Router>
     </ThemeProvider>
   );
 }

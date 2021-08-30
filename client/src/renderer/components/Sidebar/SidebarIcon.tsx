@@ -2,7 +2,7 @@ import React from 'react';
 import styled, { useTheme } from 'styled-components';
 import { Tooltip, withStyles } from '@material-ui/core';
 import { px2rem } from 'renderer/utils';
-import { IconType } from '../../ui';
+import { IconType } from 'react-icons';
 
 interface SidebarIconOptions extends React.HTMLAttributes<HTMLDivElement> {
   active?: boolean;
