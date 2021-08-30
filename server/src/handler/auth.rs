@@ -1,13 +1,13 @@
 use actix_web::{web, HttpResponse};
 use serde::{Deserialize, Serialize};
 
-use super::client::AuthClient;
-use super::model::{CodeReqBody, LoginReqBody, TwitchAuthResponse, TwoFaReqBody};
+use crate::client::base::BaseClient;
+use crate::model::{CodeReqBody, LoginReqBody, TwitchAuthResponse, TwoFaReqBody};
 
 pub async fn login(body: web::Json<LoginReqBody>) -> HttpResponse {
     let username = body.username.to_string();
     let password = body.password.to_string();
-    let response = AuthClient::default()
+    let response = BaseClient::default()
         .send_username_password(username, password)
         .await
         .unwrap()
@@ -25,7 +25,7 @@ pub async fn two_fa(body: web::Json<TwoFaReqBody>) -> HttpResponse {
         captcha: body.captcha.to_string(),
         two_fa: body.two_fa.to_string(),
     };
-    let response = AuthClient::default()
+    let response = BaseClient::default()
         .send_two_fa(two_fa_body)
         .await
         .unwrap()
@@ -43,7 +43,7 @@ pub async fn code(body: web::Json<CodeReqBody>) -> HttpResponse {
         captcha: body.captcha.to_string(),
         code: body.code.to_string(),
     };
-    let response = AuthClient::default()
+    let response = BaseClient::default()
         .send_twitchguard_code(code_body)
         .await
         .unwrap()

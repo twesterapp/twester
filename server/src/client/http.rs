@@ -1,7 +1,8 @@
 use reqwest::header::HeaderMap;
 use reqwest::{Client, Error, Method, RequestBuilder, Response};
 use serde_json::Value;
-use std::result::Result;
+use std::time::Instant;
+use std::{collections::HashMap, result::Result};
 
 pub const TWITCH_CLIENT_ID: &str = "kimne78kx3ncx6brgo4mv6wki5h1ko";
 
@@ -14,6 +15,7 @@ impl UserAgent {
 }
 
 pub type Headers = HeaderMap;
+pub type Query<'a> = HashMap<&'a str, &'a str>;
 pub type ClientResult = Result<Response, Error>;
 
 /// Simple HTTP Client which can be used to perform all kinds of HTTP requests.
@@ -44,6 +46,16 @@ impl HttpClient {
             .await
     }
 
+    pub async fn get(
+        &self,
+        url: &str,
+        headers: Option<&Headers>,
+        payload: &Query<'_>,
+    ) -> ClientResult {
+        self.request(Method::GET, url, headers, |req| req.query(payload))
+            .await
+    }
+
     async fn request<D>(
         &self,
         method: Method,
@@ -59,16 +71,16 @@ impl HttpClient {
         if let Some(headers) = headers {
             request = request.headers(headers.clone());
         }
+
         request = add_data(request);
-
-        println!("[HttpClient] - {} {}", method, url);
-        //println!("#######  HEADERS \n {:#?}", headers);
-
+        let start = Instant::now();
         let response = request.send().await?;
-
+        let duration = start.elapsed().as_millis();
         let status = &response.status();
-        println!("[HttpClient] - {}", status);
-
+        println!(
+            "[HttpClient] - {} {} {} {:?}ms",
+            method, status, url, duration
+        );
         Ok(response)
     }
 }
