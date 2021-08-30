@@ -2,8 +2,8 @@ use reqwest::header::HeaderMap;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
-use crate::client::http::{ClientResult, HttpClient, UserAgent, TWITCH_CLIENT_ID};
-use crate::model::{CodeReqBody, TwoFaReqBody};
+use super::http::{ClientResult, HttpClient, UserAgent, TWITCH_CLIENT_ID};
+use crate::models::{CodeReqBody, TwoFaReqBody};
 
 const AUTH_URL: &str = "https://passport.twitch.tv/login";
 

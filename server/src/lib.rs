@@ -1,6 +1,6 @@
-pub mod client;
-pub mod handler;
-pub mod model;
+pub mod clients;
+pub mod handlers;
+pub mod models;
 
 use actix_web::http::HeaderMap;
 use std::result::Result;

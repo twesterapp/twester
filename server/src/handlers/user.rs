@@ -2,7 +2,7 @@ use actix_web::{web, HttpRequest, HttpResponse};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
-use crate::client::auth::AuthClient;
+use crate::clients::auth::AuthClient;
 use crate::get_token_from_auth_headers;
 
 #[derive(Deserialize, Serialize, Debug)]

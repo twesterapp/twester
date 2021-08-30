@@ -2,8 +2,8 @@ use actix_cors::Cors;
 use actix_web::{error, get, web, App, HttpResponse, HttpServer, Result};
 use serde_json::json;
 
-use twester::handler::auth;
-use twester::handler::user;
+use twester::handlers::auth;
+use twester::handlers::user;
 
 #[get("/")]
 async fn running_status() -> Result<HttpResponse> {
