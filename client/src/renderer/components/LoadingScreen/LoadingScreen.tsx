@@ -1,5 +1,5 @@
 import React from 'react';
-import { Spinner } from 'renderer/ui/Spinner';
+import { Spinner } from '../../ui';
 import styled from 'styled-components';
 
 export const LoadingScreen = () => {

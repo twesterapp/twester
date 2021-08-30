@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Spinner } from '../Spinner';
+import { Spinner } from '../Spinner/Spinner';
 
 export interface ButtonOptions extends React.HTMLAttributes<HTMLButtonElement> {
   text: string;

@@ -6,7 +6,7 @@ export interface SpinnerOptions {
 }
 
 export const Spinner = ({ size = 16 }: SpinnerOptions) => {
-  return <StyledSpinner size={size}></StyledSpinner>;
+  return <StyledSpinner size={size} />;
 };
 
 const StyledSpinner = styled.div<{ size: number }>`

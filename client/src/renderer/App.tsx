@@ -1,58 +1,28 @@
 import React from 'react';
-import { ThemeProvider } from 'styled-components';
+import styled, { ThemeProvider } from 'styled-components';
 import { MemoryRouter as Router, Switch, Route } from 'react-router-dom';
 import 'typeface-poppins';
 import 'typeface-karla';
 
-import { darkTheme, GlobalStyle } from './ui/theme';
-import { Button } from './ui/Button';
-import { Auth } from './pages/Auth';
-import { isAuth, px2em } from './utils';
+import { darkTheme, GlobalStyle } from './ui';
 
-function Welcome() {
-  const username = window.localStorage.getItem('username');
-  const [btnLoading, setBtnLoading] = React.useState(false);
+import { Auth, Home, Watch } from './pages';
 
-  return (
-    <div
-      style={{
-        width: '100vw',
-        height: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        textAlign: 'center',
-      }}
-    >
-      <h1 style={{ lineHeight: px2em(22) }}>Authenticated as {username}</h1>
-      <Button
-        text="Logout"
-        width="300px"
-        onClick={() => {
-          window.localStorage.removeItem('access-token');
-          window.localStorage.removeItem('username');
-          window.location.reload();
-        }}
-      />
-      <br />
-      <Button
-        text="Click me"
-        width="300px"
-        loading={btnLoading}
-        onClick={() => {
-          setBtnLoading(true);
-        }}
-      />
-    </div>
-  );
-}
+import { isAuth, fakeLogin } from './utils';
+import { Sidebar } from './components/Sidebar/Sidebar';
 
 export function App() {
+  // fakeLogin();
   const ProtectedRoutes = () => (
-    <>
-      <Route path="/" exact component={Welcome} />
-    </>
+    <Layout>
+      <SidebarContainer>
+        <Sidebar />
+      </SidebarContainer>
+      <DashboardContainer>
+        <Route path="/" exact component={Home} />
+        <Route path="/watch" exact component={Watch} />
+      </DashboardContainer>
+    </Layout>
   );
 
   const PublicRoutes = () => (
@@ -70,3 +40,17 @@ export function App() {
     </ThemeProvider>
   );
 }
+
+const SidebarContainer = styled.div`
+  width: 86px;
+`;
+
+const DashboardContainer = styled.div`
+  width: 100%;
+`;
+
+const Layout = styled.div`
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+`;

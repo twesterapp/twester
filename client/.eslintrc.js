@@ -11,6 +11,7 @@ module.exports = {
     '@typescript-eslint/no-shadow': 'off',
     'prefer-destructuring': 'off',
     'react/no-unused-prop-types': 'off',
+    'react/require-default-props': 'off',
   },
   parserOptions: {
     ecmaVersion: 2020,
