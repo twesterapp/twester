@@ -6,37 +6,33 @@ import 'typeface-karla';
 
 import { darkTheme, GlobalStyle } from './ui';
 
-import { Auth, Home, Watch } from './pages';
+import { AuthPage, HomePage, WatchPage } from './pages';
 
 import { isAuth, fakeLogin } from './utils';
 import { Sidebar } from './components';
 
 export function App() {
   // fakeLogin();
-  const ProtectedRoutes = () => (
-    <Layout>
-      <SidebarContainer>
-        <Sidebar />
-      </SidebarContainer>
-      <DashboardContainer>
-        <Route path="/" exact component={Home} />
-        <Route path="/watch" exact component={Watch} />
-      </DashboardContainer>
-    </Layout>
-  );
-
-  const PublicRoutes = () => (
-    <>
-      <Route path="/" component={Auth} />
-    </>
+  const Dashboard = () => (
+    <Router>
+      <Switch>
+        <Layout>
+          <SidebarContainer>
+            <Sidebar />
+          </SidebarContainer>
+          <DashboardContainer>
+            <Route path="/" exact component={HomePage} />
+            <Route path="/watch" exact component={WatchPage} />
+          </DashboardContainer>
+        </Layout>
+      </Switch>
+    </Router>
   );
 
   return (
     <ThemeProvider theme={darkTheme}>
       <GlobalStyle />
-      <Router>
-        <Switch>{isAuth() ? <ProtectedRoutes /> : <PublicRoutes />}</Switch>
-      </Router>
+      {isAuth() ? <Dashboard /> : <AuthPage />}
     </ThemeProvider>
   );
 }

@@ -27,7 +27,7 @@ html {
 
 body {
   background-color: ${(props) => props.theme.color.background};
-  color: ${(props) => props.theme.color.onPrimary};
+  color: ${(props) => props.theme.color.textPrimary};
   margin: 0;
   padding: 0;
   box-sizing: border-box;

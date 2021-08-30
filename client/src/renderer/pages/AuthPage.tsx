@@ -21,7 +21,7 @@ interface VerifyOptions {
 }
 
 // TODO: Clean this mess.
-export function Auth() {
+export function AuthPage() {
   const [flowStep, setFlowStep] = useState<FlowStep>(FlowStep.CREDENTIALS);
   const [verifyOptions, setVerifyOptions] = useState<VerifyOptions>({
     username: '',
@@ -65,7 +65,7 @@ const Form = styled.form`
   max-width: 300px;
 `;
 
-export default Auth;
+export default AuthPage;
 
 interface AskForLoginCredentialsOptions {
   nextStepCallback: (step: FlowStep, data: VerifyOptions) => void;
@@ -117,11 +117,10 @@ function AskForLoginCredentials({
 
       if (res.data.error.code === 3011) {
         nextStepCallback(FlowStep.TWO_FA_TOKEN, data);
-        return;
       }
+
       if (res.data.error.code === 3022) {
         nextStepCallback(FlowStep.TWITCHGUARD_CODE, data);
-        return;
       }
     }
 
@@ -189,8 +188,6 @@ function VerifyWithCode({
       code,
     });
 
-    setSendingReq(false);
-
     if (res.data.access_token) {
       window.localStorage.setItem('access-token', res.data.access_token);
       window.localStorage.setItem('username', username);
@@ -198,6 +195,7 @@ function VerifyWithCode({
     }
 
     setErr(res.data?.error?.message);
+    setSendingReq(false);
   }
 
   return (
@@ -249,8 +247,6 @@ function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
       two_fa: twoFa,
     });
 
-    setSendingReq(false);
-
     if (res.data.access_token) {
       window.localStorage.setItem('access-token', res.data.access_token);
       window.localStorage.setItem('username', username);
@@ -258,6 +254,7 @@ function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
     }
 
     setErr(res.data?.error?.message);
+    setSendingReq(false);
   }
 
   useEffect(() => {

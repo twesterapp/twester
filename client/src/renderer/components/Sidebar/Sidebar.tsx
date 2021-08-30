@@ -1,6 +1,6 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
-import { IconEye, IconHome, IconSignOut } from 'renderer/ui/Icons';
+import { IconEye, IconHome, IconSignOut } from 'renderer/ui';
 import { logout } from 'renderer/utils';
 import styled from 'styled-components';
 import { SidebarIcon } from './SidebarIcon';
