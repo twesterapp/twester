@@ -3,7 +3,7 @@ export function getToken() {
 }
 
 export function getUsername() {
-  return window.localStorage.getItem('username');
+  return window.localStorage.getItem('username') || '';
 }
 
 export function isAuth() {

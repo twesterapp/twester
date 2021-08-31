@@ -1,15 +1,11 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
-import { client } from 'renderer/api';
+import { fetchMeInfo } from 'renderer/api';
 import { getUsername, logout } from 'renderer/utils';
 import styled from 'styled-components';
 import { IconEye, IconHome, IconSignOut, Avatar, Tooltip } from 'renderer/ui';
 import { useQuery } from 'react-query';
 import { SidebarIcon } from './SidebarIcon';
-
-const fetchMeInfo = () => {
-  return client.get(`/me?username=${getUsername()}`);
-};
 
 export function Sidebar() {
   const history = useHistory();

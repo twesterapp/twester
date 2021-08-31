@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getToken, isAuth } from './utils';
+import { getToken, getUsername, isAuth } from './utils';
 
 let token: string | null;
 
@@ -23,3 +23,7 @@ client.interceptors.request.use(
     return Promise.reject(err);
   }
 );
+
+export function fetchMeInfo() {
+  return client.get(`/me?username=${getUsername()}`);
+}

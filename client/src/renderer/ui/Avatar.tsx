@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import defaultAvatar from '../assets/default-avatar.png';
 
 interface AvatarOptions extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string;
@@ -7,7 +8,7 @@ interface AvatarOptions extends React.ImgHTMLAttributes<HTMLImageElement> {
 }
 
 export function Avatar({ size = 32, src, ...rest }: AvatarOptions) {
-  return <StyledImage {...rest} src={src} size={size} />;
+  return <StyledImage {...rest} src={src ?? defaultAvatar} size={size} />;
 }
 
 const StyledImage = styled.img<AvatarOptions>`
