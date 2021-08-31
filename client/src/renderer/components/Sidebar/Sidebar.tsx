@@ -27,11 +27,13 @@ export function Sidebar() {
             <SidebarIcon
               icon={IconHome}
               active={onHomePage}
-              style={{ marginBottom: '11px' }}
               onClick={() => history.push('/')}
             />
           </i>
         </Tooltip>
+
+        {/* For creating space */}
+        <i style={{ height: '11px' }} />
 
         <Tooltip title="Streamers to watch" placement="right" enterDelay={500}>
           <i>
@@ -49,14 +51,15 @@ export function Sidebar() {
           <i>
             <SidebarIcon
               icon={IconSignOut}
-              style={{ marginBottom: '11px' }}
               onClick={() => {
-                logout();
+                // logout();
                 window.location.reload();
               }}
             />
           </i>
         </Tooltip>
+
+        <i style={{ height: '11px' }} />
 
         <Tooltip title={getUsername() || ''} placement="right" enterDelay={500}>
           <i>

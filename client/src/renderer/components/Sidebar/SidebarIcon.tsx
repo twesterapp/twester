@@ -42,9 +42,6 @@ const IconContainer = styled.div<{ active: boolean }>`
   }
 
   &:active {
-    background: ${(props) =>
-      props.active
-        ? props.theme.color.background4
-        : props.theme.color.background3};
+    background: ${(props) => props.theme.color.background3};
   }
 `;
