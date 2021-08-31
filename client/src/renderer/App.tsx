@@ -1,6 +1,8 @@
 import React from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import { MemoryRouter as Router, Switch, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import { ReactQueryDevtools } from 'react-query/devtools';
 import 'typeface-poppins';
 import 'typeface-karla';
 
@@ -10,6 +12,8 @@ import { AuthPage, HomePage, WatchPage } from './pages';
 
 import { isAuth, fakeLogin } from './utils';
 import { Sidebar } from './components';
+
+const queryClient = new QueryClient();
 
 export function App() {
   // fakeLogin();
@@ -27,10 +31,13 @@ export function App() {
 
   return (
     <ThemeProvider theme={darkTheme}>
-      <GlobalStyle />
-      <Router>
-        <Switch>{isAuth() ? <Dashboard /> : <AuthPage />}</Switch>
-      </Router>
+      <QueryClientProvider client={queryClient}>
+        <GlobalStyle />
+        <Router>
+          <Switch>{isAuth() ? <Dashboard /> : <AuthPage />}</Switch>
+        </Router>
+        <ReactQueryDevtools position="bottom-right" />
+      </QueryClientProvider>
     </ThemeProvider>
   );
 }

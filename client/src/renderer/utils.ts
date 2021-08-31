@@ -1,3 +1,11 @@
+export function getToken() {
+  return window.localStorage.getItem('access-token');
+}
+
+export function getUsername() {
+  return window.localStorage.getItem('username');
+}
+
 export function isAuth() {
   return !!window.localStorage.getItem('access-token');
 }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { px2em } from '../../utils';
+import { px2em } from '../utils';
 
 export interface InputTextOptions
   extends React.InputHTMLAttributes<HTMLInputElement> {
