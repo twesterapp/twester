@@ -13,9 +13,10 @@ export function Avatar({ size = 32, src, ...rest }: AvatarOptions) {
 const StyledImage = styled.img<AvatarOptions>`
   width: ${(props) => `${props.size}px`};
   height: ${(props) => `${props.size}px`};
-  padding: 0.1rem;
+  display: block;
+  position: relative;
   box-sizing: border-box;
   border-radius: 50%;
-  border: 2px solid ${(props) => props.theme.color.primary};
-  margin: auto 0;
+  padding: 0.15rem;
+  border: 0.15rem solid ${(props) => props.theme.color.primary};
 `;

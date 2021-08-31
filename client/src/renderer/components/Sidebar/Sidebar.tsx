@@ -18,7 +18,6 @@ export function Sidebar() {
   const onWatchPage = history.location.pathname === '/watch';
 
   const { data } = useQuery('meInfo', fetchMeInfo);
-  console.log(data?.data);
 
   return (
     <Container>
@@ -63,7 +62,7 @@ export function Sidebar() {
           </i>
         </Tooltip>
 
-        <Tooltip title="Twitch" placement="right" enterDelay={500}>
+        <Tooltip title={getUsername() || ''} placement="right" enterDelay={500}>
           <i>
             <a
               href={`https://www.twitch.tv/${getUsername()}`}

@@ -10,13 +10,12 @@ import { darkTheme, GlobalStyle } from './ui';
 
 import { AuthPage, HomePage, WatchPage } from './pages';
 
-import { isAuth, fakeLogin } from './utils';
+import { isAuth } from './utils';
 import { Sidebar } from './components';
 
 const queryClient = new QueryClient();
 
 export function App() {
-  // fakeLogin();
   const Dashboard = () => (
     <Layout>
       <SidebarContainer>

@@ -117,10 +117,12 @@ function AskForLoginCredentials({
 
       if (res.data.error.code === 3011) {
         nextStepCallback(FlowStep.TWO_FA_TOKEN, data);
+        return;
       }
 
       if (res.data.error.code === 3022) {
         nextStepCallback(FlowStep.TWITCHGUARD_CODE, data);
+        return;
       }
     }
 
