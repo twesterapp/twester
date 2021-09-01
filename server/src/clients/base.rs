@@ -2,7 +2,7 @@ use reqwest::header::HeaderMap;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
-use super::http::{ClientResult, HttpClient, UserAgent, TWITCH_CLIENT_ID};
+use super::http::{HttpClient, HttpResult, UserAgent, TWITCH_CLIENT_ID};
 use crate::models::{CodeReqBody, TwoFaReqBody};
 
 const AUTH_URL: &str = "https://passport.twitch.tv/login";
@@ -24,21 +24,21 @@ impl Default for BaseClient {
 }
 
 impl BaseClient {
-    pub async fn send_username_password(&self, username: String, password: String) -> ClientResult {
+    pub async fn send_username_password(&self, username: String, password: String) -> HttpResult {
         let auth_body = AuthBody::for_login(username, password);
         let payload = json!(&auth_body);
 
         self.http.post(AUTH_URL, None, &payload).await
     }
 
-    pub async fn send_two_fa(&self, body: TwoFaReqBody) -> ClientResult {
+    pub async fn send_two_fa(&self, body: TwoFaReqBody) -> HttpResult {
         let auth_body = AuthBody::for_two_fa(body);
         let payload = json!(&auth_body);
 
         self.http.post(AUTH_URL, None, &payload).await
     }
 
-    pub async fn send_twitchguard_code(&self, body: CodeReqBody) -> ClientResult {
+    pub async fn send_twitchguard_code(&self, body: CodeReqBody) -> HttpResult {
         let auth_body = AuthBody::for_twitchguard_code(body);
         let payload = json!(&auth_body);
 

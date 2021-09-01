@@ -1,5 +1,12 @@
 use serde::{Deserialize, Serialize};
 
+#[derive(Deserialize, Serialize, Debug)]
+pub struct TwitchUnauthorizedError {
+    error: String,
+    message: String,
+    status: u16,
+}
+
 #[derive(Deserialize, Debug)]
 pub struct LoginReqBody {
     pub username: String,
@@ -30,4 +37,23 @@ pub struct TwitchAuthResponse {
     pub error_code: Option<i32>,
     pub error_description: Option<String>,
     pub obscured_email: Option<String>,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct TwitchGetMeResponseInner {
+    broadcaster_type: String,
+    created_at: String,
+    description: String,
+    pub display_name: String,
+    pub id: String,
+    pub login: String,
+    offline_image_url: String,
+    pub profile_image_url: String,
+    r#type: String,
+    view_count: u32,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct TwitchGetMeResponse {
+    pub data: Vec<TwitchGetMeResponseInner>,
 }

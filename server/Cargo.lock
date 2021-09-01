@@ -1502,6 +1502,7 @@ dependencies = [
  "actix-web",
  "diesel",
  "dotenv",
+ "either",
  "reqwest",
  "serde",
  "serde_json",

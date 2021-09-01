@@ -1,5 +1,5 @@
 use reqwest::header::HeaderMap;
-use reqwest::{Client, Error, Method, RequestBuilder, Response};
+use reqwest::{Client, Method, RequestBuilder};
 use serde_json::Value;
 use std::time::Instant;
 use std::{collections::HashMap, result::Result};
@@ -16,7 +16,7 @@ impl UserAgent {
 
 pub type Headers = HeaderMap;
 pub type Query<'a> = HashMap<&'a str, &'a str>;
-pub type ClientResult = Result<Response, Error>;
+pub type HttpResult = Result<reqwest::Response, reqwest::Error>;
 
 /// Simple HTTP Client which can be used to perform all kinds of HTTP requests.
 pub struct HttpClient {
@@ -36,12 +36,7 @@ impl HttpClient {
         HttpClient { client }
     }
 
-    pub async fn post(
-        &self,
-        url: &str,
-        headers: Option<&Headers>,
-        payload: &Value,
-    ) -> ClientResult {
+    pub async fn post(&self, url: &str, headers: Option<&Headers>, payload: &Value) -> HttpResult {
         self.request(Method::POST, url, headers, |req| req.json(payload))
             .await
     }
@@ -51,7 +46,7 @@ impl HttpClient {
         url: &str,
         headers: Option<&Headers>,
         payload: &Query<'_>,
-    ) -> ClientResult {
+    ) -> HttpResult {
         self.request(Method::GET, url, headers, |req| req.query(payload))
             .await
     }
@@ -62,7 +57,7 @@ impl HttpClient {
         url: &str,
         headers: Option<&Headers>,
         add_data: D,
-    ) -> ClientResult
+    ) -> HttpResult
     where
         D: Fn(RequestBuilder) -> RequestBuilder,
     {
