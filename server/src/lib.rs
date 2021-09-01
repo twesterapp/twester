@@ -2,8 +2,46 @@ pub mod clients;
 pub mod handlers;
 pub mod models;
 
-use actix_web::http::HeaderMap;
+use actix_web::{http::HeaderMap, HttpResponse};
+use serde::{Deserialize, Serialize};
 use std::result::Result;
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct ApiResponse<T> {
+    data: T,
+}
+
+impl<T> ApiResponse<T>
+where
+    T: serde::de::DeserializeOwned,
+{
+    pub fn new(data: T) -> Self {
+        ApiResponse { data }
+    }
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct Error {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    code: Option<u16>,
+    message: String,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct ApiError {
+    error: Error,
+}
+
+impl ApiError {
+    pub fn new(code: Option<u16>, message: &str) -> Self {
+        ApiError {
+            error: Error {
+                code,
+                message: message.to_string(),
+            },
+        }
+    }
+}
 
 #[derive(Debug)]
 pub enum AuthTokenError {
@@ -12,10 +50,14 @@ pub enum AuthTokenError {
 }
 
 impl AuthTokenError {
-    pub fn get_message(&self) -> String {
+    pub fn as_http_response(&self) -> HttpResponse {
+        HttpResponse::Unauthorized().json(ApiError::new(None, self.get_message()))
+    }
+
+    fn get_message<'a>(&self) -> &'a str {
         match self {
-            Self::NotFound => "Token not found".to_string(),
-            Self::NotBearer => "Token is not of type Bearer".to_string(),
+            Self::NotFound => "Authorization token is missing",
+            Self::NotBearer => "Authorization token must be of type Bearer",
         }
     }
 }

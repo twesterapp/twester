@@ -57,3 +57,11 @@ pub struct TwitchGetMeResponseInner {
 pub struct TwitchGetMeResponse {
     pub data: Vec<TwitchGetMeResponseInner>,
 }
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct GetMeResponse {
+    pub display_name: String,
+    pub id: String,
+    pub login: String,
+    pub profile_image_url: String,
+}

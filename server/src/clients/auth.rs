@@ -1,9 +1,10 @@
+use actix_web::HttpResponse;
 use reqwest::header::HeaderMap;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-use either::{Either, Left, Right};
-
-use crate::models::{TwitchGetMeResponse, TwitchUnauthorizedError};
+use crate::models::TwitchGetMeResponse;
+use crate::ApiError;
 
 use super::http::{HttpClient, HttpResult, UserAgent, TWITCH_CLIENT_ID};
 
@@ -11,8 +12,27 @@ pub struct AuthClient {
     http: HttpClient,
 }
 
+#[derive(Deserialize, Serialize, Debug)]
 pub enum AuthClientError {
     Unauthorized,
+}
+
+impl AuthClientError {
+    fn get_message(&self) -> &str {
+        match self {
+            Self::Unauthorized => "Unauthorized",
+        }
+    }
+
+    fn get_json(&self) -> ApiError {
+        ApiError::new(None, self.get_message())
+    }
+
+    pub fn as_http_response(&self) -> HttpResponse {
+        match self {
+            Self::Unauthorized => HttpResponse::Unauthorized().json(self.get_json()),
+        }
+    }
 }
 
 pub type AuthClientResult<T> = Result<T, AuthClientError>;
@@ -35,22 +55,18 @@ impl AuthClient {
     async fn handle_response<T: serde::de::DeserializeOwned>(
         &self,
         res: HttpResult,
-    ) -> Either<TwitchUnauthorizedError, T> {
+    ) -> AuthClientResult<T> {
         let text = res.unwrap().text().await.unwrap();
 
         if text.contains("Unauthorized") {
-            let body: TwitchUnauthorizedError = serde_json::from_str(&text).unwrap();
-            Left(body)
+            Err(AuthClientError::Unauthorized)
         } else {
             let body: T = serde_json::from_str(&text).unwrap();
-            Right(body)
+            Ok(body)
         }
     }
 
-    pub async fn get_me(
-        &self,
-        username: &str,
-    ) -> Either<TwitchUnauthorizedError, TwitchGetMeResponse> {
+    pub async fn get_me(&self, username: &str) -> AuthClientResult<TwitchGetMeResponse> {
         let mut query = HashMap::new();
         query.insert("login", username);
 
