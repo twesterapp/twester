@@ -7,15 +7,16 @@ import 'typeface-poppins';
 import 'typeface-karla';
 
 import { darkTheme, GlobalStyle } from './ui';
-
 import { AuthPage, HomePage, WatchPage } from './pages';
-
 import { isAuth } from './utils';
 import { Sidebar } from './components';
+import { connect } from './ws';
 
 const queryClient = new QueryClient();
 
 export function App() {
+  connect();
+
   const Dashboard = () => (
     <Layout>
       <SidebarContainer>
