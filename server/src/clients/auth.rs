@@ -17,6 +17,14 @@ pub enum AuthClientError {
     Unauthorized,
 }
 
+impl std::fmt::Display for AuthClientError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.get_message())
+    }
+}
+
+impl std::error::Error for AuthClientError {}
+
 impl AuthClientError {
     fn get_message(&self) -> &str {
         match self {

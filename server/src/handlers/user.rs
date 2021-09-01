@@ -21,9 +21,9 @@ pub async fn get_me(req: HttpRequest, query: web::Query<GetMeQuery>) -> HttpResp
     let response = client.get_me(&query.username).await;
 
     if response.is_err() {
-        response.err().unwrap().as_http_response()
+        response.unwrap_err().as_http_response()
     } else {
-        let user = &response.ok().unwrap().data[0];
+        let user = &response.unwrap().data[0];
 
         let data = json!({
             "display_name": user.display_name,

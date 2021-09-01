@@ -1,8 +1,9 @@
 use actix_web::{web, HttpResponse};
 use serde::{Deserialize, Serialize};
 
-use crate::clients::base::BaseClient;
 use crate::models::{CodeReqBody, LoginReqBody, TwitchAuthResponse, TwoFaReqBody};
+use crate::clients::base::BaseClient;
+use crate::ApiResponse;
 
 pub async fn login(body: web::Json<LoginReqBody>) -> HttpResponse {
     let username = body.username.to_string();
@@ -154,6 +155,6 @@ impl AuthResponse {
             body.email = Some(email);
         }
 
-        HttpResponse::Ok().json(body)
+        HttpResponse::Ok().json(ApiResponse::new(body))
     }
 }
