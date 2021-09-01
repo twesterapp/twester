@@ -68,7 +68,7 @@ export function Sidebar() {
               target="_blank"
               rel="noreferrer"
             >
-              <Avatar src={data?.data.profile_image_url} size={48} />
+              <Avatar src={data?.data.data.profile_image_url} size={48} />
             </a>
           </i>
         </Tooltip>
