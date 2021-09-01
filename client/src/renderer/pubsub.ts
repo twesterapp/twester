@@ -1,6 +1,30 @@
 import { getToken } from './utils';
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
+/**
+ * Some important notes about the Twitch PubSub
+ *
+ * 1. Clients must LISTEN on at least one topic within 15 seconds of
+ *    establishing the connection, or they will be disconnected by the server.
+ *
+ * 2. To keep the server from closing the connection, clients must send a PING
+ *    command at least once every 5 minutes. If a client does not receive a PONG
+ *    message within 10 seconds of issuing a PING command, it should reconnect
+ *    to the server.
+ *
+ * 3. Clients may receive a RECONNECT message at any time. This indicates that
+ *    the server is about to restart (typically for maintenance) and will
+ *    disconnect the client within 30 seconds. During this time, we recommend
+ *    that clients reconnect to the server; otherwise, the client will be
+ *    forcibly disconnected.
+ *
+ * 4. You can listen to max 50 topics at a time. So once you reach 50, you
+ *    should reconnect to PubSub and start listening to the topics. You could
+ *    also `UNLISTEN` to topics no longer required but it's easier to just
+ *    reconnect and start listening to topics. These topics will keep on
+ *    incrementing as the streamer goes offline and we start "watching" and
+ *    listening to topics for the new streamer.
+ */
+
 const ws = new WebSocket('wss://pubsub-edge.twitch.tv/v1');
 
 function heartbeat() {
@@ -22,6 +46,7 @@ export function connect() {
     console.log('INFO: Socket opened');
     heartbeat();
     heartbeatHandle = setInterval(heartbeat, heartbeatInterval);
+    listen();
   };
 
   ws.onerror = (error) => {
@@ -49,12 +74,6 @@ export function connect() {
     console.log('INFO: Reconnecting...');
     setTimeout(connect, reconnectInterval);
   };
-
-  startListening();
-}
-
-function startListening() {
-  listenHandle = setInterval(listen, 5000);
 }
 
 function listen() {

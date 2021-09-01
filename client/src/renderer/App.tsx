@@ -10,7 +10,7 @@ import { darkTheme, GlobalStyle } from './ui';
 import { AuthPage, HomePage, WatchPage } from './pages';
 import { isAuth } from './utils';
 import { Sidebar } from './components';
-import { connect } from './ws';
+import { connect } from './pubsub';
 
 const queryClient = new QueryClient();
 
