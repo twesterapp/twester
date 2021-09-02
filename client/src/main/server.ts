@@ -1,3 +1,4 @@
+import http from 'http';
 import axios from 'axios';
 import express, { Application, NextFunction, Request, Response } from 'express';
 
@@ -6,7 +7,7 @@ const isProd = process.env.NODE_ENV === 'PRODUCTION';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function log(...args: any) {
   if (!isProd) {
-    console.log('[AUTH_NODE_SERVER]:', ...args);
+    console.info('[AUTH_NODE_SERVER]:', ...args);
   }
 }
 
@@ -14,8 +15,6 @@ const client = axios.create({
   baseURL: 'https://passport.twitch.tv/login',
   headers: {
     'Client-Id': 'kimne78kx3ncx6brgo4mv6wki5h1ko',
-    'User-Agent':
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36',
   },
 });
 
@@ -250,8 +249,19 @@ app.post('/auth', login);
 app.post('/auth/two-fa', twoFA);
 app.post('/auth/code', code);
 
+let server: http.Server;
+
 export function startServer() {
-  app.listen('6969', () => {
-    log('Running on port 6969');
+  server = app.listen('6969', () => {
+    log('Starting on port 6969');
   });
+}
+
+export function stopServer() {
+  if (server) {
+    server.close(() => {
+      log('Shutting down');
+      // process.exit(0);
+    });
+  }
 }

@@ -1,29 +1,22 @@
 import axios from 'axios';
-import { getToken, getUsername, isAuth } from './utils';
+import { getToken, getUsername } from './utils';
 
-let token: string | null;
-
-if (isAuth()) {
-  token = getToken();
-}
-
-export const client = axios.create({
-  baseURL: 'http://localhost:7878',
+export const oauthClient = axios.create({
+  headers: {
+    'Client-Id': 'kimne78kx3ncx6brgo4mv6wki5h1ko',
+    Authorization: `OAuth ${getToken()}`,
+  },
 });
 
-client.interceptors.request.use(
-  (config) => {
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-
-    return config;
+export const bearerClient = axios.create({
+  headers: {
+    'Client-Id': 'kimne78kx3ncx6brgo4mv6wki5h1ko',
+    Authorization: `Bearer ${getToken()}`,
   },
-  (err) => {
-    return Promise.reject(err);
-  }
-);
+});
 
-export function fetchMeInfo() {
-  return client.get(`/me?username=${getUsername()}`);
+export function fetchChannelInfo(streamerLogin = getUsername()) {
+  return bearerClient.get(
+    `https://api.twitch.tv/helix/users?login=${streamerLogin}`
+  );
 }

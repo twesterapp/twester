@@ -1,4 +1,4 @@
-import { getToken } from './utils';
+import { getToken } from 'renderer/utils';
 
 /**
  * Some important notes about the Twitch PubSub
@@ -28,7 +28,7 @@ import { getToken } from './utils';
 const ws = new WebSocket('wss://pubsub-edge.twitch.tv/v1');
 
 function heartbeat() {
-  console.log('SENDING: PING message');
+  console.info('SENDING: PING message');
   const message = {
     type: 'PING',
   };
@@ -43,35 +43,35 @@ let listenHandle: any;
 
 export function connect() {
   ws.onopen = () => {
-    console.log('INFO: Socket opened');
+    console.info('INFO: Socket opened');
     heartbeat();
     heartbeatHandle = setInterval(heartbeat, heartbeatInterval);
     listen();
   };
 
   ws.onerror = (error) => {
-    console.log(`ERR:  ${JSON.stringify(error)}\n`);
+    console.info(`ERR:  ${JSON.stringify(error)}\n`);
   };
 
   ws.onmessage = (event) => {
     const message = JSON.parse(event.data);
-    console.log(message);
+    console.info(message);
 
     if (message?.data?.message) {
-      console.log(JSON.parse(message.data.message));
+      console.info(JSON.parse(message.data.message));
     }
 
     if (message.type === 'RECONNECT') {
-      console.log('INFO: Reconnecting...\n');
+      console.info('INFO: Reconnecting...\n');
       setTimeout(connect, reconnectInterval);
     }
   };
 
   ws.onclose = () => {
-    console.log('INFO: Socket Closed\n');
+    console.info('INFO: Socket Closed\n');
     clearInterval(heartbeatHandle);
     clearInterval(listenHandle);
-    console.log('INFO: Reconnecting...');
+    console.info('INFO: Reconnecting...');
     setTimeout(connect, reconnectInterval);
   };
 }
@@ -86,7 +86,7 @@ function listen() {
     },
   };
 
-  console.log('LISTENING for whispers');
+  console.info('LISTENING for whispers');
   ws.send(JSON.stringify(message));
 }
 
@@ -99,4 +99,8 @@ function nonce(length: number) {
   }
 
   return text;
+}
+
+function streamersToWatch(): string[] {
+  return ['summit1g'];
 }

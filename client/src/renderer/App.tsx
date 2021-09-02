@@ -10,14 +10,12 @@ import { darkTheme, GlobalStyle } from './ui';
 import { AuthPage, HomePage, WatchPage } from './pages';
 import { isAuth } from './utils';
 import { Sidebar } from './components';
-import { connect } from './pubsub';
+import { connect } from './twitch/pubsub';
 
 const queryClient = new QueryClient();
 
-export function App() {
-  connect();
-
-  const Dashboard = () => (
+const Dashboard = () => {
+  return (
     <Layout>
       <SidebarContainer>
         <Sidebar />
@@ -28,6 +26,10 @@ export function App() {
       </DashboardContainer>
     </Layout>
   );
+};
+
+export function App() {
+  connect();
 
   return (
     <ThemeProvider theme={darkTheme}>

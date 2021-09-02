@@ -1,6 +1,6 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
-import { fetchMeInfo } from 'renderer/api';
+import { fetchChannelInfo } from 'renderer/api';
 import { getUsername, logout } from 'renderer/utils';
 import styled from 'styled-components';
 import { IconEye, IconHome, IconSignOut, Avatar, Tooltip } from 'renderer/ui';
@@ -13,7 +13,7 @@ export function Sidebar() {
   const onHomePage = history.location.pathname === '/';
   const onWatchPage = history.location.pathname === '/watch';
 
-  const { data } = useQuery('meInfo', fetchMeInfo);
+  const { data } = useQuery('meInfo', () => fetchChannelInfo());
 
   return (
     <Container>
@@ -68,7 +68,7 @@ export function Sidebar() {
               target="_blank"
               rel="noreferrer"
             >
-              <Avatar src={data?.data.data.profile_image_url} size={48} />
+              <Avatar src={data?.data.data[0].profile_image_url} size={48} />
             </a>
           </i>
         </Tooltip>

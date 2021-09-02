@@ -16,7 +16,7 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
-import { startServer } from './server';
+import { startServer, stopServer } from './server';
 
 export default class AppUpdater {
   constructor() {
@@ -30,7 +30,7 @@ let mainWindow: BrowserWindow | null = null;
 
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
-  console.log(msgTemplate(arg));
+  console.info(msgTemplate(arg));
   event.reply('ipc-example', msgTemplate('pong'));
 });
 
@@ -56,7 +56,7 @@ const installExtensions = async () => {
       extensions.map((name) => installer[name]),
       forceDownload
     )
-    .catch(console.log);
+    .catch(console.info);
 };
 
 const createWindow = async () => {
@@ -135,7 +135,7 @@ app.on('window-all-closed', () => {
   }
 });
 
-app.whenReady().then(createWindow).catch(console.log);
+app.whenReady().then(createWindow).catch(console.info);
 
 app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
