@@ -1,7 +1,6 @@
 import http from 'http';
 import axios from 'axios';
 import express, { Application, NextFunction, Request, Response } from 'express';
-import FormData from 'form-data';
 import querystring from 'querystring';
 
 const isProd = process.env.NODE_ENV === 'PRODUCTION';
@@ -266,25 +265,6 @@ interface MinuteWatchedEventBody {
   payload: { data: string };
 }
 
-const watcher = axios.create({
-  headers: {
-    'Content-Type': 'application/x-www-form-urlencoded',
-    'User-Agent':
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36',
-  },
-});
-
-watcher.interceptors.request.use(
-  (config) => {
-    console.log('HEADERS: ', config.headers);
-    console.log('DATA: ', config.data);
-    return config;
-  },
-  (err) => {
-    return Promise.reject(err);
-  }
-);
-
 async function sendMinuteWatchedEvent(
   req: Request,
   res: Response
@@ -296,12 +276,17 @@ async function sendMinuteWatchedEvent(
   }
 
   try {
-    const result = await watcher.post(
+    const result = await axios.post(
       body.url,
-      querystring.stringify(body.payload)
+      querystring.stringify(body.payload),
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36',
+        },
+      }
     );
-
-    console.log('RESULT FROM REQUEST:', result);
 
     if (result.status === 204) {
       return res.status(200).json({});
