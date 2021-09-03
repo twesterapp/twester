@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
 
 import { LoadingScreen } from 'renderer/components';
+import { nodeClient } from 'renderer/api';
 import { Button, InputText } from '../ui';
 
 import { isAuth, px2em } from '../utils';
@@ -94,7 +94,7 @@ function AskForLoginCredentials({
     setSendingReq(true);
     setErr('');
 
-    const res = await axios.post('http://localhost:6969/auth', {
+    const res = await nodeClient.post('/auth', {
       username,
       password,
     });
@@ -183,7 +183,7 @@ function VerifyWithCode({
     setSendingReq(true);
     setErr('');
 
-    const res = await axios.post('http://localhost:6969/auth/code', {
+    const res = await nodeClient.post('/auth/code', {
       username,
       password,
       captcha,
@@ -242,7 +242,7 @@ function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
     setSendingReq(true);
     setErr('');
 
-    const res = await axios.post('http://localhost:6969/auth/two-fa', {
+    const res = await nodeClient.post('/auth/two-fa', {
       username,
       password,
       captcha,

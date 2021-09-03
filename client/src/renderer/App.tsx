@@ -10,7 +10,7 @@ import { darkTheme, GlobalStyle } from './ui';
 import { AuthPage, HomePage, WatchPage } from './pages';
 import { isAuth } from './utils';
 import { Sidebar } from './components';
-import { connect } from './twitch/pubsub';
+import { listenForChannelPoints } from './twitch/pubsub';
 
 const queryClient = new QueryClient();
 
@@ -29,7 +29,7 @@ const Dashboard = () => {
 };
 
 export function App() {
-  connect();
+  listenForChannelPoints();
 
   return (
     <ThemeProvider theme={darkTheme}>

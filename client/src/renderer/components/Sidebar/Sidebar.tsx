@@ -1,7 +1,7 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { fetchChannelInfo } from 'renderer/api';
-import { getUsername, logout } from 'renderer/utils';
+import { getUsername, logout, setUserId } from 'renderer/utils';
 import styled from 'styled-components';
 import { IconEye, IconHome, IconSignOut, Avatar, Tooltip } from 'renderer/ui';
 import { useQuery } from 'react-query';
@@ -14,6 +14,11 @@ export function Sidebar() {
   const onWatchPage = history.location.pathname === '/watch';
 
   const { data } = useQuery('meInfo', () => fetchChannelInfo());
+  const userId = data?.data.data[0].id;
+
+  if (userId) {
+    setUserId(userId);
+  }
 
   return (
     <Container>
@@ -52,7 +57,7 @@ export function Sidebar() {
             <SidebarIcon
               icon={IconSignOut}
               onClick={() => {
-                // logout();
+                logout();
                 window.location.reload();
               }}
             />

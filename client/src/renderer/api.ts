@@ -15,6 +15,10 @@ export const bearerClient = axios.create({
   },
 });
 
+export const nodeClient = axios.create({
+  baseURL: 'http://localhost:6969',
+});
+
 export function fetchChannelInfo(streamerLogin = getUsername()) {
   return bearerClient.get(
     `https://api.twitch.tv/helix/users?login=${streamerLogin}`

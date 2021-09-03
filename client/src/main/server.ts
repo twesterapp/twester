@@ -12,9 +12,10 @@ function log(...args: any) {
 }
 
 const client = axios.create({
-  baseURL: 'https://passport.twitch.tv/login',
   headers: {
     'Client-Id': 'kimne78kx3ncx6brgo4mv6wki5h1ko',
+    'User-Agent':
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36',
   },
 });
 
@@ -164,7 +165,7 @@ async function makeRequest(body: AuthBody): Promise<TwitchAuthResponse> {
   let twitchResponse;
 
   try {
-    const result = await client.post('', body);
+    const result = await client.post('https://passport.twitch.tv/login', body);
     twitchResponse = result.data;
   } catch (e) {
     twitchResponse = e.response.data;
@@ -218,6 +219,91 @@ async function code(req: Request, res: Response): Promise<Response> {
   return res.status(200).json(createAuthResBody(twitchResponse));
 }
 
+async function minuteWatchedRequestUrl(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  const streamerLogin = req.query.streamerLogin;
+  console.log('streamerLogin', streamerLogin);
+
+  if (!streamerLogin) {
+    console.log('No streamer login');
+    return res.status(400).json({
+      error: {
+        message: 'No streamer login provide in the request query',
+      },
+    });
+  }
+
+  try {
+    const mainPageRequest = await client.get(
+      `https://www.twitch.tv/${streamerLogin}`
+    );
+
+    const mainPageResponse = mainPageRequest.data;
+    const settingsUrl = mainPageResponse.match(
+      /https:\/\/static.twitchcdn.net\/config\/settings.*?js/
+    )[0];
+
+    console.log('settingsUrl', settingsUrl);
+
+    const settingsRequest = await client.get(settingsUrl);
+    const settingsResponse = settingsRequest.data;
+    const minuteWatchedUrl = settingsResponse.match(/"spade_url":"(.*?)"/)[1];
+
+    return res.status(200).json({
+      data: {
+        minute_watched_url: minuteWatchedUrl,
+      },
+    });
+  } catch (_) {
+    return res.status(500).json({
+      error: { message: 'Error while trying to fetch minute watched url' },
+    });
+  }
+}
+
+interface MinuteWatchedEventBody {
+  url: string;
+  payload: { data: string };
+}
+
+const watcher = axios.create({
+  headers: {
+    'user-agent':
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36',
+  },
+});
+
+async function sendMinuteWatchedEvent(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  const body: MinuteWatchedEventBody = req.body;
+
+  if (!body.url || !body.payload) {
+    return res.status(400).json({ error: { message: 'Invalid request body' } });
+  }
+
+  console.log('Body: ', body);
+
+  try {
+    const result = await watcher.post(body.url, body.payload);
+
+    if (result.status === 204) {
+      return res.status(200).json({});
+    }
+
+    return res.status(500).json({
+      error: { message: 'Error while trying to send minute watched event' },
+    });
+  } catch (_) {
+    return res.status(500).json({
+      error: { message: 'Error while trying to send minute watched event' },
+    });
+  }
+}
+
 function logger(req: Request, res: Response, next: NextFunction) {
   const startTime = new Date().getTime();
 
@@ -226,6 +312,7 @@ function logger(req: Request, res: Response, next: NextFunction) {
 
     log(`${req.method} ${req.originalUrl} ${res.statusCode} ${endTime}ms`);
   });
+
   next();
 }
 
@@ -245,6 +332,8 @@ app.use((_, res, next) => {
 });
 
 app.get('/', (_, res) => res.status(200).json({ running: 'yes' }));
+app.get('/minute-watched-request-url', minuteWatchedRequestUrl);
+app.post('/minute-watched-event', sendMinuteWatchedEvent);
 app.post('/auth', login);
 app.post('/auth/two-fa', twoFA);
 app.post('/auth/code', code);

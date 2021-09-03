@@ -12,6 +12,8 @@ module.exports = {
     'prefer-destructuring': 'off',
     'react/no-unused-prop-types': 'off',
     'react/require-default-props': 'off',
+    '@typescript-eslint/naming-convention': 'off',
+    'no-underscore-dangle': 'off',
   },
   parserOptions: {
     ecmaVersion: 2020,
