@@ -7,18 +7,18 @@ import { getUserId, sleep } from 'renderer/utils';
 // TODO: Load the top two online from "Streamers to watch" list which can be
 // fetched from file-storage or backend or localStorage.
 function getStreamersToWatch(): string[] {
-  return ['hiko'];
+  return ['grimm'];
 }
 
 async function makeGqlRequest(
   data: Record<string, any>
 ): Promise<Record<string, any>> {
-  console.info('Making Twitch GraphQL request');
+  // console.info('Making Twitch GraphQL request');
 
   return oauthClient({ method: 'POST', url: 'https://gql.twitch.tv/gql', data })
     .then((res) => {
       const data = res.data;
-      console.info('Res from Twitch GraphQL \n', data);
+      // console.info('Res from Twitch GraphQL \n', data);
       return data;
     })
     .catch((e) => {
@@ -69,8 +69,6 @@ export function getStreamerLoginByChannelIdFromCache(id: string): string {
 }
 
 export async function getChannelId(streamerLogin: string): Promise<string> {
-  console.info(`Getting channel id for ${streamerLogin}`);
-
   if (channelIdByStreamerLogin.has(streamerLogin)) {
     return channelIdByStreamerLogin.get(streamerLogin)!;
   }
@@ -78,7 +76,6 @@ export async function getChannelId(streamerLogin: string): Promise<string> {
   return fetchChannelInfo(streamerLogin)
     .then((res) => {
       const id = res.data.data[0].id;
-      console.info(`Channel id for ${streamerLogin} is`, id);
       channelIdByStreamerLogin.set(streamerLogin, id);
       streamerLoginByChannelId.set(id, streamerLogin);
       return id;
@@ -87,8 +84,6 @@ export async function getChannelId(streamerLogin: string): Promise<string> {
 }
 
 async function getBroadcastId(streamerLogin: string): Promise<string> {
-  console.info(`Getting broadcast ID for ${streamerLogin}`);
-
   if (broadcastIdByStreamerLogin.has(streamerLogin)) {
     return broadcastIdByStreamerLogin.get(streamerLogin)!;
   }
@@ -139,9 +134,9 @@ const _minuteWatchedRequests: Map<string, MinuteWatchedRequest> = new Map();
 async function getMinuteWatchedEventRequestInfo(
   streamerLogin: string
 ): Promise<MinuteWatchedRequest | undefined> {
-  // if (_minuteWatchedRequests.get(streamerLogin)) {
-  //   return _minuteWatchedRequests.get(streamerLogin);
-  // }
+  if (_minuteWatchedRequests.has(streamerLogin)) {
+    return _minuteWatchedRequests.get(streamerLogin);
+  }
 
   const eventProperties = {
     channel_id: await getChannelId(streamerLogin),
@@ -159,7 +154,6 @@ async function getMinuteWatchedEventRequestInfo(
   let afterBase64: string;
   try {
     afterBase64 = btoa(JSON.stringify([minuteWatched]));
-    console.log({ afterBase64 });
   } catch (e) {
     console.error('Failed Base64 encoding');
     return undefined;
@@ -171,7 +165,8 @@ async function getMinuteWatchedEventRequestInfo(
   };
 
   // Caching
-  // _minuteWatchedRequests.set(streamerLogin, { url, payload });
+  _minuteWatchedRequests.set(streamerLogin, { url, payload });
+  console.log({ url, payload });
 
   return {
     url,
@@ -185,9 +180,11 @@ export async function startWatching() {
   while (true) {
     console.info(`Watched for ${minutesPassed} minutes`);
     const streamersToWatch = getStreamersToWatch().slice(0, 2);
-    console.log({ streamersToWatch });
     const numOfStreamersToWatch = streamersToWatch.length;
-    console.info(`Watching ${numOfStreamersToWatch} streamer(s)`);
+    console.info(
+      `Watching ${numOfStreamersToWatch} streamer(s): `,
+      streamersToWatch
+    );
 
     // eslint-disable-next-line no-restricted-syntax
     for (let i = 0; i < numOfStreamersToWatch; i += 1) {
@@ -197,7 +194,6 @@ export async function startWatching() {
 
       try {
         const info = await getMinuteWatchedEventRequestInfo(streamer);
-        console.log(info);
         if (info) {
           console.info(`Sending watch minute event for ${streamer}`);
           await nodeClient.post('/minute-watched-event', {

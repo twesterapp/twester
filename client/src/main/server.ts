@@ -1,6 +1,8 @@
 import http from 'http';
 import axios from 'axios';
 import express, { Application, NextFunction, Request, Response } from 'express';
+import FormData from 'form-data';
+import querystring from 'querystring';
 
 const isProd = process.env.NODE_ENV === 'PRODUCTION';
 
@@ -224,10 +226,8 @@ async function minuteWatchedRequestUrl(
   res: Response
 ): Promise<Response> {
   const streamerLogin = req.query.streamerLogin;
-  console.log('streamerLogin', streamerLogin);
 
   if (!streamerLogin) {
-    console.log('No streamer login');
     return res.status(400).json({
       error: {
         message: 'No streamer login provide in the request query',
@@ -244,8 +244,6 @@ async function minuteWatchedRequestUrl(
     const settingsUrl = mainPageResponse.match(
       /https:\/\/static.twitchcdn.net\/config\/settings.*?js/
     )[0];
-
-    console.log('settingsUrl', settingsUrl);
 
     const settingsRequest = await client.get(settingsUrl);
     const settingsResponse = settingsRequest.data;
@@ -270,10 +268,22 @@ interface MinuteWatchedEventBody {
 
 const watcher = axios.create({
   headers: {
-    'user-agent':
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'User-Agent':
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36',
   },
 });
+
+watcher.interceptors.request.use(
+  (config) => {
+    console.log('HEADERS: ', config.headers);
+    console.log('DATA: ', config.data);
+    return config;
+  },
+  (err) => {
+    return Promise.reject(err);
+  }
+);
 
 async function sendMinuteWatchedEvent(
   req: Request,
@@ -285,10 +295,13 @@ async function sendMinuteWatchedEvent(
     return res.status(400).json({ error: { message: 'Invalid request body' } });
   }
 
-  console.log('Body: ', body);
-
   try {
-    const result = await watcher.post(body.url, body.payload);
+    const result = await watcher.post(
+      body.url,
+      querystring.stringify(body.payload)
+    );
+
+    console.log('RESULT FROM REQUEST:', result);
 
     if (result.status === 204) {
       return res.status(200).json({});
@@ -297,7 +310,7 @@ async function sendMinuteWatchedEvent(
     return res.status(500).json({
       error: { message: 'Error while trying to send minute watched event' },
     });
-  } catch (_) {
+  } catch (e) {
     return res.status(500).json({
       error: { message: 'Error while trying to send minute watched event' },
     });
