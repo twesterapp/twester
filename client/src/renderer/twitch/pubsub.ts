@@ -35,71 +35,6 @@ import {
  *    listening to topics for the new streamer.
  */
 
-// const ws = new WebSocket('wss://pubsub-edge.twitch.tv/v1');
-
-// function heartbeat() {
-//   console.info('SENDING: PING message');
-//   const message = {
-//     type: 'PING',
-//   };
-
-//   ws.send(JSON.stringify(message));
-// }
-
-// const heartbeatInterval = 4000 * 60;
-// const reconnectInterval = 1000 * 30;
-// let heartbeatHandle: NodeJS.Timeout;
-// let listenHandle: NodeJS.Timeout;
-
-// export function connect() {
-//   ws.onopen = () => {
-//     console.info('INFO: Socket opened');
-//     heartbeat();
-//     heartbeatHandle = setInterval(heartbeat, heartbeatInterval);
-//     listen();
-//   };
-
-//   ws.onerror = (error) => {
-//     console.info(`ERR:  ${JSON.stringify(error)}\n`);
-//   };
-
-//   ws.onmessage = (event) => {
-//     const message = JSON.parse(event.data);
-//     console.info(message);
-
-//     if (message?.data?.message) {
-//       console.info(JSON.parse(message.data.message));
-//     }
-
-//     if (message.type === 'RECONNECT') {
-//       console.info('INFO: Reconnecting...\n');
-//       setTimeout(connect, reconnectInterval);
-//     }
-//   };
-
-//   ws.onclose = () => {
-//     console.info('INFO: Socket Closed\n');
-//     clearInterval(heartbeatHandle);
-//     clearInterval(listenHandle);
-//     console.info('INFO: Reconnecting...');
-//     setTimeout(connect, reconnectInterval);
-//   };
-// }
-
-// function listen() {
-//   const message = {
-//     type: 'LISTEN',
-//     nonce: nonce(15),
-//     data: {
-//       topics: ['whispers.670111413'],
-//       auth_token: getToken(),
-//     },
-//   };
-
-//   console.info('LISTENING for whispers');
-//   ws.send(JSON.stringify(message));
-// }
-
 function createNonce(length: number) {
   let nonce = '';
   const possible =
@@ -209,9 +144,10 @@ class WebSocketsPool {
 
   private onMessage(event: MessageEvent) {
     const data = JSON.parse(event.data);
-    console.info('[PubSub]: Received message', data);
 
-    if (data.type === 'MESSAGE') {
+    if (data.type === 'PONG') {
+      console.info('[PubSub]: Received PONG');
+    } else if (data.type === 'MESSAGE') {
       const [topic, _topicUser] = data.data.topic.split('.');
       const message = JSON.parse(data.data.message);
       const messageType = message.type;
@@ -249,7 +185,7 @@ class WebSocketsPool {
             );
           }
         } else if (messageType === 'claim-available') {
-          const channelId = messageData.claim.channelId;
+          const channelId = messageData.claim.channel_id;
 
           if (channelIdExistsInCache(channelId)) {
             const claimId = messageData.claim.id;
@@ -279,13 +215,14 @@ class WebSocketsPool {
   }
 
   ping(ws: WebSocket) {
+    console.info('[PubSub]: Sending PING');
     this.send(ws, {
       type: 'PING',
     });
   }
 
   private send(ws: WebSocket, message: Record<string, unknown>) {
-    console.info('[PubSub]: Sending message \n', message);
+    // console.info('[PubSub]: Sending message \n', message);
     ws.send(JSON.stringify(message));
   }
 
