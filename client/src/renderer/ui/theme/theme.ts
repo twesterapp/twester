@@ -3,8 +3,11 @@ interface Color {
   background2: string;
   background3: string;
   background4: string;
-  primary: string;
+  disabled: string;
+  error: string;
   onPrimary: string;
+  primary: string;
+  success: string;
   textPrimary: string;
 }
 
@@ -20,8 +23,11 @@ export const darkTheme: Theme = {
     background2: '#242329',
     background3: '#2A2931',
     background4: '#34333A',
-    primary: '#3498DB',
+    disabled: '#464649',
+    error: '#FF5252',
     onPrimary: '#FFFFFF',
+    primary: '#3498DB',
+    success: '#0AD48B',
     textPrimary: '#F1F1F1',
   },
 };
