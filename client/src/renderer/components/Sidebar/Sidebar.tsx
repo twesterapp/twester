@@ -2,13 +2,14 @@ import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { fetchChannelInfo } from 'renderer/api';
 import { getUsername, logout, setUserId } from 'renderer/utils';
-import styled from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 import { IconEye, IconHome, IconSignOut, Avatar, Tooltip } from 'renderer/ui';
 import { useQuery } from 'react-query';
 import { SidebarIcon } from './SidebarIcon';
 
 export function Sidebar() {
   const history = useHistory();
+  const theme = useTheme();
 
   const onHomePage = history.location.pathname === '/';
   const onWatchPage = history.location.pathname === '/watch';
@@ -56,6 +57,7 @@ export function Sidebar() {
           <i>
             <SidebarIcon
               icon={IconSignOut}
+              color={theme.color.error}
               onClick={() => {
                 logout();
                 window.location.reload();

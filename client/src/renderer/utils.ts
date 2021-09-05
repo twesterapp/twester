@@ -3,10 +3,10 @@ export function getToken() {
 }
 
 export function getUsername() {
-  return window.localStorage.getItem('username') || '';
+  return window.localStorage.getItem('username');
 }
 
-export function getUserId() {
+export function getUserId(): string {
   return window.localStorage.getItem('user-id') || '';
 }
 
@@ -16,11 +16,6 @@ export function setUserId(id: string) {
 
 export function isAuth() {
   return !!window.localStorage.getItem('access-token');
-}
-
-export function fakeLogin() {
-  window.localStorage.setItem('access-token', 'fakelogin');
-  window.localStorage.setItem('username', 'fakelogin');
 }
 
 export function logout() {
