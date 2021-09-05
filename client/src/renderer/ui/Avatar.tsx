@@ -20,4 +20,5 @@ const StyledImage = styled.img<AvatarOptions>`
   border-radius: 50%;
   padding: 0.15rem;
   border: 0.15rem solid ${(props) => props.theme.color.primary};
+  user-select: none;
 `;

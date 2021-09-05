@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import styled from 'styled-components';
 
 import { Spinner } from './Spinner';
 
 export interface ButtonOptions extends React.HTMLAttributes<HTMLButtonElement> {
-  text: string;
+  children?: ReactNode;
+  text?: string;
   disabled?: boolean;
   loading?: boolean;
   width?: string;
@@ -12,7 +13,8 @@ export interface ButtonOptions extends React.HTMLAttributes<HTMLButtonElement> {
 }
 
 export function Button({
-  text,
+  text = '',
+  children,
   width = '',
   disabled = false,
   loading = false,
@@ -26,7 +28,7 @@ export function Button({
       type={variant}
       width={width}
     >
-      {loading ? <Spinner /> : <StyledText>{text}</StyledText>}
+      {loading ? <Spinner /> : <StyledText>{children || text}</StyledText>}
     </StyledButton>
   );
 }
@@ -57,6 +59,6 @@ const StyledButton = styled.button<Omit<ButtonOptions, 'text'>>`
   }
 
   &:active {
-    background: ${(props) => props.theme.color.primary};
+    background: ${(props) => !props.disabled && props.theme.color.primary};
   }
 `;

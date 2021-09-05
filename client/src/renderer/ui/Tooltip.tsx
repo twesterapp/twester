@@ -7,16 +7,25 @@ import {
 import { px2rem } from 'renderer/utils';
 import { useTheme } from 'styled-components';
 
-export function Tooltip(props: TooltipProps) {
-  const { children, ...rest } = props;
+interface TooltipOptions extends TooltipProps {
+  background?: string;
+  color?: string;
+}
+
+export function Tooltip({
+  children,
+  color,
+  background,
+  ...rest
+}: TooltipOptions) {
   const theme = useTheme();
 
   const StyledTooltip = withStyles({
     tooltip: {
       fontFamily: 'Poppins',
       fontSize: `${px2rem(14)}`,
-      background: theme.color.primary,
-      color: theme.color.onPrimary,
+      background: background || theme.color.primary,
+      color: color || theme.color.onPrimary,
       borderRadius: '6px',
       padding: '4px 8px',
     },

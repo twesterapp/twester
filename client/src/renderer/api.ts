@@ -24,3 +24,9 @@ export function fetchChannelInfo(streamerLogin = getUsername()) {
     `https://api.twitch.tv/helix/users?login=${streamerLogin}`
   );
 }
+
+export function fetchChannelFollowers(channelId: string) {
+  return bearerClient.get(
+    `https://api.twitch.tv/helix/users/follows?to_id=${channelId}`
+  );
+}

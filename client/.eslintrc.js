@@ -14,6 +14,7 @@ module.exports = {
     'react/require-default-props': 'off',
     '@typescript-eslint/naming-convention': 'off',
     'no-underscore-dangle': 'off',
+    'no-empty': 'off',
   },
   parserOptions: {
     ecmaVersion: 2020,

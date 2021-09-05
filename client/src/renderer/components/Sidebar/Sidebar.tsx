@@ -53,7 +53,12 @@ export function Sidebar() {
       </Top>
 
       <Bottom>
-        <Tooltip title="Sign out" placement="right" enterDelay={500}>
+        <Tooltip
+          title="Sign out"
+          placement="right"
+          enterDelay={500}
+          background={theme.color.error}
+        >
           <i>
             <SidebarIcon
               icon={IconSignOut}
