@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable guard-for-in */
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -11,7 +12,6 @@ import {
 import { setWatching, watcherStore } from 'renderer/stores/useWatcherStore';
 import { rightNowInSecs, sleep } from 'renderer/utils';
 import { loadChannelPointsContext } from './claimBonus';
-// eslint-disable-next-line import/no-cycle
 import {
   getBroadcastId,
   getChannelId,

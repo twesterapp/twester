@@ -6,6 +6,7 @@ import styled, { useTheme } from 'styled-components';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import humanFormat from 'human-format';
+import { useWatcherStore } from 'renderer/stores/useWatcherStore';
 
 interface StreamerCardProps {
   streamer: Streamer;
@@ -15,6 +16,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
   // TODO: For grabbing state UI/Cursor we would probably use some state
   // provided by `react-dnd` (drag-n-drop).
   const theme = useTheme();
+  const { isWatching } = useWatcherStore();
 
   return (
     <Card>
@@ -23,6 +25,8 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
           id="remove-button"
           onClick={() => removeStreamer(streamer.id)}
           type="button"
+          disabled={isWatching}
+          style={{ cursor: isWatching ? 'not-allowed' : '' }}
         >
           <IconCross size={12} color={theme.color.onPrimary} />
         </button>

@@ -5,7 +5,8 @@ import {
   useStreamerStore,
   addStreamer,
 } from 'renderer/stores/useStreamerStore';
-import { Button, IconPlus, InputText } from 'renderer/ui';
+import { useWatcherStore } from 'renderer/stores/useWatcherStore';
+import { Button, IconPlus, InputText, Link } from 'renderer/ui';
 import { px2em } from 'renderer/utils';
 import styled from 'styled-components';
 
@@ -13,6 +14,7 @@ export function WatchPage() {
   const [searchText, setSearchText] = React.useState('');
   const [fetchingStreamer, setFetchingStreamer] = React.useState(false);
   const { streamers } = useStreamerStore();
+  const { isWatching } = useWatcherStore();
 
   async function handleAddStreamer(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -46,19 +48,23 @@ export function WatchPage() {
 
   return (
     <PageWrapper>
-      <Search onSubmit={handleAddStreamer}>
+      <Warning>
+        Go to <Link to="/">Home Page</Link> and <em>stop</em> watcher to make
+        changes to the list below.
+      </Warning>
+      <Search onSubmit={handleAddStreamer} isWatching={isWatching}>
         <InputText
           style={{ marginRight: `${px2em(12)}`, width: '300px' }}
           placeholder="Streamer to add"
           value={searchText}
-          disabled={fetchingStreamer}
+          disabled={isWatching ?? fetchingStreamer}
           onChange={(e) => setSearchText(e.target.value)}
         />
         <Button
           width="46px"
           variant="submit"
           loading={fetchingStreamer}
-          disabled={!searchText.trim()}
+          disabled={isWatching ?? !searchText.trim()}
         >
           <IconPlus />
         </Button>
@@ -77,8 +83,19 @@ export function WatchPage() {
   );
 }
 
-const Search = styled.form`
-  margin-top: ${px2em(44)};
+const Warning = styled.p`
+  position: absolute;
+  font-family: 'Karla';
+  top: 0px;
+  background: ${(props) => props.theme.color.background2};
+  margin: 0;
+  padding: ${() => `${px2em(10)} ${px2em(24)}`};
+  border-radius: 0px 0px 50px 50px;
+`;
+
+const Search = styled.form<{ isWatching: boolean }>`
+  margin-top: ${(props) =>
+    props.isWatching ? `${px2em(72)}` : `${px2em(44)}`};
   height: 46px;
   display: flex;
   margin-bottom: ${px2em(22)};
@@ -100,4 +117,5 @@ const PageWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
 `;
