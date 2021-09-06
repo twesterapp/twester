@@ -39,7 +39,11 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
         <div>
           <h1>{streamer.displayName}</h1>
           <p>
-            {humanFormat(streamer.followersCount, { decimals: 1 })} followers
+            {humanFormat(streamer.followersCount, {
+              decimals: 1,
+              separator: '',
+            }).toUpperCase()}{' '}
+            followers
           </p>
         </div>
       </Content>

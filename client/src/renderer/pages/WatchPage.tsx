@@ -60,6 +60,11 @@ export function WatchPage() {
           <IconPlus />
         </Button>
       </Search>
+      <Info>
+        Streamers will be prioritized top to bottom.
+        <br />
+        You can re-order them by dragging and dropping them.
+      </Info>
 
       {streamers.length > 0 &&
         streamers.map((streamer) => {
@@ -74,6 +79,16 @@ const Search = styled.form`
   height: 46px;
   display: flex;
   margin-bottom: ${px2em(22)};
+`;
+
+const Info = styled.p`
+  font-family: Karla;
+  color: ${(props) => props.theme.color.textPrimary};
+  line-height: ${px2em(18)};
+  margin: 0;
+  margin-bottom: ${px2em(44)};
+  max-width: 430px;
+  text-align: center;
 `;
 
 const PageWrapper = styled.div`
