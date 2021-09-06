@@ -13,6 +13,7 @@ export function WatchPage() {
   const [searchText, setSearchText] = React.useState('');
   const [fetchingStreamer, setFetchingStreamer] = React.useState(false);
   const { streamers } = useStreamerStore();
+  console.log('streamers', streamers);
 
   async function handleAddStreamer(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();

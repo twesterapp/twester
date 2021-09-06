@@ -1,13 +1,11 @@
 import React from 'react';
+
 import { Spinner } from '../../ui';
-import styled from 'styled-components';
 
 export const LoadingScreen = () => {
   return (
-    <Container>
+    <div>
       <Spinner size={24} />
-    </Container>
+    </div>
   );
 };
-
-const Container = styled.div``;

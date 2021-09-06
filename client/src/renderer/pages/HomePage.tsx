@@ -1,6 +1,6 @@
 import React from 'react';
 import { useStreamerStore } from 'renderer/stores/useStreamerStore';
-import { useWatcherStore, setWatching } from 'renderer/stores/useWatcherStore';
+import { useWatcherStore } from 'renderer/stores/useWatcherStore';
 import { startWatching, stopWatching } from 'renderer/twitch/graphql';
 import { IconPlay, IconStop, Link } from 'renderer/ui';
 import { px2rem } from 'renderer/utils';

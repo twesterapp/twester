@@ -1,6 +1,6 @@
-import { getUser } from 'renderer/utils';
 import vanillaCreate from 'zustand/vanilla';
 import create from 'zustand';
+import { authStore } from './useAuthStore';
 
 type StreamerLogin = string;
 type StreamerId = string;
@@ -18,7 +18,7 @@ interface State {
   streamers: Streamer[];
 }
 
-const getStorageKey = () => `${getUser().id}.streamers`;
+const getStorageKey = () => `${authStore.getState().user.id}.streamers`;
 
 function getInitialState(): State {
   try {

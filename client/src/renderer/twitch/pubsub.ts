@@ -2,7 +2,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable max-classes-per-file */
-import { getUser, sleep } from 'renderer/utils';
+import { sleep } from 'renderer/utils';
+import { authStore } from 'renderer/stores/useAuthStore';
 import {
   channelIdExistsInCache,
   claimChannelPointsBonus,
@@ -81,7 +82,7 @@ class PubSubTopic {
 
   async value(): Promise<string> {
     if (this.isUserTopic()) {
-      return `${this.topic}.${getUser().id}`;
+      return `${this.topic}.${authStore.getState().user.id}`;
     }
 
     return `${this.topic}.${await getChannelId(this.channelLogin!)}`;
@@ -196,7 +197,9 @@ class WebSocketsPool {
         }
       }
     } else if (data.type === 'RESPONSE' && data.error.length > 0) {
-      console.error(`Error while trying to listen for a topic: ${event}`);
+      console.error(
+        `Error while trying to listen for a topic. Error ${data.error}`
+      );
     } else if (data.type === 'RECONNECT') {
       this.handleWebSocketReconnection();
     }
@@ -222,7 +225,6 @@ class WebSocketsPool {
   }
 
   private send(ws: WebSocket, message: Record<string, unknown>) {
-    // console.info('[PubSub]: Sending message \n', message);
     ws.send(JSON.stringify(message));
   }
 
@@ -233,7 +235,7 @@ class WebSocketsPool {
     };
 
     if (topic.isUserTopic()) {
-      data.auth_token = getUser().accessToken;
+      data.auth_token = authStore.getState().accessToken;
     }
 
     const nonce = createNonce(15);

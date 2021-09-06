@@ -1,17 +1,15 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { fetchChannelInfo } from 'renderer/api';
-import { getUser, removeToken } from 'renderer/utils';
 import styled, { useTheme } from 'styled-components';
 import { IconEye, IconHome, IconSignOut, Avatar, Tooltip } from 'renderer/ui';
 import { useQuery } from 'react-query';
-import { useAuthStore } from 'renderer/stores/useAuthStore';
+import { delToken, delUser, authStore } from 'renderer/stores/useAuthStore';
 import { SidebarIcon } from './SidebarIcon';
 
 export function Sidebar() {
   const history = useHistory();
   const theme = useTheme();
-  const { delUser } = useAuthStore();
 
   const onHomePage = history.location.pathname === '/';
   const onWatchPage = history.location.pathname === '/watch';
@@ -61,7 +59,7 @@ export function Sidebar() {
               icon={IconSignOut}
               color={theme.color.error}
               onClick={() => {
-                removeToken();
+                delToken();
                 delUser();
               }}
             />
@@ -71,13 +69,13 @@ export function Sidebar() {
         <i style={{ height: '11px' }} />
 
         <Tooltip
-          title={getUser().login || ''}
+          title={authStore.getState().user.login || ''}
           placement="right"
           enterDelay={500}
         >
           <i>
             <a
-              href={`https://www.twitch.tv/${getUser().login}`}
+              href={`https://www.twitch.tv/${authStore.getState().user.login}`}
               target="_blank"
               rel="noreferrer"
             >

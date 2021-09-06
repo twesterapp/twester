@@ -60,7 +60,7 @@ export function delUser() {
 
 export function setToken(accessToken: string) {
   try {
-    localStorage.setItem('access-token', JSON.stringify(accessToken));
+    localStorage.setItem('access-token', accessToken);
   } catch {}
 
   return authStore.setState({ accessToken });
