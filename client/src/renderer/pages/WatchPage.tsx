@@ -1,7 +1,10 @@
 import React from 'react';
 import { fetchChannelFollowers, fetchChannelInfo } from 'renderer/api';
 import { StreamerCard } from 'renderer/components';
-import { useStreamerStore } from 'renderer/stores/useStreamerStore';
+import {
+  useStreamerStore,
+  addStreamer,
+} from 'renderer/stores/useStreamerStore';
 import { Button, IconPlus, InputText } from 'renderer/ui';
 import { px2em } from 'renderer/utils';
 import styled from 'styled-components';
@@ -9,7 +12,7 @@ import styled from 'styled-components';
 export function WatchPage() {
   const [searchText, setSearchText] = React.useState('');
   const [fetchingStreamer, setFetchingStreamer] = React.useState(false);
-  const { addStreamer, streamers } = useStreamerStore();
+  const { streamers } = useStreamerStore();
 
   async function handleAddStreamer(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -39,8 +42,6 @@ export function WatchPage() {
     }
   }
 
-  React.useEffect(() => {}, [streamers]);
-
   return (
     <PageWrapper>
       <Search onSubmit={handleAddStreamer}>
@@ -63,7 +64,7 @@ export function WatchPage() {
       <Info>
         Streamers will be prioritized top to bottom.
         <br />
-        You can re-order them by dragging and dropping them.
+        You can re-order them by drag and drop.
       </Info>
 
       {streamers.length > 0 &&

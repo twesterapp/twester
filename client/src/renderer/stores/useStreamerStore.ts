@@ -1,13 +1,14 @@
 import { getUser } from 'renderer/utils';
+import vanillaCreate from 'zustand/vanilla';
 import create from 'zustand';
-import { combine } from 'zustand/middleware';
 
 type StreamerLogin = string;
+type StreamerId = string;
 
 export interface Streamer {
   login: StreamerLogin;
   priorityRank: number;
-  id: string;
+  id: StreamerId;
   displayName: string;
   profileImageUrl: string;
   followersCount: string;
@@ -43,48 +44,55 @@ function getInitialState(): State {
   }
 }
 
-export const useStreamerStore = create(
-  combine(getInitialState(), (set, get) => ({
-    addStreamer: (streamer: Omit<Streamer, 'priorityRank'>) => {
-      set((state) => {
-        console.log('Adding streamer', streamer);
+export const streamerStore = vanillaCreate(() => getInitialState());
 
-        for (let i = 0; i < get().streamers.length; i += 1) {
-          if (get().streamers[i].id === streamer.id) {
-            console.error('Streamer already exists');
-            return state;
-          }
-        }
+export function addStreamer(streamer: Omit<Streamer, 'priorityRank'>) {
+  console.log('Adding streamer', streamer);
+  const { getState, setState } = streamerStore;
 
-        const streamerToAdd = {
-          ...streamer,
-          priorityRank: get().streamers.length + 1,
-        };
+  for (let i = 0; i < getState().streamers.length; i += 1) {
+    if (getState().streamers[i].id === streamer.id) {
+      console.error('Streamer already exists');
 
-        const updated = [...get().streamers, streamerToAdd];
-
-        try {
-          localStorage.setItem(getStorageKey(), JSON.stringify(updated));
-        } catch {}
-
-        return { streamers: updated };
+      return setState({
+        streamers: getState().streamers,
       });
-    },
+    }
+  }
 
-    removeStreamer: (id: string) =>
-      set(() => {
-        console.log('Removing streamer with id: ', id);
-        const updated = get()
-          .streamers.filter((streamer) => streamer.id !== id)
-          .map((streamer, idx) => {
-            return { ...streamer, priorityRank: idx + 1 };
-          });
+  const streamerToAdd = {
+    ...streamer,
+    priorityRank: getState().streamers.length + 1,
+  };
 
-        try {
-          localStorage.setItem(getStorageKey(), JSON.stringify(updated));
-        } catch {}
+  const updated = [...getState().streamers, streamerToAdd];
 
-        return { streamers: updated };
-      }),
-  }))
-);
+  try {
+    localStorage.setItem(getStorageKey(), JSON.stringify(updated));
+  } catch {}
+
+  return setState({
+    streamers: updated,
+  });
+}
+
+export function removeStreamer(id: StreamerId) {
+  console.log('Removing streamer with id: ', id);
+  const { getState, setState } = streamerStore;
+
+  const updated = getState()
+    .streamers.filter((streamer) => streamer.id !== id)
+    .map((streamer, idx) => {
+      return { ...streamer, priorityRank: idx + 1 };
+    });
+
+  try {
+    localStorage.setItem(getStorageKey(), JSON.stringify(updated));
+  } catch {}
+
+  return setState({
+    streamers: updated,
+  });
+}
+
+export const useStreamerStore = create(streamerStore);

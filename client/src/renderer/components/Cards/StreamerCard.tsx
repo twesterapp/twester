@@ -1,5 +1,5 @@
 import React from 'react';
-import { Streamer, useStreamerStore } from 'renderer/stores/useStreamerStore';
+import { Streamer, removeStreamer } from 'renderer/stores/useStreamerStore';
 import { Avatar, IconCross } from 'renderer/ui';
 import { px2rem } from 'renderer/utils';
 import styled, { useTheme } from 'styled-components';
@@ -15,7 +15,6 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
   // TODO: For grabbing state UI/Cursor we would probably use some state
   // provided by `react-dnd` (drag-n-drop).
   const theme = useTheme();
-  const { removeStreamer } = useStreamerStore();
 
   return (
     <Card>
