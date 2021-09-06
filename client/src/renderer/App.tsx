@@ -19,6 +19,7 @@ const Dashboard = () => {
   // If we start listening for channel points without useEffect, we will create
   // multiple WebSocket connections.
   React.useEffect(() => {
+    console.log('RENDERING DASHBOARD');
     listenForChannelPoints();
   }, []);
 
@@ -38,7 +39,6 @@ const Dashboard = () => {
 export function App() {
   // fakeLogin();
   const { user } = useAuthStore();
-  console.log(user);
 
   return (
     <ThemeProvider theme={darkTheme}>

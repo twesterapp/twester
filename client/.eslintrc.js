@@ -15,6 +15,8 @@ module.exports = {
     '@typescript-eslint/naming-convention': 'off',
     'no-underscore-dangle': 'off',
     'no-empty': 'off',
+    'no-restricted-syntax': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
   },
   parserOptions: {
     ecmaVersion: 2020,

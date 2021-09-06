@@ -18,10 +18,6 @@ export function HomePage() {
   // manual refresh fixes it.
   const noStreamers = streamers.length === 0;
 
-  React.useEffect(() => {
-    console.log({ isWatching });
-  }, [isWatching]);
-
   return (
     <PageWrapper>
       <Content>

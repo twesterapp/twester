@@ -1,104 +1,23 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable guard-for-in */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { fetchChannelInfo, nodeClient, makeGraphqlRequest } from 'renderer/api';
+import { nodeClient } from 'renderer/api';
 import { authStore } from 'renderer/stores/useAuthStore';
-import { streamerStore } from 'renderer/stores/useStreamerStore';
+import {
+  getAllStreamers,
+  getOnlineStreamers,
+  isOnline,
+} from 'renderer/stores/useStreamerStore';
 import { setWatching, watcherStore } from 'renderer/stores/useWatcherStore';
-import { sleep } from 'renderer/utils';
-
-// TODO: Load the top two online from "Streamers to watch" list which can be
-// fetched from file-storage or backend or localStorage.
-function getStreamersToWatch() {
-  return streamerStore.getState().streamers;
-}
-
-export async function claimChannelPointsBonus(
-  streamerLogin: string,
-  claimId: string
-) {
-  console.info(`Claming bonus for ${streamerLogin}`);
-
-  const data = {
-    operationName: 'ClaimCommunityPoints',
-    variables: {
-      input: { channelID: await getChannelId(streamerLogin), claimID: claimId },
-    },
-    extensions: {
-      persistedQuery: {
-        version: 1,
-        sha256Hash:
-          '46aaeebe02c99afdf4fc97c7c0cba964124bf6b0af229395f1f6d1feed05b3d0',
-      },
-    },
-  };
-
-  makeGraphqlRequest(data);
-}
-
-// CACHING
-const channelIdByStreamerLogin: Map<string, string> = new Map();
-const streamerLoginByChannelId: Map<string, string> = new Map();
-const broadcastIdByStreamerLogin: Map<string, string> = new Map();
-
-export function channelIdExistsInCache(id: string): boolean {
-  return streamerLoginByChannelId.has(id);
-}
-
-export function getStreamerLoginByChannelIdFromCache(id: string): string {
-  let login = '';
-
-  if (streamerLoginByChannelId.has(id)) {
-    login = streamerLoginByChannelId.get(id)!;
-  }
-
-  return login;
-}
-
-export async function getChannelId(streamerLogin: string): Promise<string> {
-  if (channelIdByStreamerLogin.has(streamerLogin)) {
-    return channelIdByStreamerLogin.get(streamerLogin)!;
-  }
-
-  return fetchChannelInfo(streamerLogin)
-    .then((res) => {
-      const id = res.data.data[0].id;
-      channelIdByStreamerLogin.set(streamerLogin, id);
-      streamerLoginByChannelId.set(id, streamerLogin);
-      return id;
-    })
-    .catch((e) => console.error('Error: ', e));
-}
-
-async function getBroadcastId(streamerLogin: string): Promise<string> {
-  if (broadcastIdByStreamerLogin.has(streamerLogin)) {
-    return broadcastIdByStreamerLogin.get(streamerLogin)!;
-  }
-
-  const data = {
-    operationName: 'WithIsStreamLiveQuery',
-    variables: { id: await getChannelId(streamerLogin) },
-    extensions: {
-      persistedQuery: {
-        version: 1,
-        sha256Hash:
-          '04e46329a6786ff3a81c01c50bfa5d725902507a0deb83b0edbf7abe7a3716ea',
-      },
-    },
-  };
-
-  const response = await makeGraphqlRequest(data);
-  const stream = response.data.user.stream;
-
-  if (!stream) {
-    console.error('Streamer is offline');
-  }
-
-  const id = stream.id;
-  broadcastIdByStreamerLogin.set(streamerLogin, id);
-
-  return id;
-}
+import { rightNowInSecs, sleep } from 'renderer/utils';
+import { loadChannelPointsContext } from './claimBonus';
+// eslint-disable-next-line import/no-cycle
+import {
+  getBroadcastId,
+  getChannelId,
+  setStreamersToWatch,
+  doForEachStreamer,
+} from './data';
 
 async function getMinuteWatchedRequestUrl(
   streamerLogin: string
@@ -118,13 +37,9 @@ interface MinuteWatchedRequest {
 // have already once fetched the details.
 const _minuteWatchedRequests: Map<string, MinuteWatchedRequest> = new Map();
 
-async function getMinuteWatchedEventRequestInfo(
+export async function updateMinuteWatchedEventRequestInfo(
   streamerLogin: string
-): Promise<MinuteWatchedRequest | undefined> {
-  if (_minuteWatchedRequests.has(streamerLogin)) {
-    return _minuteWatchedRequests.get(streamerLogin);
-  }
-
+): Promise<undefined> {
   const eventProperties = {
     channel_id: await getChannelId(streamerLogin),
     broadcast_id: await getBroadcastId(streamerLogin),
@@ -153,12 +68,8 @@ async function getMinuteWatchedEventRequestInfo(
 
   // Caching
   _minuteWatchedRequests.set(streamerLogin, { url, payload });
-  console.log({ url, payload });
 
-  return {
-    url,
-    payload,
-  };
+  return undefined;
 }
 
 let minutesPassed = 0;
@@ -168,46 +79,49 @@ export function stopWatching() {
 }
 
 export async function startWatching() {
+  console.log(`Loading data for ${getAllStreamers().length} streamers...`);
+
   setWatching(true);
+  await setStreamersToWatch();
+  doForEachStreamer(loadChannelPointsContext);
 
   while (watcherStore.getState().isWatching) {
     console.info(`Watched for ${minutesPassed} minutes`);
-    const streamersToWatch = getStreamersToWatch().slice(0, 2);
+    const streamersToWatch = getOnlineStreamers().slice(0, 2);
     const numOfStreamersToWatch = streamersToWatch.length;
     console.info(
       `Watching ${numOfStreamersToWatch} streamer(s): `,
       streamersToWatch
     );
 
-    // eslint-disable-next-line no-restricted-syntax
     for (let i = 0; i < numOfStreamersToWatch; i += 1) {
       const streamer = streamersToWatch[i];
-      const nextIteration =
-        Math.floor(Date.now() / 1000) + 60 / numOfStreamersToWatch;
+      const nextIteration = rightNowInSecs() + 60 / numOfStreamersToWatch;
 
-      try {
-        const info = await getMinuteWatchedEventRequestInfo(streamer.login);
-        if (info) {
-          console.info(
-            `Sending watch minute event for ${streamer.displayName}`
-          );
-          await nodeClient.post('/minute-watched-event', {
-            url: info.url,
-            payload: info.payload,
-          });
+      if (isOnline(streamer)) {
+        try {
+          const info = _minuteWatchedRequests.get(streamer.login);
+          if (info) {
+            console.info(
+              `Sending watch minute event for ${streamer.displayName}`
+            );
+            await nodeClient.post('/minute-watched-event', {
+              url: info.url,
+              payload: info.payload,
+            });
 
-          console.info(
-            `Successfully sent watch minute event for ${streamer.displayName}`
-          );
+            console.info(
+              `Successfully sent watch minute event for ${streamer.displayName}`
+            );
+          }
+        } catch {
+          console.info('Error while trying to watch a minute');
         }
-      } catch (e) {
-        console.info('Error while trying to watch a minute: ', e);
-        console.error(e.response);
-      }
 
-      const max = Math.max(nextIteration - Date.now() / 1000, 0);
-      console.log(`Sleeping for ${max}s`);
-      await sleep(max);
+        const max = Math.max(nextIteration - Date.now() / 1000, 0);
+        console.log(`Sleeping for ${max}s`);
+        await sleep(max);
+      }
     }
 
     if (!streamersToWatch) {

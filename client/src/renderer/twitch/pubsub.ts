@@ -6,10 +6,10 @@ import { sleep } from 'renderer/utils';
 import { authStore } from 'renderer/stores/useAuthStore';
 import {
   channelIdExistsInCache,
-  claimChannelPointsBonus,
   getChannelId,
   getStreamerLoginByChannelIdFromCache,
-} from './graphql';
+} from './data';
+import { claimChannelPointsBonus } from './claimBonus';
 
 /**
  * Some important notes about the Twitch PubSub
@@ -94,15 +94,15 @@ function getReasonName(code: string) {
 }
 
 class WebSocketsPool {
-  private webSocket: WebSocket | null;
+  private webSocket: WebSocket | null = null;
 
-  private topics: PubSubTopic[];
+  private topics: PubSubTopic[] = [];
 
-  private pendingTopics: PubSubTopic[];
+  private pendingTopics: PubSubTopic[] = [];
 
-  private isOpened: boolean;
+  private isOpened = false;
 
-  private isClosed: boolean;
+  private isClosed = false;
 
   private pingHandle!: NodeJS.Timeout;
 
@@ -114,10 +114,6 @@ class WebSocketsPool {
 
   constructor() {
     this.webSocket = null;
-    this.isOpened = false;
-    this.isClosed = false;
-    this.topics = [];
-    this.pendingTopics = [];
   }
 
   submit(topic: PubSubTopic) {
@@ -137,6 +133,10 @@ class WebSocketsPool {
   private createNewWebSocket() {
     const webSocket = new WebSocket('wss://pubsub-edge.twitch.tv/v1');
     this.webSocket = webSocket;
+    this.isClosed = false;
+    this.isOpened = false;
+    this.topics = [];
+    this.pendingTopics = [];
 
     webSocket.onmessage = this.onMessage;
     webSocket.onopen = () => this.onOpen(webSocket);

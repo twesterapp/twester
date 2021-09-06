@@ -1,8 +1,9 @@
 import vanillaCreate from 'zustand/vanilla';
 import create from 'zustand';
+import { rightNowInSecs } from 'renderer/utils';
 import { authStore } from './useAuthStore';
 
-type StreamerLogin = string;
+export type StreamerLogin = string;
 type StreamerId = string;
 
 export interface Streamer {
@@ -12,6 +13,8 @@ export interface Streamer {
   displayName: string;
   profileImageUrl: string;
   followersCount: string;
+  online: boolean;
+  lastOfflineTime: number;
 }
 
 interface State {
@@ -34,6 +37,22 @@ function getInitialState(): State {
 
 export const streamerStore = vanillaCreate(() => getInitialState());
 export const useStreamerStore = create(streamerStore);
+
+export function getAllStreamers(): Streamer[] {
+  return streamerStore.getState().streamers;
+}
+
+export function getOnlineStreamers(): Streamer[] {
+  // Streamers were already ordered based on `priorityRank` which is their
+  // index from first to last (top to bottom), therefore just filtering the
+  // online streamers will have correct `priority`.
+  const onlineStreamers: Streamer[] = getAllStreamers().filter(
+    (streamer) => streamer.online !== false
+  );
+
+  console.log({ onlineStreamers });
+  return onlineStreamers;
+}
 
 export function addStreamer(streamer: Omit<Streamer, 'priorityRank'>) {
   console.log('Adding streamer', streamer);
@@ -82,4 +101,45 @@ export function removeStreamer(id: StreamerId) {
   return setState({
     streamers: updated,
   });
+}
+
+export function setOnlineStatus(_streamer: Streamer, status: boolean) {
+  console.log(`${_streamer.displayName} is ${status ? 'online' : 'offline'}!`);
+
+  const { getState, setState } = streamerStore;
+
+  const updated: Streamer[] = getState().streamers.map((streamer): Streamer => {
+    if (streamer.id === _streamer.id) {
+      if (!status) {
+        return {
+          ...streamer,
+          online: status,
+          lastOfflineTime: rightNowInSecs(),
+        };
+      }
+
+      return {
+        ...streamer,
+        online: status,
+      };
+    }
+
+    return streamer;
+  });
+
+  return setState({
+    streamers: updated,
+  });
+}
+
+export function isOnline(_streamer: Streamer): boolean {
+  for (const streamer of streamerStore.getState().streamers) {
+    if (streamer.id === _streamer.id) {
+      if (streamer.online) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }

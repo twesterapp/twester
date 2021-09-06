@@ -34,9 +34,7 @@ oauthClient.interceptors.request.use(
 
 bearerClient.interceptors.request.use(
   (config) => {
-    console.log('inside interceptor');
     const token = authStore.getState().accessToken;
-    console.log('token', token);
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

@@ -26,3 +26,7 @@ export function px2rem(valInPx: number): string {
 export async function sleep(sec: number) {
   return new Promise((resolve) => setTimeout(resolve, sec * 1000));
 }
+
+export function rightNowInSecs(): number {
+  return Math.floor(Date.now() / 1000);
+}

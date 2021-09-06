@@ -31,8 +31,9 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
           src={streamer.profileImageUrl}
           size={64}
           alt={`${streamer.displayName} profile`}
-          border={false}
-          style={{ margin: '14px' }}
+          border={streamer.online || false}
+          margin="14px"
+          showLiveStatus={streamer.online}
         />
 
         <div>
