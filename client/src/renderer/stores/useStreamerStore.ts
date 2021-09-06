@@ -47,7 +47,7 @@ export function getOnlineStreamers(): Streamer[] {
   // index from first to last (top to bottom), therefore just filtering the
   // online streamers will have correct `priority`.
   const onlineStreamers: Streamer[] = getAllStreamers().filter(
-    (streamer) => streamer.online !== false
+    (streamer) => streamer.online === true
   );
 
   console.log({ onlineStreamers });
@@ -133,7 +133,7 @@ export function setOnlineStatus(_streamer: Streamer, status: boolean) {
 }
 
 export function isOnline(_streamer: Streamer): boolean {
-  for (const streamer of streamerStore.getState().streamers) {
+  for (const streamer of getAllStreamers()) {
     if (streamer.id === _streamer.id) {
       if (streamer.online) {
         return true;
@@ -142,4 +142,9 @@ export function isOnline(_streamer: Streamer): boolean {
   }
 
   return false;
+}
+
+export function resetOnlineStatusOfStreamers() {
+  const streamers = getInitialState().streamers;
+  streamerStore.setState({ streamers });
 }

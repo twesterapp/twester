@@ -48,10 +48,12 @@ export function WatchPage() {
 
   return (
     <PageWrapper>
-      <Warning>
-        Go to <Link to="/">Home Page</Link> and <em>stop</em> watcher to make
-        changes to the list below.
-      </Warning>
+      {isWatching && (
+        <Warning>
+          Go to <Link to="/">Home Page</Link> and <em>stop</em> watcher to make
+          changes to the list below.
+        </Warning>
+      )}
       <Search onSubmit={handleAddStreamer} isWatching={isWatching}>
         <InputText
           style={{ marginRight: `${px2em(12)}`, width: '300px' }}

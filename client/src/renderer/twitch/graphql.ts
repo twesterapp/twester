@@ -8,6 +8,7 @@ import {
   getAllStreamers,
   getOnlineStreamers,
   isOnline,
+  resetOnlineStatusOfStreamers,
 } from 'renderer/stores/useStreamerStore';
 import { setWatching, watcherStore } from 'renderer/stores/useWatcherStore';
 import { rightNowInSecs, sleep } from 'renderer/utils';
@@ -76,6 +77,7 @@ let minutesPassed = 0;
 
 export function stopWatching() {
   setWatching(false);
+  resetOnlineStatusOfStreamers();
 }
 
 export async function startWatching() {
