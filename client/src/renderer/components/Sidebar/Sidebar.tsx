@@ -63,7 +63,6 @@ export function Sidebar() {
               onClick={() => {
                 removeToken();
                 delUser();
-                window.location.reload();
               }}
             />
           </i>

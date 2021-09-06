@@ -2,10 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
 import { LoadingScreen } from 'renderer/components';
-import { nodeClient } from 'renderer/api';
+import { fetchChannelInfo, nodeClient } from 'renderer/api';
+import { useAuthStore, User } from 'renderer/stores/useAuthStore';
 import { Button, InputText } from '../ui';
 
-import { isAuth, px2em } from '../utils';
+import { px2em, setToken } from '../utils';
 
 enum FlowStep {
   CREDENTIALS = 'credentials',
@@ -22,6 +23,7 @@ interface VerifyOptions {
 
 // TODO: Clean this mess.
 export function AuthPage() {
+  const { user } = useAuthStore();
   const [flowStep, setFlowStep] = useState<FlowStep>(FlowStep.CREDENTIALS);
   const [verifyOptions, setVerifyOptions] = useState<VerifyOptions>({
     username: '',
@@ -35,7 +37,7 @@ export function AuthPage() {
     setVerifyOptions(data);
   }
 
-  if (!isAuth()) {
+  if (!user.id) {
     if (flowStep === FlowStep.TWITCHGUARD_CODE) {
       return <VerifyWithCode {...verifyOptions} />;
     }
@@ -78,6 +80,7 @@ function AskForLoginCredentials({
   const [password, setPassword] = useState('');
   const [err, setErr] = useState('');
   const [sendingReq, setSendingReq] = useState(false);
+  const { setUser } = useAuthStore();
 
   const isButtonDisabled = !username.trim() || !password.trim();
 
@@ -102,9 +105,17 @@ function AskForLoginCredentials({
     setSendingReq(false);
 
     if (res.data.access_token) {
-      window.localStorage.setItem('access-token', res.data.access_token);
-      window.localStorage.setItem('username', username);
-      window.location.reload();
+      setToken(res.data.access_token);
+      const result = await fetchChannelInfo(username);
+      const info = result.data.data[0];
+      const user: User = {
+        accessToken: res.data.access_token,
+        displayName: info.display_name,
+        id: info.id,
+        login: info.login,
+        profileImageUrl: info.profile_image_url,
+      };
+      setUser(user);
     }
 
     if (res.data.captcha) {
@@ -173,6 +184,7 @@ function VerifyWithCode({
   const [code, setCode] = useState('');
   const [err, setErr] = useState('');
   const [sendingReq, setSendingReq] = useState(false);
+  const { setUser } = useAuthStore();
 
   function handleCodeInput(event: React.ChangeEvent<HTMLInputElement>) {
     setCode(event.target.value);
@@ -191,9 +203,17 @@ function VerifyWithCode({
     });
 
     if (res.data.access_token) {
-      window.localStorage.setItem('access-token', res.data.access_token);
-      window.localStorage.setItem('username', username);
-      window.location.reload();
+      setToken(res.data.access_token);
+      const result = await fetchChannelInfo(username);
+      const info = result.data.data[0];
+      const user: User = {
+        accessToken: res.data.access_token,
+        displayName: info.display_name,
+        id: info.id,
+        login: info.login,
+        profileImageUrl: info.profile_image_url,
+      };
+      setUser(user);
     }
 
     setErr(res.data?.error?.message);
@@ -232,6 +252,7 @@ function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
   const [err, setErr] = useState('');
   const [sendingReq, setSendingReq] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { setUser } = useAuthStore();
 
   function handleTwoFaInput(event: React.ChangeEvent<HTMLInputElement>) {
     setTwoFa(event.target.value);
@@ -250,9 +271,17 @@ function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
     });
 
     if (res.data.access_token) {
-      window.localStorage.setItem('access-token', res.data.access_token);
-      window.localStorage.setItem('username', username);
-      window.location.reload();
+      setToken(res.data.access_token);
+      const result = await fetchChannelInfo(username);
+      const info = result.data.data[0];
+      const user: User = {
+        accessToken: res.data.access_token,
+        displayName: info.display_name,
+        id: info.id,
+        login: info.login,
+        profileImageUrl: info.profile_image_url,
+      };
+      setUser(user);
     }
 
     setErr(res.data?.error?.message);

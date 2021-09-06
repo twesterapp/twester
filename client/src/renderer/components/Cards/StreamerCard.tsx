@@ -90,6 +90,7 @@ const Card = styled.div`
   }
 
   #streamer-priority-rank {
+    user-select: none;
     position: absolute;
     margin: 0;
     bottom: 10px;
@@ -110,6 +111,7 @@ const Content = styled.div`
   }
 
   p {
+    user-select: none;
     font-size: ${px2rem(16)};
     margin: 0;
     margin-top: ${px2rem(4)};

@@ -2,12 +2,14 @@
 /* eslint-disable guard-for-in */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { oauthClient, fetchChannelInfo, nodeClient } from 'renderer/api';
-import { getUserId, sleep } from 'renderer/utils';
+import { getStreamersFromStorage } from 'renderer/stores/useStreamerStore';
+import { setWatching, watcherStore } from 'renderer/stores/useWatcherStore';
+import { getUser, sleep } from 'renderer/utils';
 
 // TODO: Load the top two online from "Streamers to watch" list which can be
 // fetched from file-storage or backend or localStorage.
-function getStreamersToWatch(): string[] {
-  return ['grimm'];
+function getStreamersToWatch() {
+  return getStreamersFromStorage();
 }
 
 async function makeGqlRequest(
@@ -143,7 +145,7 @@ async function getMinuteWatchedEventRequestInfo(
     broadcast_id: await getBroadcastId(streamerLogin),
     player: 'site',
     // eslint-disable-next-line radix
-    user_id: parseInt(getUserId()),
+    user_id: parseInt(getUser().id),
   };
 
   const minuteWatched = {
@@ -176,8 +178,14 @@ async function getMinuteWatchedEventRequestInfo(
 
 let minutesPassed = 0;
 
+export function stopWatching() {
+  setWatching(false);
+}
+
 export async function startWatching() {
-  while (true) {
+  setWatching(true);
+
+  while (watcherStore.getState().isWatching) {
     console.info(`Watched for ${minutesPassed} minutes`);
     const streamersToWatch = getStreamersToWatch().slice(0, 2);
     const numOfStreamersToWatch = streamersToWatch.length;
@@ -193,15 +201,19 @@ export async function startWatching() {
         Math.floor(Date.now() / 1000) + 60 / numOfStreamersToWatch;
 
       try {
-        const info = await getMinuteWatchedEventRequestInfo(streamer);
+        const info = await getMinuteWatchedEventRequestInfo(streamer.login);
         if (info) {
-          console.info(`Sending watch minute event for ${streamer}`);
+          console.info(
+            `Sending watch minute event for ${streamer.displayName}`
+          );
           await nodeClient.post('/minute-watched-event', {
             url: info.url,
             payload: info.payload,
           });
 
-          console.info(`Successfully sent watch minute event for ${streamer}`);
+          console.info(
+            `Successfully sent watch minute event for ${streamer.displayName}`
+          );
         }
       } catch (e) {
         console.info('Error while trying to watch a minute: ', e);

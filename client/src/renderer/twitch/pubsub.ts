@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable max-classes-per-file */
-import { getToken, getUserId, sleep } from 'renderer/utils';
+import { getUser, sleep } from 'renderer/utils';
 import {
   channelIdExistsInCache,
   claimChannelPointsBonus,
@@ -81,7 +81,7 @@ class PubSubTopic {
 
   async value(): Promise<string> {
     if (this.isUserTopic()) {
-      return `${this.topic}.${getUserId()}`;
+      return `${this.topic}.${getUser().id}`;
     }
 
     return `${this.topic}.${await getChannelId(this.channelLogin!)}`;
@@ -233,7 +233,7 @@ class WebSocketsPool {
     };
 
     if (topic.isUserTopic()) {
-      data.auth_token = getToken()!;
+      data.auth_token = getUser().accessToken;
     }
 
     const nonce = createNonce(15);

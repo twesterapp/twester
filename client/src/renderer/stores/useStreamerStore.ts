@@ -19,6 +19,18 @@ interface State {
 
 const getStorageKey = () => `${getUser().id}.streamers`;
 
+export function getStreamersFromStorage(): Streamer[] {
+  try {
+    const streamers: Streamer[] = JSON.parse(
+      localStorage.getItem(getStorageKey()) || ''
+    );
+
+    return streamers;
+  } catch {
+    return [];
+  }
+}
+
 function getInitialState(): State {
   try {
     const streamers: Streamer[] = JSON.parse(

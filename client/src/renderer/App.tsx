@@ -8,13 +8,20 @@ import 'typeface-karla';
 
 import { darkTheme, GlobalStyle } from './ui';
 import { AuthPage, HomePage, WatchPage } from './pages';
-import { isAuth } from './utils';
 import { Sidebar } from './components';
 import { listenForChannelPoints } from './twitch/pubsub';
+import { useAuthStore } from './stores/useAuthStore';
+// import { fakeLogin } from './utils';
 
 const queryClient = new QueryClient();
 
 const Dashboard = () => {
+  // If we start listening for channel points without useEffect, we will create
+  // multiple WebSocket connections.
+  React.useEffect(() => {
+    listenForChannelPoints();
+  }, []);
+
   return (
     <Layout>
       <SidebarContainer>
@@ -29,14 +36,16 @@ const Dashboard = () => {
 };
 
 export function App() {
-  listenForChannelPoints();
+  // fakeLogin();
+  const { user } = useAuthStore();
+  console.log(user);
 
   return (
     <ThemeProvider theme={darkTheme}>
       <QueryClientProvider client={queryClient}>
         <GlobalStyle />
         <Router>
-          <Switch>{isAuth() ? <Dashboard /> : <AuthPage />}</Switch>
+          <Switch>{user.id ? <Dashboard /> : <AuthPage />}</Switch>
         </Router>
         <ReactQueryDevtools position="bottom-right" />
       </QueryClientProvider>
