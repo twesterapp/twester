@@ -2,9 +2,10 @@
 /* eslint-disable guard-for-in */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { fetchChannelInfo, nodeClient, makeGraphqlRequest } from 'renderer/api';
+import { authStore } from 'renderer/stores/useAuthStore';
 import { streamerStore } from 'renderer/stores/useStreamerStore';
 import { setWatching, watcherStore } from 'renderer/stores/useWatcherStore';
-import { getUser, sleep } from 'renderer/utils';
+import { sleep } from 'renderer/utils';
 
 // TODO: Load the top two online from "Streamers to watch" list which can be
 // fetched from file-storage or backend or localStorage.
@@ -129,7 +130,7 @@ async function getMinuteWatchedEventRequestInfo(
     broadcast_id: await getBroadcastId(streamerLogin),
     player: 'site',
     // eslint-disable-next-line radix
-    user_id: parseInt(getUser().id),
+    user_id: parseInt(authStore.getState().user.id),
   };
 
   const minuteWatched = {

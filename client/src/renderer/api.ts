@@ -52,9 +52,9 @@ bearerClient.interceptors.request.use(
 export function fetchChannelInfo(
   streamerLogin = authStore.getState().user.login
 ) {
-  return bearerClient
-    .get(`https://api.twitch.tv/helix/users?login=${streamerLogin}`)
-    .catch((e) => console.log(e.response.data));
+  return bearerClient.get(
+    `https://api.twitch.tv/helix/users?login=${streamerLogin}`
+  );
 }
 
 export function fetchChannelFollowers(channelId: string) {
@@ -65,7 +65,8 @@ export function fetchChannelFollowers(channelId: string) {
 
 export async function makeGraphqlRequest(
   data: Record<string, unknown>
-): Promise<Record<string, unknown>> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): Promise<Record<string, any>> {
   return oauthClient({ method: 'POST', url: 'https://gql.twitch.tv/gql', data })
     .then((res) => {
       const data = res.data;
