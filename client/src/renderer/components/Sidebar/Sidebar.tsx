@@ -1,25 +1,22 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { fetchChannelInfo } from 'renderer/api';
-import { getUsername, logout, setUserId } from 'renderer/utils';
+import { getUser, removeToken } from 'renderer/utils';
 import styled, { useTheme } from 'styled-components';
 import { IconEye, IconHome, IconSignOut, Avatar, Tooltip } from 'renderer/ui';
 import { useQuery } from 'react-query';
+import { useAuthStore } from 'renderer/stores/useAuthStore';
 import { SidebarIcon } from './SidebarIcon';
 
 export function Sidebar() {
   const history = useHistory();
   const theme = useTheme();
+  const { delUser } = useAuthStore();
 
   const onHomePage = history.location.pathname === '/';
   const onWatchPage = history.location.pathname === '/watch';
 
   const { data } = useQuery('meInfo', () => fetchChannelInfo());
-  const userId = data?.data.data[0].id;
-
-  if (userId) {
-    setUserId(userId);
-  }
 
   return (
     <Container>
@@ -64,7 +61,8 @@ export function Sidebar() {
               icon={IconSignOut}
               color={theme.color.error}
               onClick={() => {
-                logout();
+                removeToken();
+                delUser();
                 window.location.reload();
               }}
             />
@@ -73,10 +71,14 @@ export function Sidebar() {
 
         <i style={{ height: '11px' }} />
 
-        <Tooltip title={getUsername() || ''} placement="right" enterDelay={500}>
+        <Tooltip
+          title={getUser().login || ''}
+          placement="right"
+          enterDelay={500}
+        >
           <i>
             <a
-              href={`https://www.twitch.tv/${getUsername()}`}
+              href={`https://www.twitch.tv/${getUser().login}`}
               target="_blank"
               rel="noreferrer"
             >
