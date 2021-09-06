@@ -20,18 +20,6 @@ interface State {
 
 const getStorageKey = () => `${getUser().id}.streamers`;
 
-export function getStreamersFromStorage(): Streamer[] {
-  try {
-    const streamers: Streamer[] = JSON.parse(
-      localStorage.getItem(getStorageKey()) || ''
-    );
-
-    return streamers;
-  } catch {
-    return [];
-  }
-}
-
 function getInitialState(): State {
   try {
     const streamers: Streamer[] = JSON.parse(
@@ -45,6 +33,7 @@ function getInitialState(): State {
 }
 
 export const streamerStore = vanillaCreate(() => getInitialState());
+export const useStreamerStore = create(streamerStore);
 
 export function addStreamer(streamer: Omit<Streamer, 'priorityRank'>) {
   console.log('Adding streamer', streamer);
@@ -94,5 +83,3 @@ export function removeStreamer(id: StreamerId) {
     streamers: updated,
   });
 }
-
-export const useStreamerStore = create(streamerStore);

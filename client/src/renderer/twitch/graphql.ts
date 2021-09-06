@@ -1,31 +1,15 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable guard-for-in */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { oauthClient, fetchChannelInfo, nodeClient } from 'renderer/api';
-import { getStreamersFromStorage } from 'renderer/stores/useStreamerStore';
+import { fetchChannelInfo, nodeClient, makeGraphqlRequest } from 'renderer/api';
+import { streamerStore } from 'renderer/stores/useStreamerStore';
 import { setWatching, watcherStore } from 'renderer/stores/useWatcherStore';
 import { getUser, sleep } from 'renderer/utils';
 
 // TODO: Load the top two online from "Streamers to watch" list which can be
 // fetched from file-storage or backend or localStorage.
 function getStreamersToWatch() {
-  return getStreamersFromStorage();
-}
-
-async function makeGqlRequest(
-  data: Record<string, any>
-): Promise<Record<string, any>> {
-  // console.info('Making Twitch GraphQL request');
-
-  return oauthClient({ method: 'POST', url: 'https://gql.twitch.tv/gql', data })
-    .then((res) => {
-      const data = res.data;
-      // console.info('Res from Twitch GraphQL \n', data);
-      return data;
-    })
-    .catch((e) => {
-      console.error('Twitch GraphQL request error: \n', e);
-    });
+  return streamerStore.getState().streamers;
 }
 
 export async function claimChannelPointsBonus(
@@ -48,7 +32,7 @@ export async function claimChannelPointsBonus(
     },
   };
 
-  makeGqlRequest(data);
+  makeGraphqlRequest(data);
 }
 
 // CACHING
@@ -102,7 +86,7 @@ async function getBroadcastId(streamerLogin: string): Promise<string> {
     },
   };
 
-  const response = await makeGqlRequest(data);
+  const response = await makeGraphqlRequest(data);
   const stream = response.data.user.stream;
 
   if (!stream) {

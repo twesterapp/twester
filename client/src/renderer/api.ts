@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getToken, getUser } from './utils';
+import { authStore } from 'renderer/stores/useAuthStore';
 
 export const nodeClient = axios.create({
   baseURL: 'http://localhost:6969',
@@ -19,7 +19,8 @@ export const bearerClient = axios.create({
 
 oauthClient.interceptors.request.use(
   (config) => {
-    const token = getToken();
+    const token = authStore.getState().accessToken;
+
     if (token) {
       config.headers.Authorization = `OAuth ${token}`;
     }
@@ -33,9 +34,8 @@ oauthClient.interceptors.request.use(
 
 bearerClient.interceptors.request.use(
   (config) => {
-    console.log('Inside interceptor');
-    const token = getToken();
-    console.log('Token value inside interceptor', token);
+    const token = authStore.getState().accessToken;
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -47,7 +47,9 @@ bearerClient.interceptors.request.use(
   }
 );
 
-export function fetchChannelInfo(streamerLogin = getUser().login) {
+export function fetchChannelInfo(
+  streamerLogin = authStore.getState().user.login
+) {
   return bearerClient.get(
     `https://api.twitch.tv/helix/users?login=${streamerLogin}`
   );
@@ -57,4 +59,17 @@ export function fetchChannelFollowers(channelId: string) {
   return bearerClient.get(
     `https://api.twitch.tv/helix/users/follows?to_id=${channelId}`
   );
+}
+
+export async function makeGraphqlRequest(
+  data: Record<string, any>
+): Promise<Record<string, any>> {
+  return oauthClient({ method: 'POST', url: 'https://gql.twitch.tv/gql', data })
+    .then((res) => {
+      const data = res.data;
+      return data;
+    })
+    .catch((e) => {
+      console.error('Twitch GraphQL request error: \n', e);
+    });
 }

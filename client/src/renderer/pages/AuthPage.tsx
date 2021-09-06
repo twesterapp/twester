@@ -3,10 +3,15 @@ import styled from 'styled-components';
 
 import { LoadingScreen } from 'renderer/components';
 import { fetchChannelInfo, nodeClient } from 'renderer/api';
-import { useAuthStore, User } from 'renderer/stores/useAuthStore';
+import {
+  useAuthStore,
+  User,
+  setUser,
+  setToken,
+} from 'renderer/stores/useAuthStore';
 import { Button, InputText } from '../ui';
 
-import { px2em, setToken } from '../utils';
+import { px2em } from '../utils';
 
 enum FlowStep {
   CREDENTIALS = 'credentials',
@@ -80,7 +85,6 @@ function AskForLoginCredentials({
   const [password, setPassword] = useState('');
   const [err, setErr] = useState('');
   const [sendingReq, setSendingReq] = useState(false);
-  const { setUser } = useAuthStore();
 
   const isButtonDisabled = !username.trim() || !password.trim();
 
@@ -109,7 +113,6 @@ function AskForLoginCredentials({
       const result = await fetchChannelInfo(username);
       const info = result.data.data[0];
       const user: User = {
-        accessToken: res.data.access_token,
         displayName: info.display_name,
         id: info.id,
         login: info.login,
@@ -184,7 +187,6 @@ function VerifyWithCode({
   const [code, setCode] = useState('');
   const [err, setErr] = useState('');
   const [sendingReq, setSendingReq] = useState(false);
-  const { setUser } = useAuthStore();
 
   function handleCodeInput(event: React.ChangeEvent<HTMLInputElement>) {
     setCode(event.target.value);
@@ -207,7 +209,6 @@ function VerifyWithCode({
       const result = await fetchChannelInfo(username);
       const info = result.data.data[0];
       const user: User = {
-        accessToken: res.data.access_token,
         displayName: info.display_name,
         id: info.id,
         login: info.login,
@@ -252,7 +253,6 @@ function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
   const [err, setErr] = useState('');
   const [sendingReq, setSendingReq] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const { setUser } = useAuthStore();
 
   function handleTwoFaInput(event: React.ChangeEvent<HTMLInputElement>) {
     setTwoFa(event.target.value);
@@ -275,7 +275,6 @@ function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
       const result = await fetchChannelInfo(username);
       const info = result.data.data[0];
       const user: User = {
-        accessToken: res.data.access_token,
         displayName: info.display_name,
         id: info.id,
         login: info.login,

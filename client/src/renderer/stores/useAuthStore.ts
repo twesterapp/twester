@@ -1,8 +1,7 @@
 import create from 'zustand';
-import { combine } from 'zustand/middleware';
+import vanillaCreate from 'zustand/vanilla';
 
 export interface User {
-  accessToken: string;
   displayName: string;
   id: string;
   login: string;
@@ -11,52 +10,68 @@ export interface User {
 
 interface State {
   user: User;
+  accessToken: string;
 }
-
-const getStorageKey = () => 'user';
 
 function getInitialState(): State {
   try {
-    const user: User = JSON.parse(localStorage.getItem(getStorageKey()) || '');
+    const user: User = JSON.parse(localStorage.getItem('user') || '');
+    const token = localStorage.getItem('access-token') || '';
 
-    return { user };
+    return { user, accessToken: token };
   } catch {
     return {
       user: {
-        accessToken: '',
         displayName: '',
         id: '',
         login: '',
         profileImageUrl: '',
       },
+      accessToken: '',
     };
   }
 }
 
-export const useAuthStore = create(
-  combine(getInitialState(), (set) => ({
-    setUser: (user: User) => {
-      try {
-        localStorage.setItem(getStorageKey(), JSON.stringify(user));
-      } catch {}
+export const authStore = vanillaCreate(() => getInitialState());
+export const useAuthStore = create(authStore);
 
-      return set({ user });
+export function setUser(user: User) {
+  try {
+    localStorage.setItem('user', JSON.stringify(user));
+  } catch {}
+
+  return authStore.setState({ user });
+}
+
+export function delUser() {
+  try {
+    localStorage.removeItem('user');
+  } catch {}
+
+  return authStore.setState({
+    user: {
+      displayName: '',
+      id: '',
+      login: '',
+      profileImageUrl: '',
     },
+  });
+}
 
-    delUser: () => {
-      try {
-        localStorage.removeItem(getStorageKey());
-      } catch {}
+export function setToken(accessToken: string) {
+  try {
+    localStorage.setItem('access-token', JSON.stringify(accessToken));
+  } catch {}
 
-      return set({
-        user: {
-          accessToken: '',
-          displayName: '',
-          id: '',
-          login: '',
-          profileImageUrl: '',
-        },
-      });
-    },
-  }))
-);
+  return authStore.setState({ accessToken });
+}
+
+export function delToken() {
+  try {
+    localStorage.removeItem('access-token');
+  } catch {}
+
+  return authStore.setState({
+    accessToken: '',
+  });
+}
