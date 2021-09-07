@@ -1,7 +1,7 @@
 import React from 'react';
 import { useStreamerStore } from 'renderer/stores/useStreamerStore';
 import { useWatcherStore } from 'renderer/stores/useWatcherStore';
-import { watcher } from 'renderer/twitch/watcher';
+import { watcher } from 'renderer/core/watcher';
 import { IconPlay, IconStop, Link } from 'renderer/ui';
 import { px2rem } from 'renderer/utils';
 import styled, { useTheme } from 'styled-components';
