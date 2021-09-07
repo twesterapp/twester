@@ -1,4 +1,4 @@
-import { sleep } from 'renderer/utils';
+import { noop, sleep } from 'renderer/utils';
 import { authStore } from 'renderer/stores/useAuthStore';
 import { getAllStreamers } from 'renderer/stores/useStreamerStore';
 import {
@@ -46,14 +46,20 @@ function createNonce(length: number) {
   return nonce;
 }
 
+let wsPool: WebSocketsPool;
+
 export function listenForChannelPoints() {
   const topics = getNeededTopics();
-  const wsPool = new WebSocketsPool();
+  wsPool = new WebSocketsPool();
 
   for (let i = 0; i < topics.length; i += 1) {
     const topic = topics[i];
     wsPool.submit(topic);
   }
+}
+
+export function stopListeningForChannelPoints() {
+  wsPool.stop();
 }
 
 function getNeededTopics(): PubSubTopic[] {
@@ -104,6 +110,8 @@ class WebSocketsPool {
 
   private isClosed = false;
 
+  private closedOnPurpose = false;
+
   private pingHandle!: NodeJS.Timeout;
 
   private pingHandleInterval = 60 * 1000 * 4;
@@ -126,7 +134,14 @@ class WebSocketsPool {
     if (!this.isOpened) {
       this.pendingTopics.push(topic);
     } else if (this.webSocket) {
-      this.listenForTopic(this.webSocket, topic);
+      this.listenForTopic(topic);
+    }
+  }
+
+  stop() {
+    if (this.webSocket && !this.isClosed) {
+      this.closedOnPurpose = true;
+      this.webSocket.close();
     }
   }
 
@@ -135,12 +150,36 @@ class WebSocketsPool {
     this.webSocket = webSocket;
     this.isClosed = false;
     this.isOpened = false;
+    this.closedOnPurpose = false;
     this.topics = [];
     this.pendingTopics = [];
 
     webSocket.onmessage = this.onMessage;
-    webSocket.onopen = () => this.onOpen(webSocket);
-    webSocket.onclose = this.handleWebSocketReconnection;
+    webSocket.onopen = () => this.onOpen();
+    webSocket.onclose = () => this.handleWebSocketReconnection();
+  }
+
+  private onOpen() {
+    console.info('[PubSub]: WebSocket Open');
+    this.isOpened = true;
+    this.ping();
+
+    for (let i = 0; i < this.pendingTopics.length; i += 1) {
+      this.listenForTopic(this.pendingTopics[i]);
+    }
+
+    this.pingHandle = setInterval(() => this.ping(), this.pingHandleInterval);
+  }
+
+  ping() {
+    console.info('[PubSub]: Sending PING');
+    this.send({
+      type: 'PING',
+    });
+  }
+
+  private send(message: Record<string, unknown>) {
+    this.webSocket?.send(JSON.stringify(message));
   }
 
   private onMessage(event: MessageEvent) {
@@ -216,30 +255,7 @@ class WebSocketsPool {
     }
   }
 
-  private onOpen(ws: WebSocket) {
-    console.info('[PubSub]: WebSocket Open');
-    this.isOpened = true;
-    this.ping(ws);
-
-    for (let i = 0; i < this.pendingTopics.length; i += 1) {
-      this.listenForTopic(ws, this.pendingTopics[i]);
-    }
-
-    this.pingHandle = setInterval(() => this.ping(ws), this.pingHandleInterval);
-  }
-
-  ping(ws: WebSocket) {
-    console.info('[PubSub]: Sending PING');
-    this.send(ws, {
-      type: 'PING',
-    });
-  }
-
-  private send(ws: WebSocket, message: Record<string, unknown>) {
-    ws.send(JSON.stringify(message));
-  }
-
-  private async listenForTopic(ws: WebSocket, topic: PubSubTopic) {
+  private async listenForTopic(topic: PubSubTopic) {
     const data = {
       topics: [`${await topic.value()}`],
       auth_token: '',
@@ -250,10 +266,16 @@ class WebSocketsPool {
     }
 
     const nonce = createNonce(15);
-    this.send(ws, { type: 'LISTEN', nonce, data });
+    this.send({ type: 'LISTEN', nonce, data });
   }
 
   private async handleWebSocketReconnection() {
+    clearInterval(this.pingHandle);
+
+    if (this.closedOnPurpose) {
+      return;
+    }
+
     this.isClosed = true;
     console.info(
       '[PubSub]: Reconnecting to Twitch PubSub server in 30 seconds'
@@ -262,7 +284,6 @@ class WebSocketsPool {
     await sleep(30);
 
     this.webSocket = null;
-    clearInterval(this.pingHandle);
 
     if (this.topics) {
       for (let i = 0; i < this.topics.length; i += 1) {

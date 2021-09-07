@@ -5,7 +5,10 @@ import {
   useStreamerStore,
   addStreamer,
 } from 'renderer/stores/useStreamerStore';
-import { useWatcherStore } from 'renderer/stores/useWatcherStore';
+import {
+  useWatcherStore,
+  WatcherStatus,
+} from 'renderer/stores/useWatcherStore';
 import { Button, IconPlus, InputText, Link } from 'renderer/ui';
 import { px2em } from 'renderer/utils';
 import styled from 'styled-components';
@@ -14,7 +17,15 @@ export function WatchPage() {
   const [searchText, setSearchText] = React.useState('');
   const [fetchingStreamer, setFetchingStreamer] = React.useState(false);
   const { streamers } = useStreamerStore();
-  const { isWatching } = useWatcherStore();
+  const { status } = useWatcherStore();
+
+  function canEditWatchPage(): boolean {
+    if (status === WatcherStatus.INIT || status === WatcherStatus.STOPPED) {
+      return true;
+    }
+
+    return false;
+  }
 
   async function handleAddStreamer(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -48,25 +59,25 @@ export function WatchPage() {
 
   return (
     <PageWrapper>
-      {isWatching && (
+      {!canEditWatchPage() && (
         <Warning>
           Go to <Link to="/">Home Page</Link> and <em>stop</em> watcher to make
           changes to the list below.
         </Warning>
       )}
-      <Search onSubmit={handleAddStreamer} isWatching={isWatching}>
+      <Search onSubmit={handleAddStreamer} isWatching={!canEditWatchPage()}>
         <InputText
           style={{ marginRight: `${px2em(12)}`, width: '300px' }}
           placeholder="Streamer to add"
           value={searchText}
-          disabled={isWatching ?? fetchingStreamer}
+          disabled={!canEditWatchPage() ?? fetchingStreamer}
           onChange={(e) => setSearchText(e.target.value)}
         />
         <Button
           width="46px"
           variant="submit"
           loading={fetchingStreamer}
-          disabled={isWatching ?? !searchText.trim()}
+          disabled={!canEditWatchPage() ?? !searchText.trim()}
         >
           <IconPlus />
         </Button>

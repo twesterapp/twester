@@ -6,7 +6,14 @@ import {
   isOnline,
   resetOnlineStatusOfStreamers,
 } from 'renderer/stores/useStreamerStore';
-import { setWatching, watcherStore } from 'renderer/stores/useWatcherStore';
+import {
+  setWatcherStatus,
+  watcherIsRunning,
+  WatcherStatus,
+  watcherStore,
+  canStopWatcher,
+  canStartWatcher,
+} from 'renderer/stores/useWatcherStore';
 import { rightNowInSecs, sleep } from 'renderer/utils';
 import { loadChannelPointsContext } from './bonus';
 import {
@@ -14,7 +21,10 @@ import {
   getMinuteWatchedRequestInfo,
   setStreamersToWatch,
 } from './data';
-import { listenForChannelPoints } from './pubsub';
+import {
+  listenForChannelPoints,
+  stopListeningForChannelPoints,
+} from './pubsub';
 
 class Watcher {
   private minutesPassed = 0;
@@ -24,14 +34,16 @@ class Watcher {
       console.error('User not authorized');
     }
 
+    setWatcherStatus(WatcherStatus.BOOTING);
     console.log(`Loading data for ${getAllStreamers().length} streamers...`);
 
-    setWatching(true);
     listenForChannelPoints();
     await setStreamersToWatch();
     doForEachStreamer(loadChannelPointsContext);
 
-    while (watcherStore.getState().isWatching) {
+    setWatcherStatus(WatcherStatus.RUNNING);
+
+    while (watcherIsRunning()) {
       console.info(`Watched for ${this.minutesPassed} minutes`);
       const streamersToWatch = getOnlineStreamers().slice(0, 2);
       const numOfStreamersToWatch = streamersToWatch.length;
@@ -80,8 +92,20 @@ class Watcher {
   }
 
   public stop() {
-    setWatching(false);
+    setWatcherStatus(WatcherStatus.STOPPING);
+
     resetOnlineStatusOfStreamers();
+    stopListeningForChannelPoints();
+
+    setWatcherStatus(WatcherStatus.STOPPED);
+  }
+
+  public canStart(): boolean {
+    return canStartWatcher();
+  }
+
+  public canStop(): boolean {
+    return canStopWatcher();
   }
 }
 

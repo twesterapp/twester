@@ -30,3 +30,5 @@ export async function sleep(sec: number) {
 export function rightNowInSecs(): number {
   return Math.floor(Date.now() / 1000);
 }
+
+export function noop() {}

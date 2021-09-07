@@ -1,6 +1,9 @@
 import React from 'react';
 import { useStreamerStore } from 'renderer/stores/useStreamerStore';
-import { useWatcherStore } from 'renderer/stores/useWatcherStore';
+import {
+  useWatcherStore,
+  WatcherStatus,
+} from 'renderer/stores/useWatcherStore';
 import { watcher } from 'renderer/core/watcher';
 import { IconPlay, IconStop, Link } from 'renderer/ui';
 import { px2rem } from 'renderer/utils';
@@ -9,29 +12,51 @@ import styled, { useTheme } from 'styled-components';
 export function HomePage() {
   const theme = useTheme();
   const { streamers } = useStreamerStore();
-  const { isWatching } = useWatcherStore();
+  const { status } = useWatcherStore();
 
-  const noStreamers = streamers.length === 0;
+  const noStreamersToWatch = streamers.length === 0;
+
+  function isPlayButtonActive(): boolean {
+    if (watcher.canStart() && !noStreamersToWatch) return true;
+    return false;
+  }
+
+  function isStopButtonActive(): boolean {
+    if (watcher.canStop()) return true;
+    return false;
+  }
+
+  function showStopButton(): boolean {
+    if (status === WatcherStatus.INIT || status === WatcherStatus.STOPPED) {
+      return false;
+    }
+
+    return true;
+  }
 
   return (
     <PageWrapper>
       <Content>
-        {isWatching ? (
+        {showStopButton() ? (
           <IconStop
-            style={{ cursor: 'pointer' }}
+            style={{ cursor: isStopButtonActive() ? 'pointer' : 'not-allowed' }}
             size={64}
-            color={theme.color.error}
-            onClick={() => watcher.stop()}
+            color={
+              isStopButtonActive() ? theme.color.error : theme.color.disabled
+            }
+            onClick={() => isStopButtonActive() && watcher.stop()}
           />
         ) : (
           <IconPlay
-            style={{ cursor: noStreamers ? 'not-allowed' : 'pointer' }}
+            style={{ cursor: isPlayButtonActive() ? 'pointer' : 'not-allowed' }}
             size={64}
-            color={noStreamers ? theme.color.disabled : theme.color.success}
-            onClick={() => watcher.start()}
+            color={
+              isPlayButtonActive() ? theme.color.success : theme.color.disabled
+            }
+            onClick={() => isPlayButtonActive() && watcher.start()}
           />
         )}
-        {noStreamers && (
+        {noStreamersToWatch && (
           <p>
             Add at least one streamer to{' '}
             <Link to="/watch">“Streamers to watch”</Link> list and hit the play
