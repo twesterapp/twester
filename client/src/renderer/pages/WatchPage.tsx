@@ -46,9 +46,8 @@ export function WatchPage() {
         displayName: info.display_name,
         profileImageUrl: info.profile_image_url,
         followersCount: followersResult.data.total,
-        online: false,
-        lastOfflineTime: 0,
       });
+
       setFetchingStreamer(false);
       setSearchText('');
     } catch {

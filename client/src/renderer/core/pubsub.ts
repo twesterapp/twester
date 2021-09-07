@@ -35,7 +35,7 @@ import { claimChannelPointsBonus } from './bonus';
  *    listening to topics for the new streamer.
  */
 
-let wsPool: WebSocketsPool;
+let wsPool: WebSocketsPool | null = null;
 
 export function listenForChannelPoints() {
   const topics = getNeededTopics();
@@ -48,7 +48,10 @@ export function listenForChannelPoints() {
 }
 
 export function stopListeningForChannelPoints() {
-  wsPool.stop();
+  if (wsPool) {
+    wsPool.stop();
+    wsPool = null;
+  }
 }
 
 function getNeededTopics(): PubSubTopic[] {

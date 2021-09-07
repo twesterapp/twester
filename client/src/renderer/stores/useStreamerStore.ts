@@ -21,6 +21,13 @@ interface State {
   streamers: Streamer[];
 }
 
+type NewStreamer = Omit<
+  Streamer,
+  'online' | 'lastOfflineTime' | 'priorityRank'
+>;
+
+type UpdateStreamer = Omit<NewStreamer, 'id' | 'login'>;
+
 const getStorageKey = () => `${authStore.getState().user.id}.streamers`;
 
 function getInitialState(): State {
@@ -53,7 +60,7 @@ export function getOnlineStreamers(): Streamer[] {
   return onlineStreamers;
 }
 
-export function addStreamer(streamer: Omit<Streamer, 'priorityRank'>) {
+export function addStreamer(streamer: NewStreamer) {
   const { getState, setState } = streamerStore;
 
   for (let i = 0; i < getState().streamers.length; i += 1) {
@@ -69,6 +76,8 @@ export function addStreamer(streamer: Omit<Streamer, 'priorityRank'>) {
   const streamerToAdd = {
     ...streamer,
     priorityRank: getState().streamers.length + 1,
+    online: false,
+    lastOfflineTime: 0,
   };
 
   const updated = [...getState().streamers, streamerToAdd];
@@ -90,6 +99,31 @@ export function removeStreamer(id: StreamerId) {
     .map((streamer, idx) => {
       return { ...streamer, priorityRank: idx + 1 };
     });
+
+  try {
+    localStorage.setItem(getStorageKey(), JSON.stringify(updated));
+  } catch {}
+
+  return setState({
+    streamers: updated,
+  });
+}
+
+export function updateStreamer(id: StreamerId, newValue: UpdateStreamer) {
+  const { getState, setState } = streamerStore;
+
+  const updated = getState().streamers.map((streamer) => {
+    if (streamer.id === id) {
+      return {
+        ...streamer,
+        displayName: newValue.displayName,
+        profileImageUrl: newValue.profileImageUrl,
+        followersCount: newValue.followersCount,
+      };
+    }
+
+    return { ...streamer };
+  });
 
   try {
     localStorage.setItem(getStorageKey(), JSON.stringify(updated));

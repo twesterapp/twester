@@ -10,7 +10,7 @@ export function fakeLogin() {
   };
 
   setUser(user);
-  setToken('fgawybrnhzgz650b6dxu57tnoqaymn');
+  setToken('ep0202p2qbm0pqx34edauumbuwerl2');
 }
 
 export function px2em(valInPx: number): string {

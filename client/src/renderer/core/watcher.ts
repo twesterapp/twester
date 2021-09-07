@@ -10,7 +10,6 @@ import {
   setWatcherStatus,
   watcherIsRunning,
   WatcherStatus,
-  watcherStore,
   canStopWatcher,
   canStartWatcher,
 } from 'renderer/stores/useWatcherStore';

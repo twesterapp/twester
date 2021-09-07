@@ -15,7 +15,6 @@ import { darkTheme, GlobalStyle } from './ui';
 import { AuthPage, HomePage, WatchPage } from './pages';
 import { Sidebar } from './components';
 import { useAuthStore } from './stores/useAuthStore';
-// import { fakeLogin } from './utils';
 
 const queryClient = new QueryClient();
 
@@ -36,7 +35,6 @@ const Dashboard = () => {
 };
 
 export function App() {
-  // fakeLogin();
   const { user } = useAuthStore();
 
   return (

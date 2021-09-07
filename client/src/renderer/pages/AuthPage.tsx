@@ -11,7 +11,7 @@ import {
 } from 'renderer/stores/useAuthStore';
 import { Button, InputText } from '../ui';
 
-import { px2em } from '../utils';
+import { fakeLogin, px2em } from '../utils';
 
 enum FlowStep {
   CREDENTIALS = 'credentials',
@@ -119,6 +119,7 @@ function AskForLoginCredentials({
         profileImageUrl: info.profile_image_url,
       };
       setUser(user);
+      return;
     }
 
     if (res.data.captcha) {
@@ -145,6 +146,13 @@ function AskForLoginCredentials({
 
   return (
     <Container>
+      <Button
+        onClick={() => {
+          fakeLogin();
+        }}
+      >
+        Fake Login
+      </Button>
       <h1 style={{ margin: 0, marginBottom: px2em(43) }}>
         Login to your Twitch account to start
       </h1>
@@ -215,6 +223,7 @@ function VerifyWithCode({
         profileImageUrl: info.profile_image_url,
       };
       setUser(user);
+      return;
     }
 
     setErr(res.data?.error?.message);
@@ -281,6 +290,7 @@ function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
         profileImageUrl: info.profile_image_url,
       };
       setUser(user);
+      return;
     }
 
     setErr(res.data?.error?.message);

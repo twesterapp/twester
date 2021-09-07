@@ -1,5 +1,9 @@
 import React from 'react';
-import { Streamer, removeStreamer } from 'renderer/stores/useStreamerStore';
+import {
+  Streamer,
+  removeStreamer,
+  updateStreamer,
+} from 'renderer/stores/useStreamerStore';
 import { Avatar, IconCross } from 'renderer/ui';
 import { px2rem } from 'renderer/utils';
 import styled, { useTheme } from 'styled-components';
@@ -7,15 +11,39 @@ import styled, { useTheme } from 'styled-components';
 // @ts-ignore
 import humanFormat from 'human-format';
 import { watcherIsRunning } from 'renderer/stores/useWatcherStore';
+import { fetchChannelFollowers, fetchChannelInfo } from 'renderer/api';
+import { useQuery } from 'react-query';
 
 interface StreamerCardProps {
   streamer: Streamer;
 }
 
+// TODO: For grabbing state UI/Cursor we would probably use some state
+// provided by `react-dnd` (drag-n-drop).
 export function StreamerCard({ streamer }: StreamerCardProps) {
-  // TODO: For grabbing state UI/Cursor we would probably use some state
-  // provided by `react-dnd` (drag-n-drop).
   const theme = useTheme();
+
+  const { data } = useQuery(`${streamer.login}_STREAMER_CARD_INFO`, () =>
+    fetchChannelInfo(streamer.login)
+  );
+
+  React.useEffect(() => {
+    const info = data?.data.data[0];
+
+    const run = async () => {
+      const followersResult = await fetchChannelFollowers(info.id);
+
+      updateStreamer(streamer.id, {
+        displayName: info.display_name,
+        profileImageUrl: info.profile_image_url,
+        followersCount: followersResult.data.total,
+      });
+    };
+
+    if (info) {
+      run();
+    }
+  }, [data, streamer.id]);
 
   return (
     <Card>
