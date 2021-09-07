@@ -1,4 +1,3 @@
-import http from 'http';
 import axios from 'axios';
 import express, { Application, NextFunction, Request, Response } from 'express';
 import querystring from 'querystring';
@@ -336,19 +335,8 @@ app.post('/auth', login);
 app.post('/auth/two-fa', twoFA);
 app.post('/auth/code', code);
 
-let server: http.Server;
-
 export function startServer() {
-  server = app.listen('6969', () => {
+  app.listen('6969', () => {
     log('Starting on port 6969');
   });
-}
-
-export function stopServer() {
-  if (server) {
-    server.close(() => {
-      log('Shutting down');
-      // process.exit(0);
-    });
-  }
 }

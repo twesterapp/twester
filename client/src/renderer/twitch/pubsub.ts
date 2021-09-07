@@ -1,8 +1,3 @@
-/* eslint-disable import/no-cycle */
-/* eslint-disable class-methods-use-this */
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-/* eslint-disable no-await-in-loop */
-/* eslint-disable max-classes-per-file */
 import { sleep } from 'renderer/utils';
 import { authStore } from 'renderer/stores/useAuthStore';
 import { getAllStreamers } from 'renderer/stores/useStreamerStore';
@@ -13,7 +8,7 @@ import {
   getStreamerLoginByChannelIdFromCache,
   setOffline,
 } from './data';
-import { claimChannelPointsBonus } from './claimBonus';
+import { claimChannelPointsBonus } from './bonus';
 
 /**
  * Some important notes about the Twitch PubSub
@@ -202,11 +197,6 @@ class WebSocketsPool {
         }
       } else if (topic === 'video-playback-by-id') {
         const streamerLogin = getStreamerLoginByChannelIdFromCache(topicUser);
-        console.log('playback socket message', {
-          topic,
-          messageType,
-          streamerLogin,
-        });
 
         // There is stream-up message type, but it's sent earlier than the
         // API updates. Therefore making it useless to check for it here, as
