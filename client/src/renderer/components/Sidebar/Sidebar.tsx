@@ -7,19 +7,23 @@ import { useQuery } from 'react-query';
 import { delToken, delUser, authStore } from 'renderer/stores/useAuthStore';
 import { SidebarIcon } from './SidebarIcon';
 
-export function Sidebar() {
+interface SidebarOptions {
+  currentPage: string;
+}
+
+export function Sidebar({ currentPage }: SidebarOptions) {
   const history = useHistory();
   const theme = useTheme();
 
-  const onHomePage = history.location.pathname === '/';
-  const onWatchPage = history.location.pathname === '/watch';
-
   const { data } = useQuery('meInfo', () => fetchChannelInfo());
+
+  const onHomePage = currentPage === '/';
+  const onWatchPage = currentPage === '/watch';
 
   return (
     <Container>
       <Top>
-        <Tooltip title="Home" placement="right" enterDelay={500}>
+        <Tooltip title="Home" placement="right" enterDelay={1000}>
           {/* 
             Only a valid HTML Element can be the first child inside `Tooltip`
             that's why there is an <i> </i> wrapping <SidebarIcon>.
@@ -36,7 +40,7 @@ export function Sidebar() {
         {/* For creating space */}
         <i style={{ height: '11px' }} />
 
-        <Tooltip title="Streamers to watch" placement="right" enterDelay={500}>
+        <Tooltip title="Streamers to watch" placement="right" enterDelay={1000}>
           <i>
             <SidebarIcon
               icon={IconEye}
@@ -51,7 +55,7 @@ export function Sidebar() {
         <Tooltip
           title="Sign out"
           placement="right"
-          enterDelay={500}
+          enterDelay={1000}
           background={theme.color.error}
         >
           <i>
@@ -71,7 +75,7 @@ export function Sidebar() {
         <Tooltip
           title={authStore.getState().user.login || ''}
           placement="right"
-          enterDelay={500}
+          enterDelay={1000}
         >
           <i>
             <a

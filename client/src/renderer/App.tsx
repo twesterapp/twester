@@ -1,6 +1,11 @@
 import React from 'react';
 import styled, { ThemeProvider } from 'styled-components';
-import { MemoryRouter as Router, Switch, Route } from 'react-router-dom';
+import {
+  MemoryRouter as Router,
+  Switch,
+  Route,
+  useHistory,
+} from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import 'typeface-poppins';
@@ -15,14 +20,16 @@ import { useAuthStore } from './stores/useAuthStore';
 const queryClient = new QueryClient();
 
 const Dashboard = () => {
+  const history = useHistory();
+
   return (
     <Layout>
       <SidebarContainer>
-        <Sidebar />
+        <Sidebar currentPage={history.location.pathname} />
       </SidebarContainer>
       <DashboardContainer>
         <Route path="/" exact component={HomePage} />
-        <Route path="/watch" exact component={WatchPage} />
+        <Route path="/watch" component={WatchPage} />
       </DashboardContainer>
     </Layout>
   );

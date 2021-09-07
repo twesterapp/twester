@@ -60,8 +60,6 @@ const installExtensions = async () => {
 };
 
 const createWindow = async () => {
-  // TODO: Only start the server if the user is not authenticated and shut it
-  // down once the user is authenticated.
   startServer();
 
   if (
