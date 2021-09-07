@@ -1,13 +1,17 @@
+/* eslint-disable import/no-cycle */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable max-classes-per-file */
 import { sleep } from 'renderer/utils';
 import { authStore } from 'renderer/stores/useAuthStore';
+import { getAllStreamers } from 'renderer/stores/useStreamerStore';
 import {
   channelIdExistsInCache,
+  checkOnline,
   getChannelId,
   getStreamerLoginByChannelIdFromCache,
+  setOffline,
 } from './data';
 import { claimChannelPointsBonus } from './claimBonus';
 
@@ -58,10 +62,11 @@ export function listenForChannelPoints() {
 }
 
 function getNeededTopics(): PubSubTopic[] {
-  const topics = [
-    new PubSubTopic('community-points-user-v1'),
-    new PubSubTopic('whispers'),
-  ];
+  const topics = [new PubSubTopic('community-points-user-v1')];
+
+  for (const streamer of getAllStreamers()) {
+    topics.push(new PubSubTopic('video-playback-by-id', streamer.login));
+  }
 
   return topics;
 }
@@ -149,7 +154,7 @@ class WebSocketsPool {
     if (data.type === 'PONG') {
       console.info('[PubSub]: Received PONG');
     } else if (data.type === 'MESSAGE') {
-      const [topic, _topicUser] = data.data.topic.split('.');
+      const [topic, topicUser] = data.data.topic.split('.');
       const message = JSON.parse(data.data.message);
       const messageType = message.type;
       let messageData = null;
@@ -194,6 +199,22 @@ class WebSocketsPool {
               getStreamerLoginByChannelIdFromCache(channelId);
             claimChannelPointsBonus(streamerLogin, claimId);
           }
+        }
+      } else if (topic === 'video-playback-by-id') {
+        const streamerLogin = getStreamerLoginByChannelIdFromCache(topicUser);
+        console.log('playback socket message', {
+          topic,
+          messageType,
+          streamerLogin,
+        });
+
+        // There is stream-up message type, but it's sent earlier than the
+        // API updates. Therefore making it useless to check for it here, as
+        // `checkOnline` will return `isOffline` status.
+        if (messageType === 'stream-down') {
+          setOffline(streamerLogin);
+        } else if (messageType === 'viewcount') {
+          checkOnline(streamerLogin);
         }
       }
     } else if (data.type === 'RESPONSE' && data.error.length > 0) {

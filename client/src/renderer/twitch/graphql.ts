@@ -19,6 +19,7 @@ import {
   setStreamersToWatch,
   doForEachStreamer,
 } from './data';
+import { listenForChannelPoints } from './pubsub';
 
 async function getMinuteWatchedRequestUrl(
   streamerLogin: string
@@ -84,6 +85,7 @@ export async function startWatching() {
   console.log(`Loading data for ${getAllStreamers().length} streamers...`);
 
   setWatching(true);
+  listenForChannelPoints();
   await setStreamersToWatch();
   doForEachStreamer(loadChannelPointsContext);
 
@@ -96,37 +98,37 @@ export async function startWatching() {
       streamersToWatch
     );
 
-    for (let i = 0; i < numOfStreamersToWatch; i += 1) {
-      const streamer = streamersToWatch[i];
-      const nextIteration = rightNowInSecs() + 60 / numOfStreamersToWatch;
+    if (numOfStreamersToWatch) {
+      for (let i = 0; i < numOfStreamersToWatch; i += 1) {
+        const streamer = streamersToWatch[i];
+        const nextIteration = rightNowInSecs() + 60 / numOfStreamersToWatch;
 
-      if (isOnline(streamer)) {
-        try {
-          const info = _minuteWatchedRequests.get(streamer.login);
-          if (info) {
-            console.info(
-              `Sending watch minute event for ${streamer.displayName}`
-            );
-            await nodeClient.post('/minute-watched-event', {
-              url: info.url,
-              payload: info.payload,
-            });
+        if (isOnline(streamer.login)) {
+          try {
+            const info = _minuteWatchedRequests.get(streamer.login);
+            if (info) {
+              console.info(
+                `Sending watch minute event for ${streamer.displayName}`
+              );
+              await nodeClient.post('/minute-watched-event', {
+                url: info.url,
+                payload: info.payload,
+              });
 
-            console.info(
-              `Successfully sent watch minute event for ${streamer.displayName}`
-            );
+              console.info(
+                `Successfully sent watch minute event for ${streamer.displayName}`
+              );
+            }
+          } catch {
+            console.info('Error while trying to watch a minute');
           }
-        } catch {
-          console.info('Error while trying to watch a minute');
+
+          const max = Math.max(nextIteration - Date.now() / 1000, 0);
+          console.log(`Sleeping for ${max}s`);
+          await sleep(max);
         }
-
-        const max = Math.max(nextIteration - Date.now() / 1000, 0);
-        console.log(`Sleeping for ${max}s`);
-        await sleep(max);
       }
-    }
-
-    if (!streamersToWatch) {
+    } else {
       console.log(`Sleeping for 60s`);
       await sleep(60);
     }

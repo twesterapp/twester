@@ -1,5 +1,6 @@
 import { makeGraphqlRequest } from 'renderer/api';
 import { Streamer, StreamerLogin } from 'renderer/stores/useStreamerStore';
+// eslint-disable-next-line import/no-cycle
 import { getChannelId } from './data';
 
 export async function claimChannelPointsBonus(

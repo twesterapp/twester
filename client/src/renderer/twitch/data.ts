@@ -4,6 +4,7 @@ import {
   isOnline,
   setOnlineStatus,
   Streamer,
+  StreamerLogin,
 } from 'renderer/stores/useStreamerStore';
 import { rightNowInSecs } from 'renderer/utils';
 import { StreamerIsOfflineError } from './errors';
@@ -13,9 +14,9 @@ import { updateMinuteWatchedEventRequestInfo } from './graphql';
 /**
  *  CACHING
  */
-
 const channelIdByStreamerLogin: Map<string, string> = new Map();
 const streamerLoginByChannelId: Map<string, string> = new Map();
+const lastOfflineTime: Map<string, number> = new Map();
 
 export async function getChannelId(streamerLogin: string): Promise<string> {
   if (channelIdByStreamerLogin.has(streamerLogin)) {
@@ -73,7 +74,7 @@ export async function getBroadcastId(streamerLogin: string): Promise<string> {
 export async function setStreamersToWatch() {
   for (const streamer of getAllStreamers()) {
     // eslint-disable-next-line no-await-in-loop
-    await checkOnline(streamer);
+    await checkOnline(streamer.login);
   }
 }
 
@@ -86,25 +87,25 @@ export function doForEachStreamer(
   }
 }
 
-async function checkOnline(streamer: Streamer) {
+export async function checkOnline(login: StreamerLogin) {
   // Twitch API has a delay for querying channels. If a query is made right after
   //  the streamer went offline, it will cause a false "streamer is live" event.
-  if (rightNowInSecs() < (streamer.lastOfflineTime ?? 0) + 60) {
+  if (rightNowInSecs() < (lastOfflineTime.get(login) ?? 0) + 60) {
     return;
   }
 
-  if (!isOnline(streamer)) {
+  if (!isOnline(login)) {
     try {
-      await updateMinuteWatchedEventRequestInfo(streamer.login);
-      setOnlineStatus(streamer, true);
+      await updateMinuteWatchedEventRequestInfo(login);
+      setOnlineStatus(login, true);
     } catch (err) {
       if (err instanceof StreamerIsOfflineError) {
-        setOffline(streamer);
+        setOffline(login);
       }
     }
   }
 }
 
-function setOffline(streamer: Streamer) {
-  setOnlineStatus(streamer, false);
+export function setOffline(login: StreamerLogin) {
+  setOnlineStatus(login, false);
 }

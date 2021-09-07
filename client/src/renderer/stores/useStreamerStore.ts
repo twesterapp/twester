@@ -4,7 +4,7 @@ import { rightNowInSecs } from 'renderer/utils';
 import { authStore } from './useAuthStore';
 
 export type StreamerLogin = string;
-type StreamerId = string;
+export type StreamerId = string;
 
 export interface Streamer {
   login: StreamerLogin;
@@ -50,12 +50,10 @@ export function getOnlineStreamers(): Streamer[] {
     (streamer) => streamer.online === true
   );
 
-  console.log({ onlineStreamers });
   return onlineStreamers;
 }
 
 export function addStreamer(streamer: Omit<Streamer, 'priorityRank'>) {
-  console.log('Adding streamer', streamer);
   const { getState, setState } = streamerStore;
 
   for (let i = 0; i < getState().streamers.length; i += 1) {
@@ -85,7 +83,6 @@ export function addStreamer(streamer: Omit<Streamer, 'priorityRank'>) {
 }
 
 export function removeStreamer(id: StreamerId) {
-  console.log('Removing streamer with id: ', id);
   const { getState, setState } = streamerStore;
 
   const updated = getState()
@@ -103,13 +100,15 @@ export function removeStreamer(id: StreamerId) {
   });
 }
 
-export function setOnlineStatus(_streamer: Streamer, status: boolean) {
-  console.log(`${_streamer.displayName} is ${status ? 'online' : 'offline'}!`);
-
+export function setOnlineStatus(login: StreamerLogin, status: boolean) {
   const { getState, setState } = streamerStore;
 
   const updated: Streamer[] = getState().streamers.map((streamer): Streamer => {
-    if (streamer.id === _streamer.id) {
+    if (streamer.login === login) {
+      console.log(
+        `${streamer.displayName} is ${status ? 'online' : 'offline'}!`
+      );
+
       if (!status) {
         return {
           ...streamer,
@@ -132,9 +131,9 @@ export function setOnlineStatus(_streamer: Streamer, status: boolean) {
   });
 }
 
-export function isOnline(_streamer: Streamer): boolean {
+export function isOnline(login: StreamerLogin): boolean {
   for (const streamer of getAllStreamers()) {
-    if (streamer.id === _streamer.id) {
+    if (streamer.login === login) {
       if (streamer.online) {
         return true;
       }

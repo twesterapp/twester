@@ -9,20 +9,12 @@ import 'typeface-karla';
 import { darkTheme, GlobalStyle } from './ui';
 import { AuthPage, HomePage, WatchPage } from './pages';
 import { Sidebar } from './components';
-import { listenForChannelPoints } from './twitch/pubsub';
 import { useAuthStore } from './stores/useAuthStore';
 // import { fakeLogin } from './utils';
 
 const queryClient = new QueryClient();
 
 const Dashboard = () => {
-  // If we start listening for channel points without useEffect, we will create
-  // multiple WebSocket connections.
-  React.useEffect(() => {
-    console.log('RENDERING DASHBOARD');
-    listenForChannelPoints();
-  }, []);
-
   return (
     <Layout>
       <SidebarContainer>
