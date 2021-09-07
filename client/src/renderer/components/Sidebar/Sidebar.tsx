@@ -89,9 +89,11 @@ export function Sidebar() {
 }
 
 const Container = styled.div`
-  width: 100%;
-  height: 100%;
+  height: 100vh;
   padding: 28px 0;
+  position: sticky;
+  top: 0px;
+  left: 0px;
   box-sizing: border-box;
   background: ${(props) => props.theme.color.background2};
   display: flex;

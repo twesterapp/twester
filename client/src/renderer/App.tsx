@@ -55,6 +55,6 @@ const DashboardContainer = styled.div`
 
 const Layout = styled.div`
   display: flex;
-  height: 100vh;
-  width: 100vw;
+  max-width: 100vw;
+  min-width: fit-content;
 `;
