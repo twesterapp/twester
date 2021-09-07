@@ -15,7 +15,7 @@ export function Sidebar({ currentPage }: SidebarOptions) {
   const history = useHistory();
   const theme = useTheme();
 
-  const { data } = useQuery('meInfo', () => fetchChannelInfo());
+  const { data } = useQuery('ME_INFO', () => fetchChannelInfo());
 
   const onHomePage = currentPage === '/';
   const onWatchPage = currentPage === '/watch';

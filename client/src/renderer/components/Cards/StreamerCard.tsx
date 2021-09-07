@@ -23,7 +23,7 @@ interface StreamerCardProps {
 export function StreamerCard({ streamer }: StreamerCardProps) {
   const theme = useTheme();
 
-  const { data } = useQuery(`${streamer.login}_STREAMER_CARD_INFO`, () =>
+  const { data } = useQuery(`STREAMER_CARD_INFO.${streamer.login}`, () =>
     fetchChannelInfo(streamer.login)
   );
 
