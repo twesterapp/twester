@@ -131,7 +131,10 @@ const LogContainer = styled.div`
 `;
 
 const LogText = styled.p`
-  margin: 3px;
+  font-family: 'Roboto Mono';
+  font-size: ${px2rem(14)};
+  color: ${(props) => props.theme.color.textPrimary};
+  margin: 2px;
 `;
 
 const PageWrapper = styled.div`

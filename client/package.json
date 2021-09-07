@@ -265,6 +265,7 @@
     "styled-components": "^5.3.1",
     "typeface-karla": "^1.1.13",
     "typeface-poppins": "^1.1.13",
+    "typeface-roboto-mono": "^1.1.13",
     "zustand": "^3.5.10"
   },
   "devEngines": {
