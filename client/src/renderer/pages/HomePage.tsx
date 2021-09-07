@@ -84,14 +84,15 @@ export function HomePage() {
       ) : (
         <Content>
           <LogContainer>
-            {logs.map((log) => {
-              return (
-                <LogText key={log.id}>
-                  {log.timestamp.toLocaleDateString()}{' '}
-                  {log.timestamp.toLocaleTimeString()} - {log.text}
-                </LogText>
-              );
-            })}
+            {logs.length > 0 &&
+              logs.map((log) => {
+                return (
+                  <LogText key={log.id}>
+                    {log.timestamp.toLocaleDateString()}{' '}
+                    {log.timestamp.toLocaleTimeString()} - {log.text}
+                  </LogText>
+                );
+              })}
           </LogContainer>
 
           {showStopButton() ? RenderStopButton() : RenderPlayButton()}
@@ -126,6 +127,7 @@ const LogContainer = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
 `;
 
 const LogText = styled.p`
