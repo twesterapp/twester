@@ -17,6 +17,10 @@ module.exports = {
     'no-empty': 'off',
     'no-restricted-syntax': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
+    'no-await-in-loop': 'off',
+    'class-methods-use-this': 'off',
+    'max-classes-per-file': 'off',
+    '@typescript-eslint/no-non-null-assertion': 'off',
   },
   parserOptions: {
     ecmaVersion: 2020,
