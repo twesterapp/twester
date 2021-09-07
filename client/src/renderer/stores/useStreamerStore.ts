@@ -125,8 +125,16 @@ export function updateStreamer(id: StreamerId, newValue: UpdateStreamer) {
     return { ...streamer };
   });
 
+  // We don't want to store these keys to storage.
+  // Only the above info is to be persisted.
+  const updatedForPersisting = updated.map((streamer) => ({
+    ...streamer,
+    online: false,
+    lastOfflineTime: 0,
+  }));
+
   try {
-    localStorage.setItem(getStorageKey(), JSON.stringify(updated));
+    localStorage.setItem(getStorageKey(), JSON.stringify(updatedForPersisting));
   } catch {}
 
   return setState({
