@@ -1,4 +1,4 @@
-import { noop, sleep } from 'renderer/utils';
+import { sleep } from 'renderer/utils';
 import { authStore } from 'renderer/stores/useAuthStore';
 import { getAllStreamers } from 'renderer/stores/useStreamerStore';
 import {
@@ -34,17 +34,6 @@ import { claimChannelPointsBonus } from './bonus';
  *    incrementing as the streamer goes offline and we start "watching" and
  *    listening to topics for the new streamer.
  */
-
-function createNonce(length: number) {
-  let nonce = '';
-  const possible =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  for (let i = 0; i < length; i += 1) {
-    nonce += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-
-  return nonce;
-}
 
 let wsPool: WebSocketsPool;
 
@@ -97,6 +86,17 @@ class PubSubTopic {
 
 function getReasonName(code: string) {
   return code.replace('_', ' ').replace('CLAIM', 'bonus claimed').toLowerCase();
+}
+
+function createNonce(length: number) {
+  let nonce = '';
+  const possible =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  for (let i = 0; i < length; i += 1) {
+    nonce += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
+
+  return nonce;
 }
 
 class WebSocketsPool {
