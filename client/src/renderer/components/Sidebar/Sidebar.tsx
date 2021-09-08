@@ -2,9 +2,20 @@ import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { fetchChannelInfo } from 'renderer/api';
 import styled, { useTheme } from 'styled-components';
-import { IconEye, IconHome, IconSignOut, Avatar, Tooltip } from 'renderer/ui';
+import {
+  IconSignOut,
+  IconPlay,
+  IconPause,
+  Avatar,
+  Tooltip,
+  IconStreamers,
+} from 'renderer/ui';
 import { useQuery } from 'react-query';
 import { delToken, delUser, authStore } from 'renderer/stores/useAuthStore';
+import {
+  showPauseButton,
+  useWatcherStore,
+} from 'renderer/stores/useWatcherStore';
 import { SidebarIcon } from './SidebarIcon';
 
 interface SidebarOptions {
@@ -14,24 +25,25 @@ interface SidebarOptions {
 export function Sidebar({ currentPage }: SidebarOptions) {
   const history = useHistory();
   const theme = useTheme();
+  // So that we can conditionally render `IconPause` or `IconPlay`.
+  useWatcherStore();
 
   const { data } = useQuery('ME_INFO', () => fetchChannelInfo());
 
-  const onHomePage = currentPage === '/';
-  const onWatchPage = currentPage === '/watch';
+  const onWatcherPage = currentPage === '/';
+  const onStreamersPage = currentPage === '/streamers';
 
   return (
     <Container>
       <Top>
-        <Tooltip title="Home" placement="right" enterDelay={1000}>
-          {/* 
-            Only a valid HTML Element can be the first child inside `Tooltip`
-            that's why there is an <i> </i> wrapping <SidebarIcon>.
-           */}
+        <Tooltip title="Watcher" placement="right" enterDelay={1000}>
           <i>
             <SidebarIcon
-              icon={IconHome}
-              active={onHomePage}
+              icon={showPauseButton() ? IconPause : IconPlay}
+              iconColor={
+                showPauseButton() ? theme.color.error : theme.color.success
+              }
+              active={onWatcherPage}
               onClick={() => history.push('/')}
             />
           </i>
@@ -40,12 +52,12 @@ export function Sidebar({ currentPage }: SidebarOptions) {
         {/* For creating space */}
         <i style={{ height: '11px' }} />
 
-        <Tooltip title="Streamers to watch" placement="right" enterDelay={1000}>
+        <Tooltip title="Streamers" placement="right" enterDelay={1000}>
           <i>
             <SidebarIcon
-              icon={IconEye}
-              active={onWatchPage}
-              onClick={() => history.push('/watch')}
+              icon={IconStreamers}
+              active={onStreamersPage}
+              onClick={() => history.push('/streamers')}
             />
           </i>
         </Tooltip>
@@ -61,7 +73,6 @@ export function Sidebar({ currentPage }: SidebarOptions) {
           <i>
             <SidebarIcon
               icon={IconSignOut}
-              color={theme.color.error}
               onClick={() => {
                 delToken();
                 delUser();

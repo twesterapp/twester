@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { FaHome, FaEye, FaSignOutAlt, FaPlay, FaPause } from 'react-icons/fa';
+import { FaSignOutAlt, FaPlay, FaPause, FaUsers, FaEye } from 'react-icons/fa';
 import { ImCross } from 'react-icons/im';
 import { IconBaseProps } from 'react-icons';
 
-export { FaHome as IconHome };
+export { FaUsers as IconStreamers };
 export { FaEye as IconEye };
 export { FaSignOutAlt as IconSignOut };
 export { ImCross as IconCross };

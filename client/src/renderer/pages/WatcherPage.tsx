@@ -1,8 +1,8 @@
 import React from 'react';
 import { useStreamerStore } from 'renderer/stores/useStreamerStore';
 import {
+  showPauseButton,
   useWatcherStore,
-  WatcherStatus,
 } from 'renderer/stores/useWatcherStore';
 import { watcher } from 'renderer/core/watcher';
 import { IconPlay, IconPause, Link } from 'renderer/ui';
@@ -10,10 +10,10 @@ import { px2em, px2rem } from 'renderer/utils';
 import styled, { useTheme } from 'styled-components';
 import { useLoggerStore } from 'renderer/stores/useLoggerStore';
 
-export function HomePage() {
+export function WatcherPage() {
   const theme = useTheme();
   const { streamers } = useStreamerStore();
-  const { status } = useWatcherStore();
+  useWatcherStore();
   const { logs } = useLoggerStore();
   const logsEndRef = React.useRef<HTMLDivElement>(null);
 
@@ -33,14 +33,6 @@ export function HomePage() {
     }
 
     return false;
-  }
-
-  function showPauseButton(): boolean {
-    if (status === WatcherStatus.INIT || status === WatcherStatus.STOPPED) {
-      return false;
-    }
-
-    return true;
   }
 
   const RenderPlayButton = () => (
@@ -84,8 +76,8 @@ export function HomePage() {
         <>
           {RenderPlayButton()}
           <HelpMessage>
-            Add at least one streamer to{' '}
-            <Link to="/watch">“Streamers to watch”</Link> list and hit the play
+            Add at least one streamer on{' '}
+            <Link to="/streamers">“Streamers Page”</Link> list and hit the play
             button above to start harvesting channel points for you 😎
           </HelpMessage>
         </>

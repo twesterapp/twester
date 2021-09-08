@@ -4,7 +4,7 @@ import { IconType } from 'react-icons';
 
 interface SidebarIconOptions extends React.HTMLAttributes<HTMLDivElement> {
   active?: boolean;
-  color?: string;
+  iconColor?: string;
   icon: IconType;
 }
 
@@ -16,8 +16,8 @@ export function SidebarIcon({
   const theme = useTheme();
   const Icon = icon;
   const getColor = () => {
-    if (rest.color) {
-      return rest.color;
+    if (rest.iconColor) {
+      return rest.iconColor;
     }
 
     return active ? theme.color.primary : theme.color.textPrimary;

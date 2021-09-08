@@ -5,27 +5,15 @@ import {
   useStreamerStore,
   addStreamer,
 } from 'renderer/stores/useStreamerStore';
-import {
-  useWatcherStore,
-  WatcherStatus,
-} from 'renderer/stores/useWatcherStore';
+import { canEditWatchPage } from 'renderer/stores/useWatcherStore';
 import { Button, IconPlus, InputText, Link } from 'renderer/ui';
 import { px2em } from 'renderer/utils';
 import styled from 'styled-components';
 
-export function WatchPage() {
+export function StreamersPage() {
   const [searchText, setSearchText] = React.useState('');
   const [fetchingStreamer, setFetchingStreamer] = React.useState(false);
   const { streamers } = useStreamerStore();
-  const { status } = useWatcherStore();
-
-  function canEditWatchPage(): boolean {
-    if (status === WatcherStatus.INIT || status === WatcherStatus.STOPPED) {
-      return true;
-    }
-
-    return false;
-  }
 
   async function handleAddStreamer(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -64,12 +52,12 @@ export function WatchPage() {
           changes to the list below.
         </Warning>
       )}
-      <Search onSubmit={handleAddStreamer} isWatching={!canEditWatchPage()}>
+      <Search onSubmit={handleAddStreamer} canEdit={canEditWatchPage()}>
         <InputText
           style={{ marginRight: `${px2em(12)}`, width: '300px' }}
           placeholder="Streamer to add"
           value={searchText}
-          disabled={!canEditWatchPage() ?? fetchingStreamer}
+          disabled={!canEditWatchPage() || fetchingStreamer}
           onChange={(e) => setSearchText(e.target.value)}
         />
         <Button
@@ -105,9 +93,8 @@ const Warning = styled.p`
   border-radius: 0px 0px 50px 50px;
 `;
 
-const Search = styled.form<{ isWatching: boolean }>`
-  margin-top: ${(props) =>
-    props.isWatching ? `${px2em(72)}` : `${px2em(44)}`};
+const Search = styled.form<{ canEdit: boolean }>`
+  margin-top: ${(props) => (props.canEdit ? `${px2em(72)}` : `${px2em(44)}`)};
   height: 46px;
   display: flex;
   margin-bottom: ${px2em(22)};
