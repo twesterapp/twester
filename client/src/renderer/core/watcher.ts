@@ -6,21 +6,18 @@ import {
   getOnlineStreamers,
   isOnline,
   resetOnlineStatusOfStreamers,
+  updateStreamer,
 } from 'renderer/stores/useStreamerStore';
 import {
   setWatcherStatus,
-  watcherIsRunning,
+  isWatcherRunning,
   WatcherStatus,
   canStopWatcher,
   canStartWatcher,
 } from 'renderer/stores/useWatcherStore';
 import { rightNowInSecs, sleep } from 'renderer/utils';
 import { loadChannelPointsContext } from './bonus';
-import {
-  doForEachStreamer,
-  getMinuteWatchedRequestInfo,
-  setStreamersToWatch,
-} from './data';
+import { getMinuteWatchedRequestInfo, updateStreamersToWatch } from './data';
 import {
   listenForChannelPoints,
   stopListeningForChannelPoints,
@@ -35,7 +32,7 @@ class Watcher {
     this.logger = new Logger({ prefix: 'WATCHER' });
   }
 
-  public async start() {
+  public async play() {
     if (!authStore.getState().accessToken || !authStore.getState().user.id) {
       console.error('User not authorized');
     }
@@ -47,13 +44,13 @@ class Watcher {
     );
 
     listenForChannelPoints();
-    await setStreamersToWatch();
-    doForEachStreamer(loadChannelPointsContext);
+    await loadChannelPointsContext();
+    await updateStreamersToWatch();
 
     setWatcherStatus(WatcherStatus.RUNNING);
     this.logger.debug('Running');
 
-    while (watcherIsRunning()) {
+    while (isWatcherRunning()) {
       this.logger.debug(`Watched for ${this.minutesPassed} minutes`);
       const streamersToWatch = getOnlineStreamers().slice(0, 2);
       const numOfStreamersToWatch = streamersToWatch.length;
@@ -71,6 +68,14 @@ class Watcher {
                 this.logger.debug(
                   `Sending watch minute event for ${streamer.displayName}`
                 );
+
+                if (!streamer.watching) {
+                  updateStreamer(streamer.id, { watching: true });
+                  this.logger.info(
+                    `Started watching ${streamer.displayName}'s livestream!`
+                  );
+                }
+
                 await nodeClient.post('/minute-watched-event', {
                   url: info.url,
                   payload: info.payload,
@@ -98,7 +103,7 @@ class Watcher {
     }
   }
 
-  public stop() {
+  public pause() {
     this.logger.debug('Stopping');
     setWatcherStatus(WatcherStatus.STOPPING);
 
@@ -109,11 +114,11 @@ class Watcher {
     this.logger.debug('Stopped');
   }
 
-  public canStart(): boolean {
+  public canPlay(): boolean {
     return canStartWatcher();
   }
 
-  public canStop(): boolean {
+  public canPause(): boolean {
     return canStopWatcher();
   }
 }

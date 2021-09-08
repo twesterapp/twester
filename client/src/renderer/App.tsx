@@ -13,7 +13,7 @@ import 'typeface-karla';
 import 'typeface-roboto-mono';
 
 import { darkTheme, GlobalStyle } from './ui';
-import { AuthPage, HomePage, WatchPage } from './pages';
+import { AuthPage, StreamersPage, WatcherPage } from './pages';
 import { Sidebar } from './components';
 import { useAuthStore } from './stores/useAuthStore';
 
@@ -28,8 +28,8 @@ const Dashboard = () => {
         <Sidebar currentPage={history.location.pathname} />
       </SidebarContainer>
       <DashboardContainer>
-        <Route path="/" exact component={HomePage} />
-        <Route path="/watch" component={WatchPage} />
+        <Route path="/" exact component={WatcherPage} />
+        <Route path="/streamers" component={StreamersPage} />
       </DashboardContainer>
     </Layout>
   );

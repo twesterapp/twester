@@ -1,13 +1,17 @@
 import { sleep } from 'renderer/utils';
 import { authStore } from 'renderer/stores/useAuthStore';
-import { getAllStreamers, getStreamer } from 'renderer/stores/useStreamerStore';
+import {
+  getAllStreamers,
+  getStreamerById,
+  setOnlineStatus,
+  updateStreamer,
+} from 'renderer/stores/useStreamerStore';
 import { Logger } from 'renderer/stores/useLoggerStore';
 import {
   channelIdExistsInCache,
   checkOnline,
   getChannelId,
   getStreamerLoginByChannelIdFromCache,
-  setOffline,
 } from './data';
 import { claimChannelPointsBonus } from './bonus';
 
@@ -50,6 +54,10 @@ export function listenForChannelPoints() {
 }
 
 export function stopListeningForChannelPoints() {
+  if (!wsPool) {
+    console.error('wsPool is null, cannot close socket');
+  }
+
   if (wsPool) {
     wsPool.stop();
     wsPool = null;
@@ -109,8 +117,6 @@ class WebSocketsPool {
 
   private isOpened = false;
 
-  private isClosed = false;
-
   private closedOnPurpose = false;
 
   private pingHandle!: NodeJS.Timeout;
@@ -140,17 +146,19 @@ class WebSocketsPool {
   }
 
   stop() {
-    if (this.webSocket && !this.isClosed) {
-      logger.debug('Closing connection');
+    if (this.webSocket) {
+      logger.debug('Closing');
       this.closedOnPurpose = true;
       this.webSocket.close();
+      this.clearPingHandle();
+      logger.debug('Closed');
     }
   }
 
   private createNewWebSocket() {
     const webSocket = new WebSocket('wss://pubsub-edge.twitch.tv/v1');
+    logger.debug('Connecting');
     this.webSocket = webSocket;
-    this.isClosed = false;
     this.isOpened = false;
     this.closedOnPurpose = false;
     this.topics = [];
@@ -162,7 +170,7 @@ class WebSocketsPool {
   }
 
   private onOpen() {
-    logger.debug('Connected');
+    logger.debug('Open');
     this.isOpened = true;
     this.ping();
 
@@ -218,7 +226,7 @@ class WebSocketsPool {
           if (channelIdExistsInCache(channelId)) {
             const pointsEarned = messageData.point_gain.total_points;
             const newBalance = messageData.balance.balance;
-            const streamer = getStreamer(channelId);
+            const streamer = getStreamerById(channelId);
             const reason = messageData.point_gain.reason_code;
 
             if (!streamer) {
@@ -227,8 +235,10 @@ class WebSocketsPool {
             }
 
             logger.info(
-              `+${pointsEarned} -> ${streamer.displayName} (${newBalance} points) - Reason: ${reason}.`
+              `+${pointsEarned} -> ${streamer.displayName} (${newBalance} points) from (${streamer.startingBalance}) - Reason: ${reason}`
             );
+
+            updateStreamer(streamer.id, { currentBalance: newBalance });
           }
         } else if (messageType === 'claim-available') {
           const channelId = messageData.claim.channel_id;
@@ -247,7 +257,7 @@ class WebSocketsPool {
         // API updates. Therefore making it useless to check for it here, as
         // `checkOnline` will return `isOffline` status.
         if (messageType === 'stream-down') {
-          setOffline(streamerLogin);
+          setOnlineStatus(streamerLogin, false);
         } else if (messageType === 'viewcount') {
           checkOnline(streamerLogin);
         }
@@ -275,14 +285,19 @@ class WebSocketsPool {
     this.send({ type: 'LISTEN', nonce, data });
   }
 
-  private async handleWebSocketReconnection() {
-    clearInterval(this.pingHandle);
+  private clearPingHandle() {
+    if (this.pingHandle) {
+      clearInterval(this.pingHandle);
+    }
+  }
 
+  private async handleWebSocketReconnection() {
     if (this.closedOnPurpose) {
       return;
     }
 
-    this.isClosed = true;
+    this.clearPingHandle();
+
     logger.debug('Reconnecting to Twitch PubSub server in 30 seconds');
 
     await sleep(30);

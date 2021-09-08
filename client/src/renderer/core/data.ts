@@ -130,19 +130,10 @@ export async function getBroadcastId(streamerLogin: string): Promise<string> {
   return id;
 }
 
-export async function setStreamersToWatch() {
+export async function updateStreamersToWatch() {
   for (const streamer of getAllStreamers()) {
     // eslint-disable-next-line no-await-in-loop
     await checkOnline(streamer.login);
-  }
-}
-
-export function doForEachStreamer(
-  callback: (...args: any) => void,
-  ...args: any
-) {
-  for (const streamer of getAllStreamers()) {
-    callback(streamer, ...args);
   }
 }
 
@@ -159,12 +150,8 @@ export async function checkOnline(login: StreamerLogin) {
       setOnlineStatus(login, true);
     } catch (err) {
       if (err instanceof StreamerIsOfflineError) {
-        setOffline(login);
+        setOnlineStatus(login, false);
       }
     }
   }
-}
-
-export function setOffline(login: StreamerLogin) {
-  setOnlineStatus(login, false);
 }

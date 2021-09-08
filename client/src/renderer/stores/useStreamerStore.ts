@@ -232,6 +232,7 @@ export function resetOnlineStatusOfStreamers() {
   const updated = getState().streamers.map((streamer) => ({
     ...streamer,
     online: undefined,
+    watching: undefined,
   }));
   setState({ streamers: updated });
 }

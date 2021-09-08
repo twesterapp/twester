@@ -21,7 +21,7 @@ interface State {
 const loggerStore = vanillaCreate<State>(() => ({
   logs: [],
   // TODO: This should be fetched from the settings if user has set one.
-  level: isProd ? LoggingLevel.INFO : LoggingLevel.DEBUG,
+  level: LoggingLevel.INFO,
 }));
 
 export const useLoggerStore = create(loggerStore);

@@ -1,5 +1,9 @@
 import { makeGraphqlRequest } from 'renderer/api';
-import { Streamer, StreamerLogin } from 'renderer/stores/useStreamerStore';
+import {
+  getAllStreamers,
+  StreamerLogin,
+  updateStreamer,
+} from 'renderer/stores/useStreamerStore';
 import { getChannelId } from './data';
 
 export async function claimChannelPointsBonus(
@@ -25,31 +29,36 @@ export async function claimChannelPointsBonus(
   makeGraphqlRequest(data);
 }
 
-export async function loadChannelPointsContext(streamer: Streamer) {
-  const data = {
-    operationName: 'ChannelPointsContext',
-    variables: { channelLogin: streamer.login },
-    extensions: {
-      persistedQuery: {
-        version: 1,
-        sha256Hash:
-          '9988086babc615a918a1e9a722ff41d98847acac822645209ac7379eecb27152',
+export async function loadChannelPointsContext() {
+  getAllStreamers().forEach(async (streamer) => {
+    const data = {
+      operationName: 'ChannelPointsContext',
+      variables: { channelLogin: streamer.login },
+      extensions: {
+        persistedQuery: {
+          version: 1,
+          sha256Hash:
+            '9988086babc615a918a1e9a722ff41d98847acac822645209ac7379eecb27152',
+        },
       },
-    },
-  };
+    };
 
-  const response = await makeGraphqlRequest(data);
-  if (!response.data.community) {
-    console.error('Streamer does not exist');
-  }
+    const response = await makeGraphqlRequest(data);
+    if (!response.data.community) {
+      console.error('Streamer does not exist');
+    }
 
-  const communityPoints = response.data.community.channel.self.communityPoints;
-  const initialBalance = communityPoints.balance;
-  console.info(`${initialBalance} channel points for ${streamer.displayName}!`);
+    const communityPoints =
+      response.data.community.channel.self.communityPoints;
+    const initialBalance = communityPoints.balance;
+    updateStreamer(streamer.id, {
+      startingBalance: streamer.startingBalance ?? initialBalance,
+    });
 
-  const availableClaim = communityPoints.availableClaim;
-  if (availableClaim) {
-    const claimId = availableClaim.id;
-    claimChannelPointsBonus(streamer.login, claimId);
-  }
+    const availableClaim = communityPoints.availableClaim;
+    if (availableClaim) {
+      const claimId = availableClaim.id;
+      claimChannelPointsBonus(streamer.login, claimId);
+    }
+  });
 }
