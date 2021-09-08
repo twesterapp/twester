@@ -5,7 +5,7 @@ import {
   WatcherStatus,
 } from 'renderer/stores/useWatcherStore';
 import { watcher } from 'renderer/core/watcher';
-import { IconPlay, IconStop, Link } from 'renderer/ui';
+import { IconPlay, IconPause, Link } from 'renderer/ui';
 import { px2em, px2rem } from 'renderer/utils';
 import styled, { useTheme } from 'styled-components';
 import { useLoggerStore } from 'renderer/stores/useLoggerStore';
@@ -20,22 +20,22 @@ export function HomePage() {
   const hasStreamersToWatch = streamers.length > 0;
 
   function isPlayButtonActive(): boolean {
-    if (watcher.canStart() && hasStreamersToWatch) {
+    if (watcher.canPlay() && hasStreamersToWatch) {
       return true;
     }
 
     return false;
   }
 
-  function isStopButtonActive(): boolean {
-    if (watcher.canStop()) {
+  function isPauseButtonActive(): boolean {
+    if (watcher.canPause()) {
       return true;
     }
 
     return false;
   }
 
-  function showStopButton(): boolean {
+  function showPauseButton(): boolean {
     if (status === WatcherStatus.INIT || status === WatcherStatus.STOPPED) {
       return false;
     }
@@ -50,7 +50,7 @@ export function HomePage() {
       }}
       size={64}
       color={isPlayButtonActive() ? theme.color.success : theme.color.disabled}
-      onClick={() => isPlayButtonActive() && watcher.start()}
+      onClick={() => isPlayButtonActive() && watcher.play()}
     />
   );
 
@@ -67,14 +67,14 @@ export function HomePage() {
     logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [logs]);
 
-  const RenderStopButton = () => (
-    <IconStop
+  const RenderPauseButton = () => (
+    <IconPause
       style={{
-        cursor: isStopButtonActive() ? 'pointer' : 'not-allowed',
+        cursor: isPauseButtonActive() ? 'pointer' : 'not-allowed',
       }}
       size={64}
-      color={isStopButtonActive() ? theme.color.error : theme.color.disabled}
-      onClick={() => isStopButtonActive() && watcher.stop()}
+      color={isPauseButtonActive() ? theme.color.error : theme.color.disabled}
+      onClick={() => isPauseButtonActive() && watcher.pause()}
     />
   );
 
@@ -104,7 +104,7 @@ export function HomePage() {
             <div ref={logsEndRef} />
           </LogContainer>
 
-          {showStopButton() ? RenderStopButton() : RenderPlayButton()}
+          {showPauseButton() ? RenderPauseButton() : RenderPlayButton()}
         </Content>
       )}
     </PageWrapper>
@@ -127,7 +127,6 @@ const Content = styled.div`
 
 const LogContainer = styled.div`
   background: ${(props) => props.theme.color.background2};
-  border: 1px solid ${(props) => props.theme.color.primary};
   box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
   box-sizing: border-box;
   padding: ${() => `${px2em(6)} ${px2em(12)}`};
