@@ -109,10 +109,10 @@ const Content = styled.div`
   justify-content: center;
   width: 100%;
   height: 100%;
-  margin: 24px 24px;
+  margin: 50px 50px;
 
   @media screen and (min-width: 1080px) {
-    max-height: calc(100vh - 100px);
+    max-height: calc(100% - 100px);
     max-width: calc(100% - 100px);
   }
 `;
