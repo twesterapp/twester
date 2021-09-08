@@ -4,13 +4,13 @@ import {
   removeStreamer,
   updateStreamer,
 } from 'renderer/stores/useStreamerStore';
-import { Avatar, IconCross } from 'renderer/ui';
+import { Avatar, IconCross, IconEye } from 'renderer/ui';
 import { px2rem } from 'renderer/utils';
 import styled, { useTheme } from 'styled-components';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import humanFormat from 'human-format';
-import { watcherIsRunning } from 'renderer/stores/useWatcherStore';
+import { canEditWatchPage } from 'renderer/stores/useWatcherStore';
 import { fetchChannelFollowers, fetchChannelInfo } from 'renderer/api';
 import { useQuery } from 'react-query';
 
@@ -48,15 +48,23 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
   return (
     <Card>
       <Content>
-        <button
-          id="remove-button"
-          onClick={() => removeStreamer(streamer.id)}
-          type="button"
-          disabled={watcherIsRunning()}
-          style={{ cursor: watcherIsRunning() ? 'not-allowed' : '' }}
-        >
-          <IconCross size={12} color={theme.color.onPrimary} />
-        </button>
+        <TopRight>
+          {canEditWatchPage() ? (
+            <button
+              id="remove-button"
+              onClick={() => removeStreamer(streamer.id)}
+              type="button"
+            >
+              <IconCross size={12} color={theme.color.onPrimary} />
+            </button>
+          ) : (
+            <>
+              {streamer.watching && (
+                <IconEye size={24} color={theme.color.success} />
+              )}
+            </>
+          )}
+        </TopRight>
 
         <Avatar
           src={streamer.profileImageUrl}
@@ -104,10 +112,7 @@ const Card = styled.div`
   }
 
   #remove-button {
-    position: absolute;
     border: none;
-    top: 10px;
-    right: 10px;
     height: 28px;
     width: 28px;
     border-radius: 50%;
@@ -131,6 +136,12 @@ const Card = styled.div`
     bottom: 10px;
     right: 10px;
   }
+`;
+
+const TopRight = styled.div`
+  position: absolute;
+  top: 10px;
+  right: 10px;
 `;
 
 const Content = styled.div`
