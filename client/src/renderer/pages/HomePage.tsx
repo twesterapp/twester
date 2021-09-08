@@ -17,23 +17,10 @@ export function HomePage() {
   const { logs } = useLoggerStore();
   const logsEndRef = React.useRef<HTMLDivElement>(null);
 
-  // For the initial mounting we don't want to animate(`smooth`) the scroll.
-  // It will be annoying to see the scroll animation whenever user comes on
-  // HomePage.
-  React.useEffect(() => {
-    logsEndRef.current?.scrollIntoView({ behavior: 'auto' });
-  }, []);
-
-  // After the initial mounting we want to animate(`smooth`) the scroll whenever
-  // logs change(new logs are added).
-  React.useEffect(() => {
-    logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [logs]);
-
-  const noStreamersToWatch = streamers.length === 0;
+  const hasStreamersToWatch = streamers.length > 0;
 
   function isPlayButtonActive(): boolean {
-    if (watcher.canStart() && !noStreamersToWatch) {
+    if (watcher.canStart() && hasStreamersToWatch) {
       return true;
     }
 
@@ -67,6 +54,19 @@ export function HomePage() {
     />
   );
 
+  // For the initial mounting we don't want to animate(`smooth`) the scroll.
+  // It will be annoying to see the scroll animation whenever user comes on
+  // HomePage.
+  React.useEffect(() => {
+    logsEndRef.current?.scrollIntoView({ behavior: 'auto' });
+  }, []);
+
+  // After the initial mounting we want to animate(`smooth`) the scroll whenever
+  // logs change(new logs are added).
+  React.useEffect(() => {
+    logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [logs]);
+
   const RenderStopButton = () => (
     <IconStop
       style={{
@@ -80,7 +80,7 @@ export function HomePage() {
 
   return (
     <PageWrapper>
-      {noStreamersToWatch ? (
+      {!hasStreamersToWatch ? (
         <>
           {RenderPlayButton()}
           <HelpMessage>
