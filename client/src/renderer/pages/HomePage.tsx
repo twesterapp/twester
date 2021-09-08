@@ -8,35 +8,43 @@ import { watcher } from 'renderer/core/watcher';
 import { IconPlay, IconStop, Link } from 'renderer/ui';
 import { px2em, px2rem } from 'renderer/utils';
 import styled, { useTheme } from 'styled-components';
-import { Log } from 'renderer/stores/useLoggerStore';
-
-const logs: Log[] = [
-  {
-    id: '1',
-    timestamp: new Date(),
-    text: '[TEST_LOG]: This is a test log lmao',
-  },
-  {
-    id: '2',
-    timestamp: new Date(),
-    text: '[SOME_LOG]: This is a test log again 😂',
-  },
-];
+import { useLoggerStore } from 'renderer/stores/useLoggerStore';
 
 export function HomePage() {
   const theme = useTheme();
   const { streamers } = useStreamerStore();
   const { status } = useWatcherStore();
+  const { logs } = useLoggerStore();
+  const logsEndRef = React.useRef<HTMLDivElement>(null);
+
+  // For the initial mounting we don't want to animate(`smooth`) the scroll.
+  // It will be annoying to see the scroll animation whenever user comes on
+  // HomePage.
+  React.useEffect(() => {
+    logsEndRef.current?.scrollIntoView({ behavior: 'auto' });
+  }, []);
+
+  // After the initial mounting we want to animate(`smooth`) the scroll whenever
+  // logs change(new logs are added).
+  React.useEffect(() => {
+    logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [logs]);
 
   const noStreamersToWatch = streamers.length === 0;
 
   function isPlayButtonActive(): boolean {
-    if (watcher.canStart() && !noStreamersToWatch) return true;
+    if (watcher.canStart() && !noStreamersToWatch) {
+      return true;
+    }
+
     return false;
   }
 
   function isStopButtonActive(): boolean {
-    if (watcher.canStop()) return true;
+    if (watcher.canStop()) {
+      return true;
+    }
+
     return false;
   }
 
@@ -93,6 +101,7 @@ export function HomePage() {
                   </LogText>
                 );
               })}
+            <div ref={logsEndRef} />
           </LogContainer>
 
           {showStopButton() ? RenderStopButton() : RenderPlayButton()}
@@ -111,23 +120,36 @@ const Content = styled.div`
   margin: 24px 24px;
 
   @media screen and (min-width: 1080px) {
-    max-height: calc(100% - 100px);
+    max-height: calc(100vh - 100px);
     max-width: calc(100% - 100px);
   }
 `;
 
 const LogContainer = styled.div`
   background: ${(props) => props.theme.color.background2};
-  border: 2px solid ${(props) => props.theme.color.primary};
+  border: 1px solid ${(props) => props.theme.color.primary};
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
   box-sizing: border-box;
-  padding: ${px2em(16)};
+  padding: ${() => `${px2em(6)} ${px2em(12)}`};
   margin-right: ${px2em(24)};
-  border-radius: 12px;
-  height: 100%;
+  height: calc(100vh - 100px);
   width: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  overflow-y: scroll;
+
+  &::-webkit-scrollbar {
+    width: 0.69rem;
+    height: 0.69em;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: ${(props) => props.theme.color.background};
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: ${(props) => props.theme.color.background4};
+  }
 `;
 
 const LogText = styled.p`
@@ -144,7 +166,6 @@ const PageWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-width: 800px;
 `;
 
 const HelpMessage = styled.p`

@@ -1,5 +1,7 @@
 import { User, setUser, setToken } from './stores/useAuthStore';
 
+export const isProd = process.env.NODE_ENV === 'PRODUCTION';
+
 export function fakeLogin() {
   const user: User = {
     id: '670111413',

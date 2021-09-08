@@ -21,6 +21,7 @@ module.exports = {
     'class-methods-use-this': 'off',
     'max-classes-per-file': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
+    'consistent-return': 'off',
   },
   parserOptions: {
     ecmaVersion: 2020,

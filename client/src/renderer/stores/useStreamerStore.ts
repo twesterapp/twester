@@ -91,6 +91,14 @@ export function addStreamer(streamer: NewStreamer) {
   });
 }
 
+export function getStreamer(id: StreamerId): Streamer | void {
+  for (const streamer of streamerStore.getState().streamers) {
+    if (streamer.id === id) {
+      return streamer;
+    }
+  }
+}
+
 export function removeStreamer(id: StreamerId) {
   const { getState, setState } = streamerStore;
 

@@ -1,6 +1,7 @@
 import { sleep } from 'renderer/utils';
 import { authStore } from 'renderer/stores/useAuthStore';
-import { getAllStreamers } from 'renderer/stores/useStreamerStore';
+import { getAllStreamers, getStreamer } from 'renderer/stores/useStreamerStore';
+import { Logger } from 'renderer/stores/useLoggerStore';
 import {
   channelIdExistsInCache,
   checkOnline,
@@ -35,6 +36,7 @@ import { claimChannelPointsBonus } from './bonus';
  *    listening to topics for the new streamer.
  */
 
+const logger = new Logger({ prefix: 'PUBSUB' });
 let wsPool: WebSocketsPool | null = null;
 
 export function listenForChannelPoints() {
@@ -85,10 +87,6 @@ class PubSubTopic {
 
     return `${this.topic}.${await getChannelId(this.channelLogin!)}`;
   }
-}
-
-function getReasonName(code: string) {
-  return code.replace('_', ' ').replace('CLAIM', 'bonus claimed').toLowerCase();
 }
 
 function createNonce(length: number) {
@@ -143,6 +141,7 @@ class WebSocketsPool {
 
   stop() {
     if (this.webSocket && !this.isClosed) {
+      logger.debug('Closing connection');
       this.closedOnPurpose = true;
       this.webSocket.close();
     }
@@ -163,7 +162,7 @@ class WebSocketsPool {
   }
 
   private onOpen() {
-    console.info('[PubSub]: WebSocket Open');
+    logger.debug('Connected');
     this.isOpened = true;
     this.ping();
 
@@ -175,7 +174,7 @@ class WebSocketsPool {
   }
 
   ping() {
-    console.info('[PubSub]: Sending PING');
+    logger.debug('Sending PING');
     this.send({
       type: 'PING',
     });
@@ -189,7 +188,7 @@ class WebSocketsPool {
     const data = JSON.parse(event.data);
 
     if (data.type === 'PONG') {
-      console.info('[PubSub]: Received PONG');
+      logger.debug('Received PONG');
     } else if (data.type === 'MESSAGE') {
       const [topic, topicUser] = data.data.topic.split('.');
       const message = JSON.parse(data.data.message);
@@ -217,14 +216,18 @@ class WebSocketsPool {
           const channelId = messageData.channel_id;
 
           if (channelIdExistsInCache(channelId)) {
+            const pointsEarned = messageData.point_gain.total_points;
             const newBalance = messageData.balance.balance;
-            const streamerLogin =
-              getStreamerLoginByChannelIdFromCache(channelId);
-            const reasonName = getReasonName(
-              messageData.point_gain.reason_code
-            );
-            console.info(
-              `${newBalance} channel points for ${streamerLogin}! Reason: ${reasonName}.`
+            const streamer = getStreamer(channelId);
+            const reason = messageData.point_gain.reason_code;
+
+            if (!streamer) {
+              console.error('Not watching any streamer with id: ', channelId);
+              return;
+            }
+
+            logger.info(
+              `+${pointsEarned} -> ${streamer.displayName} (${newBalance} points) - Reason: ${reason}.`
             );
           }
         } else if (messageType === 'claim-available') {
@@ -280,9 +283,7 @@ class WebSocketsPool {
     }
 
     this.isClosed = true;
-    console.info(
-      '[PubSub]: Reconnecting to Twitch PubSub server in 30 seconds'
-    );
+    logger.debug('Reconnecting to Twitch PubSub server in 30 seconds');
 
     await sleep(30);
 

@@ -1,5 +1,6 @@
 import { nodeClient } from 'renderer/api';
 import { authStore } from 'renderer/stores/useAuthStore';
+import { Logger } from 'renderer/stores/useLoggerStore';
 import {
   getAllStreamers,
   getOnlineStreamers,
@@ -28,28 +29,35 @@ import {
 class Watcher {
   private minutesPassed = 0;
 
+  private logger: Logger;
+
+  constructor() {
+    this.logger = new Logger({ prefix: 'WATCHER' });
+  }
+
   public async start() {
     if (!authStore.getState().accessToken || !authStore.getState().user.id) {
       console.error('User not authorized');
     }
 
+    this.logger.debug('Booting');
     setWatcherStatus(WatcherStatus.BOOTING);
-    console.log(`Loading data for ${getAllStreamers().length} streamers...`);
+    this.logger.info(
+      `Loading data for ${getAllStreamers().length} streamers...`
+    );
 
     listenForChannelPoints();
     await setStreamersToWatch();
     doForEachStreamer(loadChannelPointsContext);
 
     setWatcherStatus(WatcherStatus.RUNNING);
+    this.logger.debug('Running');
 
     while (watcherIsRunning()) {
-      console.info(`Watched for ${this.minutesPassed} minutes`);
+      this.logger.debug(`Watched for ${this.minutesPassed} minutes`);
       const streamersToWatch = getOnlineStreamers().slice(0, 2);
       const numOfStreamersToWatch = streamersToWatch.length;
-      console.info(
-        `Watching ${numOfStreamersToWatch} streamer(s): `,
-        streamersToWatch
-      );
+      this.logger.debug(`Watching ${numOfStreamersToWatch} streamer(s)`);
 
       if (numOfStreamersToWatch) {
         for (let i = 0; i < numOfStreamersToWatch; i += 1) {
@@ -60,7 +68,7 @@ class Watcher {
             try {
               const info = getMinuteWatchedRequestInfo(streamer.login);
               if (info) {
-                console.info(
+                this.logger.debug(
                   `Sending watch minute event for ${streamer.displayName}`
                 );
                 await nodeClient.post('/minute-watched-event', {
@@ -68,7 +76,7 @@ class Watcher {
                   payload: info.payload,
                 });
 
-                console.info(
+                this.logger.debug(
                   `Successfully sent watch minute event for ${streamer.displayName}`
                 );
               }
@@ -77,12 +85,12 @@ class Watcher {
             }
 
             const max = Math.max(nextIteration - Date.now() / 1000, 0);
-            console.log(`Sleeping for ${max}s`);
+            this.logger.debug(`Sleeping for ${max}s`);
             await sleep(max);
           }
         }
       } else {
-        console.log(`Sleeping for 60s`);
+        this.logger.debug(`Sleeping for 60s`);
         await sleep(60);
       }
 
@@ -91,12 +99,14 @@ class Watcher {
   }
 
   public stop() {
+    this.logger.debug('Stopping');
     setWatcherStatus(WatcherStatus.STOPPING);
 
     resetOnlineStatusOfStreamers();
     stopListeningForChannelPoints();
 
     setWatcherStatus(WatcherStatus.STOPPED);
+    this.logger.debug('Stopped');
   }
 
   public canStart(): boolean {
