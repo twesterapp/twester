@@ -43,9 +43,13 @@ class Watcher {
       `Loading data for ${getAllStreamers().length} streamers...`
     );
 
-    listenForChannelPoints();
+    // PERF: These both awaits loop over streamers and await in the loop, which
+    // is very slow, as it's not asynchronus anymore. Should probable fix by
+    // all promises -> promises array -> await promises array -> results array
+    // and then use the results array to make the necessary state updates.
     await loadChannelPointsContext();
     await updateStreamersToWatch();
+    listenForChannelPoints();
 
     setWatcherStatus(WatcherStatus.RUNNING);
     this.logger.debug('Running');

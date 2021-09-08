@@ -132,7 +132,6 @@ export async function getBroadcastId(streamerLogin: string): Promise<string> {
 
 export async function updateStreamersToWatch() {
   for (const streamer of getAllStreamers()) {
-    // eslint-disable-next-line no-await-in-loop
     await checkOnline(streamer.login);
   }
 }
