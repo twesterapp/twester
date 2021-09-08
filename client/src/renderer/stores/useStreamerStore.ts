@@ -2,6 +2,9 @@ import vanillaCreate from 'zustand/vanilla';
 import create from 'zustand';
 import { rightNowInSecs } from 'renderer/utils';
 import { authStore } from './useAuthStore';
+import { Logger } from './useLoggerStore';
+
+const logger = new Logger({ prefix: 'STREAMER' });
 
 export type StreamerLogin = string;
 export type StreamerId = string;
@@ -13,8 +16,14 @@ export interface Streamer {
   displayName: string;
   profileImageUrl: string;
   followersCount: string;
-  online: boolean;
-  lastOfflineTime: number;
+  online?: boolean;
+  lastOfflineTime?: number;
+  // Channel points for the streamer when the watcher session was started.
+  startingBalance?: number;
+  // Channel points for the streamer at the current time of the watcher session.
+  currentBalance?: number;
+  // Is this streamer being watched by the `watcher`.
+  watching?: boolean;
 }
 
 interface State {
@@ -23,10 +32,23 @@ interface State {
 
 type NewStreamer = Omit<
   Streamer,
-  'online' | 'lastOfflineTime' | 'priorityRank'
+  | 'online'
+  | 'lastOfflineTime'
+  | 'priorityRank'
+  | 'startingBalance'
+  | 'currentBalance'
 >;
 
-type UpdateStreamer = Omit<NewStreamer, 'id' | 'login'>;
+interface UpdateStreamer {
+  displayName?: string;
+  profileImageUrl?: string;
+  followersCount?: string;
+  online?: boolean;
+  lastOfflineTime?: number;
+  startingBalance?: number;
+  currentBalance?: number;
+  watching?: boolean;
+}
 
 const getStorageKey = () => `${authStore.getState().user.id}.streamers`;
 
@@ -73,11 +95,9 @@ export function addStreamer(streamer: NewStreamer) {
     }
   }
 
-  const streamerToAdd = {
+  const streamerToAdd: Streamer = {
     ...streamer,
     priorityRank: getState().streamers.length + 1,
-    online: false,
-    lastOfflineTime: 0,
   };
 
   const updated = [...getState().streamers, streamerToAdd];
@@ -91,9 +111,17 @@ export function addStreamer(streamer: NewStreamer) {
   });
 }
 
-export function getStreamer(id: StreamerId): Streamer | void {
+export function getStreamerById(id: StreamerId): Streamer | void {
   for (const streamer of streamerStore.getState().streamers) {
     if (streamer.id === id) {
+      return streamer;
+    }
+  }
+}
+
+export function getStreamerByLogin(login: StreamerLogin): Streamer | void {
+  for (const streamer of streamerStore.getState().streamers) {
+    if (streamer.login === login) {
       return streamer;
     }
   }
@@ -124,21 +152,22 @@ export function updateStreamer(id: StreamerId, newValue: UpdateStreamer) {
     if (streamer.id === id) {
       return {
         ...streamer,
-        displayName: newValue.displayName,
-        profileImageUrl: newValue.profileImageUrl,
-        followersCount: newValue.followersCount,
+        ...newValue,
       };
     }
 
     return { ...streamer };
   });
 
-  // We don't want to store these keys to storage.
-  // Only the above info is to be persisted.
+  // We don't want to store these keys to storage. The `updated` array is for
+  // app state. This one is for persisting to localStorage.
   const updatedForPersisting = updated.map((streamer) => ({
     ...streamer,
-    online: false,
-    lastOfflineTime: 0,
+    online: undefined,
+    lastOfflineTime: undefined,
+    startingBalance: undefined,
+    currentBalance: undefined,
+    watching: undefined,
   }));
 
   try {
@@ -155,18 +184,23 @@ export function setOnlineStatus(login: StreamerLogin, status: boolean) {
 
   const updated: Streamer[] = getState().streamers.map((streamer): Streamer => {
     if (streamer.login === login) {
-      console.log(
-        `${streamer.displayName} is ${status ? 'online' : 'offline'}!`
+      logger.info(
+        `${streamer.displayName} (${streamer.startingBalance}) is ${
+          status ? 'Online' : 'Offline'
+        }!`
       );
 
+      // Setting streamer to `Offline`
       if (!status) {
         return {
           ...streamer,
           online: status,
           lastOfflineTime: rightNowInSecs(),
+          watching: false,
         };
       }
 
+      // Setting streamer to `Online`
       return {
         ...streamer,
         online: status,
@@ -194,6 +228,10 @@ export function isOnline(login: StreamerLogin): boolean {
 }
 
 export function resetOnlineStatusOfStreamers() {
-  const streamers = getInitialState().streamers;
-  streamerStore.setState({ streamers });
+  const { getState, setState } = streamerStore;
+  const updated = getState().streamers.map((streamer) => ({
+    ...streamer,
+    online: undefined,
+  }));
+  setState({ streamers: updated });
 }
