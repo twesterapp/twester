@@ -1,19 +1,19 @@
 {
-  "name": "electron-react-boilerplate",
-  "productName": "electron-react-boilerplate",
-  "version": "3.0.2",
-  "description": "Electron application boilerplate based on React, React Router, Webpack, React Hot Loader for rapid application development",
-  "main": "./dist/main/main.js",
-  "author": {
-    "name": "Electron React Boilerplate Maintainers",
-    "email": "electronreactboilerplate@gmail.com",
-    "url": "https://github.com/electron-react-boilerplate"
-  },
-  "scripts": {
-    "electron-rebuild": "node -r ../../.erb/scripts/babel-register.js ../../.erb/scripts/electron-rebuild.js",
-    "link-modules": "node -r ../../.erb/scripts/babel-register.js ../../.erb/scripts/link-modules.js",
-    "postinstall": "yarn electron-rebuild && yarn link-modules"
-  },
-  "license": "MIT",
-  "dependencies": {}
+    "name": "twester",
+    "productName": "Twester",
+    "version": "0.1.0",
+    "description": "Earn channel points without watching Twitch",
+    "main": "./dist/main/main.js",
+    "author": {
+        "name": "Shikhar Sharma",
+        "email": "ceoshikhar@gmail.com",
+        "url": "https://ceoshikhar.com"
+    },
+    "scripts": {
+        "electron-rebuild": "node -r ../../.erb/scripts/babel-register.js ../../.erb/scripts/electron-rebuild.js",
+        "link-modules": "node -r ../../.erb/scripts/babel-register.js ../../.erb/scripts/link-modules.js",
+        "postinstall": "yarn electron-rebuild && yarn link-modules"
+    },
+    "license": "MIT",
+    "dependencies": {}
 }
