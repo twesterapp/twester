@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-implied-eval */
 import { User, setUser, setToken } from './stores/useAuthStore';
 
 export const isProd = process.env.NODE_ENV === 'PRODUCTION';
@@ -25,12 +26,51 @@ export function px2rem(valInPx: number): string {
   return `${valInEm}rem`;
 }
 
-export async function sleep(sec: number) {
-  return new Promise((resolve) => setTimeout(resolve, sec * 1000));
-}
-
 export function rightNowInSecs(): number {
-  return Math.floor(Date.now() / 1000);
+  // Little extra time is better than little less time
+  return Math.ceil(Date.now() / 1000);
 }
 
 export function noop() {}
+
+let abortController: AbortController | null = null;
+
+export async function sleep(sec: number) {
+  if (!abortController) {
+    abortController = new AbortController();
+  }
+
+  try {
+    await innerSleep(sec, abortController.signal);
+  } catch (e) {
+    if (abortController) {
+      abortController = null;
+    }
+  }
+}
+
+function innerSleep(sec: number, signal: AbortSignal) {
+  return new Promise((resolve, reject) => {
+    const error = new DOMException('Sleeping aborted', 'AbortError');
+
+    if (signal.aborted) {
+      return reject(error);
+    }
+
+    const timeout = setTimeout(() => {
+      return resolve(1);
+    }, sec * 1000);
+
+    signal.addEventListener('abort', () => {
+      clearTimeout(timeout);
+      reject(error);
+    });
+  });
+}
+
+export function abortAllSleepingTasks() {
+  if (abortController) {
+    console.log('Aborting all sleeping tasks currently in progress');
+    abortController.abort();
+  }
+}

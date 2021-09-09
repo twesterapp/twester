@@ -15,7 +15,7 @@ import {
   canStopWatcher,
   canStartWatcher,
 } from 'renderer/stores/useWatcherStore';
-import { rightNowInSecs, sleep } from 'renderer/utils';
+import { abortAllSleepingTasks, rightNowInSecs, sleep } from 'renderer/utils';
 import { loadChannelPointsContext } from './bonus';
 import { getMinuteWatchedRequestInfo, updateStreamersToWatch } from './data';
 import {
@@ -65,6 +65,11 @@ class Watcher {
           const streamer = streamersToWatch[i];
           const nextIteration = rightNowInSecs() + 60 / numOfStreamersToWatch;
 
+          // FIXME: If the client's internet DC while the app is running and
+          // the internet comes back after any of these(streamersToWatch)
+          // streamer(s) went offline, the watcher will still keep watching that
+          // streamer because this `isOnline` check is made with cached value
+          // instead of actual recently fetched data from the Twitch server.
           if (isOnline(streamer.login)) {
             try {
               const info = getMinuteWatchedRequestInfo(streamer.login);
@@ -93,9 +98,9 @@ class Watcher {
               console.info('Error while trying to watch a minute');
             }
 
-            const max = Math.max(nextIteration - Date.now() / 1000, 0);
-            this.logger.debug(`Sleeping for ${max}s`);
-            await sleep(max);
+            const duration = nextIteration - rightNowInSecs();
+            this.logger.debug(`Sleeping for ${duration}s`);
+            await sleep(duration);
           }
         }
       } else {
@@ -111,8 +116,9 @@ class Watcher {
     this.logger.debug('Stopping');
     setWatcherStatus(WatcherStatus.STOPPING);
 
-    resetOnlineStatusOfStreamers();
+    abortAllSleepingTasks();
     stopListeningForChannelPoints();
+    resetOnlineStatusOfStreamers();
 
     setWatcherStatus(WatcherStatus.STOPPED);
     this.logger.debug('Stopped');
