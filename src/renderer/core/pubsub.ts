@@ -139,7 +139,6 @@ class WebSocketsPool {
     }
 
     submit(topic: PubSubTopic) {
-        console.log('INSIDE SUBMIT?');
         if (!this.webSocket || this.topics.length >= 50) {
             this.createNewWebSocket();
         }
@@ -229,9 +228,10 @@ class WebSocketsPool {
 
     private send(message: Record<string, unknown>) {
         // The internal webSocket's ready state is checked before sending
-        // a message because after a network error/disconnect, we try to reconnect
-        // and sometimes the `isOpened` is true but the webSocket's state is still
-        // on `CONNECTING`. This protects the app from crashing in those situations.
+        // a message because after a network error/disconnect, we try to
+        // reconnect and sometimes the `isOpened` is true but the webSocket's
+        // state is still on `CONNECTING`.
+        // This protects the app from crashing in those situations.
         if (
             this.isOpened &&
             !this.isClosed &&
@@ -256,7 +256,7 @@ class WebSocketsPool {
                 messageData = message.data;
             }
 
-            // If we have more than one PubSub connection, messages may be duplicated
+            // If we have more than one connection, messages may be duplicated
             if (
                 Date.now() - this._lastMessageTime < 0.1 &&
                 this._lastMessageType === messageType
@@ -309,9 +309,9 @@ class WebSocketsPool {
                 const streamerLogin =
                     getStreamerLoginByChannelIdFromCache(topicUser);
 
-                // There is stream-up message type, but it's sent earlier than the
-                // API updates. Therefore making it useless to check for it here, as
-                // `checkOnline` will return `isOffline` status.
+                // There is stream-up message type, but it's sent earlier than
+                // the API updates. Therefore making it useless to check for it
+                //  here, as `checkOnline` will return `isOffline` status.
                 if (messageType === 'stream-down') {
                     setOnlineStatus(streamerLogin, false);
                 } else if (messageType === 'viewcount') {
@@ -362,8 +362,6 @@ class WebSocketsPool {
     }
 
     private tryReconnecting() {
-        console.log(this);
-
         if (this.shouldTryReconnecting) {
             logger.debug('Trying to reconnect to Twitch PubSub server');
             this.webSocket = null;

@@ -46,10 +46,6 @@ class Watcher {
             `Loading data for ${getAllStreamers().length} streamers...`
         );
 
-        // PERF: These both awaits loop over streamers and await in the loop, which
-        // is very slow, as it's not asynchronus anymore. Should probable fix by
-        // all promises -> promises array -> await promises array -> results array
-        // and then use the results array to make the necessary state updates.
         await loadChannelPointsContext();
         await updateStreamersToWatch();
         listenForChannelPoints();
@@ -69,11 +65,12 @@ class Watcher {
                     const nextIteration =
                         rightNowInSecs() + 60 / numOfStreamersToWatch;
 
-                    // FIXME: If the client's internet DC while the app is running and
-                    // the internet comes back after any of these(streamersToWatch)
-                    // streamer(s) went offline, the watcher will still keep watching that
-                    // streamer because this `isOnline` check is made with cached value
-                    // instead of actual recently fetched data from the Twitch server.
+                    // FIXME: If the client's internet DC while the app is running
+                    // and the internet comes back after any of these
+                    // (streamersToWatch) streamer(s) went offline, the watcher
+                    // will still keep watching that streamer because this
+                    // `isOnline` check is made with cached value instead of
+                    // actual recently fetched data from the Twitch server.
                     if (isOnline(streamer.login)) {
                         try {
                             const info = getMinuteWatchedRequestInfo(
