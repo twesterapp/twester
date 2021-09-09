@@ -2,75 +2,79 @@ import axios from 'axios';
 import { authStore } from 'renderer/stores/useAuthStore';
 
 export const nodeClient = axios.create({
-  baseURL: 'http://localhost:6969',
+    baseURL: 'http://localhost:6969',
 });
 
 export const oauthClient = axios.create({
-  headers: {
-    'Client-Id': 'kimne78kx3ncx6brgo4mv6wki5h1ko',
-  },
+    headers: {
+        'Client-Id': 'kimne78kx3ncx6brgo4mv6wki5h1ko',
+    },
 });
 
 export const bearerClient = axios.create({
-  headers: {
-    'Client-Id': 'kimne78kx3ncx6brgo4mv6wki5h1ko',
-  },
+    headers: {
+        'Client-Id': 'kimne78kx3ncx6brgo4mv6wki5h1ko',
+    },
 });
 
 oauthClient.interceptors.request.use(
-  (config) => {
-    const token = authStore.getState().accessToken;
+    (config) => {
+        const token = authStore.getState().accessToken;
 
-    if (token) {
-      config.headers.Authorization = `OAuth ${token}`;
+        if (token) {
+            config.headers.Authorization = `OAuth ${token}`;
+        }
+
+        return config;
+    },
+    (err) => {
+        return Promise.reject(err);
     }
-
-    return config;
-  },
-  (err) => {
-    return Promise.reject(err);
-  }
 );
 
 bearerClient.interceptors.request.use(
-  (config) => {
-    const token = authStore.getState().accessToken;
+    (config) => {
+        const token = authStore.getState().accessToken;
 
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+
+        return config;
+    },
+    (err) => {
+        return Promise.reject(err);
     }
-
-    return config;
-  },
-  (err) => {
-    return Promise.reject(err);
-  }
 );
 
 export function fetchChannelInfo(
-  streamerLogin = authStore.getState().user.login
+    streamerLogin = authStore.getState().user.login
 ) {
-  return bearerClient.get(
-    `https://api.twitch.tv/helix/users?login=${streamerLogin}`
-  );
+    return bearerClient.get(
+        `https://api.twitch.tv/helix/users?login=${streamerLogin}`
+    );
 }
 
 export function fetchChannelFollowers(channelId: string) {
-  return bearerClient.get(
-    `https://api.twitch.tv/helix/users/follows?to_id=${channelId}`
-  );
+    return bearerClient.get(
+        `https://api.twitch.tv/helix/users/follows?to_id=${channelId}`
+    );
 }
 
 export async function makeGraphqlRequest(
-  data: Record<string, unknown>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data: Record<string, unknown>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<Record<string, any>> {
-  return oauthClient({ method: 'POST', url: 'https://gql.twitch.tv/gql', data })
-    .then((res) => {
-      const data = res.data;
-      return data;
+    return oauthClient({
+        method: 'POST',
+        url: 'https://gql.twitch.tv/gql',
+        data,
     })
-    .catch((e) => {
-      console.error('Twitch GraphQL request error: \n', e);
-    });
+        .then((res) => {
+            const data = res.data;
+            return data;
+        })
+        .catch((e) => {
+            console.error('Twitch GraphQL request error: \n', e);
+        });
 }

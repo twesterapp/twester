@@ -10,12 +10,12 @@ export { FaSignOutAlt as IconSignOut };
 export { ImCross as IconCross };
 
 export function IconPlus({ style, ...rest }: IconBaseProps) {
-  const _style = {
-    ...style,
-    transform: `rotate(45deg)`,
-  };
+    const _style = {
+        ...style,
+        transform: `rotate(45deg)`,
+    };
 
-  return <ImCross style={_style} {...rest} />;
+    return <ImCross style={_style} {...rest} />;
 }
 
 export { FaPlay as IconPlay };
