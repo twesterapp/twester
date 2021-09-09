@@ -117,11 +117,19 @@ class WebSocketsPool {
 
   private isOpened = false;
 
+  private isClosed = false;
+
+  private shouldTryReconnecting = false;
+
   private closedOnPurpose = false;
 
   private pingHandle!: NodeJS.Timeout;
 
-  private pingHandleInterval = 60 * 1000 * 4;
+  private pingInterval = 4.5 * 60 * 1000;
+
+  private reconnectionHandle!: NodeJS.Timeout;
+
+  private reconnectionInterval = 30 * 1000;
 
   private _lastMessageTime = 0;
 
@@ -132,7 +140,8 @@ class WebSocketsPool {
   }
 
   submit(topic: PubSubTopic) {
-    if (this.webSocket === null || this.topics.length >= 50) {
+    console.log('INSIDE SUBMIT?');
+    if (!this.webSocket || this.topics.length >= 50) {
       this.createNewWebSocket();
     }
 
@@ -146,11 +155,25 @@ class WebSocketsPool {
   }
 
   stop() {
+    this.closedOnPurpose = true;
+
+    if (!this.isOpened) {
+      logger.debug('Skipped closing as no connection was established yet');
+      return;
+    }
+
+    if (this.isClosed) {
+      logger.debug('Skipped closing as it is already closed');
+      return;
+    }
+
     if (this.webSocket) {
       logger.debug('Closing');
-      this.closedOnPurpose = true;
-      this.webSocket.close();
+
       this.clearPingHandle();
+      this.webSocket.close();
+      this.isClosed = true;
+
       logger.debug('Closed');
     }
   }
@@ -158,8 +181,10 @@ class WebSocketsPool {
   private createNewWebSocket() {
     const webSocket = new WebSocket('wss://pubsub-edge.twitch.tv/v1');
     logger.debug('Connecting');
+
     this.webSocket = webSocket;
     this.isOpened = false;
+    this.isClosed = false;
     this.closedOnPurpose = false;
     this.topics = [];
     this.pendingTopics = [];
@@ -171,25 +196,48 @@ class WebSocketsPool {
 
   private onOpen() {
     logger.debug('Open');
-    this.isOpened = true;
-    this.ping();
 
-    for (let i = 0; i < this.pendingTopics.length; i += 1) {
-      this.listenForTopic(this.pendingTopics[i]);
+    this.isOpened = true;
+    clearInterval(this.reconnectionHandle);
+    this.shouldTryReconnecting = false;
+
+    if (this.closedOnPurpose) {
+      logger.debug('Opened after it was closed on pupose');
+      this.stop();
+      return;
     }
 
-    this.pingHandle = setInterval(() => this.ping(), this.pingHandleInterval);
+    this.ping();
+
+    if (this.pendingTopics) {
+      for (let i = 0; i < this.pendingTopics.length; i += 1) {
+        this.listenForTopic(this.pendingTopics[i]);
+      }
+    }
+
+    this.pingHandle = setInterval(() => this.ping(), this.pingInterval);
   }
 
   ping() {
     logger.debug('Sending PING');
+
     this.send({
       type: 'PING',
     });
   }
 
   private send(message: Record<string, unknown>) {
-    this.webSocket?.send(JSON.stringify(message));
+    // The internal webSocket's ready state is checked before sending
+    // a message because after a network error/disconnect, we try to reconnect
+    // and sometimes the `isOpened` is true but the webSocket's state is still
+    // on `CONNECTING`. This protects the app from crashing in those situations.
+    if (
+      this.isOpened &&
+      !this.isClosed &&
+      this.webSocket?.readyState === WebSocket.OPEN
+    ) {
+      this.webSocket?.send(JSON.stringify(message));
+    }
   }
 
   private onMessage(event: MessageEvent) {
@@ -297,16 +345,25 @@ class WebSocketsPool {
     }
 
     this.clearPingHandle();
+    this.shouldTryReconnecting = true;
 
-    logger.debug('Reconnecting to Twitch PubSub server in 30 seconds');
+    this.reconnectionHandle = setInterval(
+      () => this.tryReconnecting(),
+      this.reconnectionInterval
+    );
+  }
 
-    await sleep(30);
+  private tryReconnecting() {
+    console.log(this);
 
-    this.webSocket = null;
+    if (this.shouldTryReconnecting) {
+      logger.debug('Trying to reconnect to Twitch PubSub server');
+      this.webSocket = null;
 
-    if (this.topics) {
-      for (let i = 0; i < this.topics.length; i += 1) {
-        this.submit(this.topics[i]);
+      if (this.topics) {
+        for (let i = 0; i < this.topics.length; i += 1) {
+          this.submit(this.topics[i]);
+        }
       }
     }
   }
