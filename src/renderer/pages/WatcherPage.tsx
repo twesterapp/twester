@@ -50,19 +50,6 @@ export function WatcherPage() {
         />
     );
 
-    // For the initial mounting we don't want to animate(`smooth`) the scroll.
-    // It will be annoying to see the scroll animation whenever user comes on
-    // HomePage.
-    React.useEffect(() => {
-        logsEndRef.current?.scrollIntoView({ behavior: 'auto' });
-    }, []);
-
-    // After the initial mounting we want to animate(`smooth`) the scroll whenever
-    // logs change(new logs are added).
-    React.useEffect(() => {
-        logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [logs]);
-
     const RenderPauseButton = () => (
         <IconPause
             style={{
@@ -75,6 +62,19 @@ export function WatcherPage() {
             onClick={() => isPauseButtonActive() && watcher.pause()}
         />
     );
+
+    // For the initial mounting we don't want to animate(`smooth`) the scroll.
+    // It will be annoying to see the scroll animation whenever user comes on
+    // HomePage.
+    React.useEffect(() => {
+        logsEndRef.current?.scrollIntoView({ behavior: 'auto' });
+    }, []);
+
+    // After the initial mounting we want to animate(`smooth`) the scroll
+    // whenever logs change(new logs are added).
+    React.useEffect(() => {
+        logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [logs]);
 
     return (
         <PageWrapper>

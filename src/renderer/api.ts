@@ -63,7 +63,6 @@ export function fetchChannelFollowers(channelId: string) {
 
 export async function makeGraphqlRequest(
     data: Record<string, unknown>
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<Record<string, any>> {
     return oauthClient({
         method: 'POST',

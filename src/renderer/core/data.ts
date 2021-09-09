@@ -137,8 +137,9 @@ export async function updateStreamersToWatch() {
 }
 
 export async function checkOnline(login: StreamerLogin) {
-    // Twitch API has a delay for querying channels. If a query is made right after
-    //  the streamer went offline, it will cause a false "streamer is live" event.
+    // Twitch API has a delay for querying channels. If a query is made
+    // right after the streamer went offline, it will cause a false
+    // "streamer is live" event.
     if (rightNowInSecs() < (lastOfflineTime.get(login) ?? 0) + 60) {
         return;
     }

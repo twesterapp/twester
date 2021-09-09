@@ -19,13 +19,15 @@ import {
 import { SidebarIcon } from './SidebarIcon';
 
 interface SidebarOptions {
+    // This helps us fix the issue of active icon in the sidebar not updating
+    // in the production build but works fine without this in development build.
     currentPage: string;
 }
 
 export function Sidebar({ currentPage }: SidebarOptions) {
     const history = useHistory();
     const theme = useTheme();
-    // So that we can conditionally render `IconPause` or `IconPlay`.
+    // So that we can conditionally re-render `IconPause` or `IconPlay`.
     useWatcherStore();
 
     const { data } = useQuery('ME_INFO', () => fetchChannelInfo());
@@ -51,7 +53,6 @@ export function Sidebar({ currentPage }: SidebarOptions) {
                     </i>
                 </Tooltip>
 
-                {/* For creating space */}
                 <i style={{ height: '11px' }} />
 
                 <Tooltip title="Streamers" placement="right" enterDelay={1000}>

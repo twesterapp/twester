@@ -37,8 +37,9 @@ function getLoggingLevel(): LoggingLevel {
 }
 
 export class Logger {
-    // This will be added to the beginning of the log text if `level` is >= `DEBUG`.
-    // Example - `PUB_SUB`.
+    // This will be added to the beginning of the log text if
+    // `level` is >= `DEBUG`.
+    // Example - `WATCHER`.
     private prefix: string;
 
     private level: LoggingLevel;
@@ -71,7 +72,7 @@ export class Logger {
 
         if (this.logToConsole) {
             console.log(
-                `${timestamp.toLocaleDateString()} ${timestamp.toLocaleTimeString()}\n${_text} `
+                `${timestamp.toLocaleDateString()} ${timestamp.toLocaleTimeString()}\n ${_text} `
             );
         }
 
