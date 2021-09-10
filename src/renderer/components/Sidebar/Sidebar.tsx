@@ -13,7 +13,7 @@ import {
 import { useQuery } from 'react-query';
 import { delToken, delUser, authStore } from 'renderer/stores/useAuthStore';
 import {
-    showPauseButton,
+    canStartWatcher,
     useWatcherStore,
 } from 'renderer/stores/useWatcherStore';
 import { SidebarIcon } from './SidebarIcon';
@@ -41,9 +41,9 @@ export function Sidebar({ currentPage }: SidebarOptions) {
                 <Tooltip title="Watcher" placement="right" enterDelay={1000}>
                     <i>
                         <SidebarIcon
-                            icon={showPauseButton() ? IconPause : IconPlay}
+                            icon={!canStartWatcher() ? IconPause : IconPlay}
                             iconColor={
-                                showPauseButton()
+                                !canStartWatcher()
                                     ? theme.color.error
                                     : theme.color.success
                             }

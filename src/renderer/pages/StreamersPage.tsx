@@ -5,7 +5,7 @@ import {
     useStreamerStore,
     addStreamer,
 } from 'renderer/stores/useStreamerStore';
-import { canEditWatchPage } from 'renderer/stores/useWatcherStore';
+import { canStartWatcher } from 'renderer/stores/useWatcherStore';
 import { Button, IconPlus, InputText, Link } from 'renderer/ui';
 import { px2em } from 'renderer/utils';
 import styled from 'styled-components';
@@ -46,25 +46,25 @@ export function StreamersPage() {
 
     return (
         <PageWrapper>
-            {!canEditWatchPage() && (
+            {!canStartWatcher() && (
                 <Warning>
                     Go to <Link to="/">Home Page</Link> and <em>stop</em>{' '}
                     watcher to make changes to the list below.
                 </Warning>
             )}
-            <Search onSubmit={handleAddStreamer} canEdit={canEditWatchPage()}>
+            <Search onSubmit={handleAddStreamer} canEdit={canStartWatcher()}>
                 <InputText
                     style={{ marginRight: `${px2em(12)}`, width: '300px' }}
                     placeholder="Streamer to add"
                     value={searchText}
-                    disabled={!canEditWatchPage() || fetchingStreamer}
+                    disabled={!canStartWatcher() || fetchingStreamer}
                     onChange={(e) => setSearchText(e.target.value)}
                 />
                 <Button
                     width="46px"
                     variant="submit"
                     loading={fetchingStreamer}
-                    disabled={!canEditWatchPage() ?? !searchText.trim()}
+                    disabled={!canStartWatcher() ?? !searchText.trim()}
                 >
                     <IconPlus />
                 </Button>

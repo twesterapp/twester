@@ -10,7 +10,7 @@ import styled, { useTheme } from 'styled-components';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import humanFormat from 'human-format';
-import { canEditWatchPage } from 'renderer/stores/useWatcherStore';
+import { canStartWatcher } from 'renderer/stores/useWatcherStore';
 import { fetchChannelFollowers, fetchChannelInfo } from 'renderer/api';
 import { useQuery } from 'react-query';
 
@@ -49,7 +49,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
         <Card>
             <Content>
                 <TopRight>
-                    {canEditWatchPage() ? (
+                    {canStartWatcher() ? (
                         <button
                             id="remove-button"
                             onClick={() => removeStreamer(streamer.id)}

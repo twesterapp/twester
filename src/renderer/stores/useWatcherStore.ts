@@ -36,20 +36,11 @@ export function isWatcherStopped(): boolean {
     return false;
 }
 
-export function canEditWatchPage(): boolean {
+export function canStartWatcher(): boolean {
     if (
         watcherStore.getState().status === WatcherStatus.INIT ||
         watcherStore.getState().status === WatcherStatus.STOPPED
     ) {
-        return true;
-    }
-
-    return false;
-}
-
-export function canStartWatcher(): boolean {
-    const status = watcherStore.getState().status;
-    if (status === WatcherStatus.INIT || WatcherStatus.STOPPED) {
         return true;
     }
 
@@ -62,14 +53,4 @@ export function canStopWatcher(): boolean {
     }
 
     return false;
-}
-
-export function showPauseButton(): boolean {
-    const status = watcherStore.getState().status;
-
-    if (status === WatcherStatus.INIT || status === WatcherStatus.STOPPED) {
-        return false;
-    }
-
-    return true;
 }

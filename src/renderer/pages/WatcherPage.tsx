@@ -1,7 +1,7 @@
 import React from 'react';
 import { useStreamerStore } from 'renderer/stores/useStreamerStore';
 import {
-    showPauseButton,
+    canStartWatcher,
     useWatcherStore,
 } from 'renderer/stores/useWatcherStore';
 import { watcher } from 'renderer/core/watcher';
@@ -104,7 +104,7 @@ export function WatcherPage() {
                         <div ref={logsEndRef} />
                     </LogContainer>
 
-                    {showPauseButton()
+                    {!canStartWatcher()
                         ? RenderPauseButton()
                         : RenderPlayButton()}
                 </Content>
