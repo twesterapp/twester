@@ -1,28 +1,27 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link
-      rel="preconnect"
-      href="https://fonts.gstatic.com"
-      crossOrigin="true"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Karla:wght@400;700&family=Poppins:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
-    <title>Twester</title>
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
-  <script>
-    window.electron.ipcRenderer.once('ipc-example', (arg) => {
-      // eslint-disable-next-line no-console
-      console.info(arg);
-    });
+    <head>
+        <meta charset="utf-8" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+            rel="preconnect"
+            href="https://fonts.gstatic.com"
+            crossOrigin="true"
+        />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Karla:wght@400;700&family=Poppins:wght@400;700&display=swap"
+            rel="stylesheet"
+        />
+        <title>Twester</title>
+    </head>
+    <body>
+        <div id="root"></div>
+    </body>
+    <script>
+        window.electron.ipcRenderer.once('ipc-example', (arg) => {
+            console.info(arg);
+        });
 
-    window.electron.ipcRenderer.myPing();
-  </script>
+        window.electron.ipcRenderer.myPing();
+    </script>
 </html>

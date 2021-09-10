@@ -4,7 +4,6 @@ import querystring from 'querystring';
 
 const isProd = process.env.NODE_ENV === 'PRODUCTION';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function log(...args: any) {
     if (!isProd) {
         console.info('[AUTH_NODE_SERVER]:', ...args);
