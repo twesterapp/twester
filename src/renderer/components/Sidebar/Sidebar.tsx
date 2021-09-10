@@ -4,18 +4,14 @@ import { fetchChannelInfo } from 'renderer/api';
 import styled, { useTheme } from 'styled-components';
 import {
     IconSignOut,
-    IconPlay,
-    IconPause,
     Avatar,
     Tooltip,
     IconStreamers,
+    IconTv,
 } from 'renderer/ui';
 import { useQuery } from 'react-query';
 import { delToken, delUser, authStore } from 'renderer/stores/useAuthStore';
-import {
-    canStartWatcher,
-    useWatcherStore,
-} from 'renderer/stores/useWatcherStore';
+import { useWatcherStore } from 'renderer/stores/useWatcherStore';
 import { SidebarIcon } from './SidebarIcon';
 
 interface SidebarOptions {
@@ -41,7 +37,7 @@ export function Sidebar({ currentPage }: SidebarOptions) {
                 <Tooltip title="Watcher" placement="right" enterDelay={1000}>
                     <i>
                         <SidebarIcon
-                            icon={!canStartWatcher() ? IconPause : IconPlay}
+                            icon={IconTv}
                             active={onWatcherPage}
                             onClick={() => history.push('/')}
                         />
