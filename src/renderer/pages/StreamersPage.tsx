@@ -8,13 +8,12 @@ import {
 import { canStartWatcher } from 'renderer/stores/useWatcherStore';
 import { Button, IconPlus, InputText, Link } from 'renderer/ui';
 import { px2em } from 'renderer/utils';
-import styled, { useTheme } from 'styled-components';
+import styled from 'styled-components';
 
 export function StreamersPage() {
     const [searchText, setSearchText] = React.useState('');
     const [fetchingStreamer, setFetchingStreamer] = React.useState(false);
     const { streamers } = useStreamerStore();
-    const theme = useTheme();
 
     async function handleAddStreamer(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -36,13 +35,12 @@ export function StreamersPage() {
                 profileImageUrl: info.profile_image_url,
                 followersCount: followersResult.data.total,
             });
-
-            setFetchingStreamer(false);
-            setSearchText('');
         } catch {
             console.error('Failed to fetch channel info');
-            setFetchingStreamer(false);
         }
+
+        setSearchText('');
+        setFetchingStreamer(false);
     }
 
     return (
@@ -130,7 +128,7 @@ const Search = styled.form`
 
 const Info = styled.p`
     font-family: Karla;
-    color: ${(props) => props.theme.color.textPrimary};
+    color: ${(props) => props.theme.color.textFaded};
     line-height: ${px2em(18)};
     margin: 0;
     margin-bottom: ${px2em(44)};

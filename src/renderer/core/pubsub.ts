@@ -293,6 +293,7 @@ class WebSocketsPool {
 
                         updateStreamer(streamer.id, {
                             currentBalance: newBalance,
+                            pointsEarned: streamer.pointsEarned + pointsEarned,
                         });
                     }
                 } else if (messageType === 'claim-available') {

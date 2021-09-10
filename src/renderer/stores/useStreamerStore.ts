@@ -9,12 +9,16 @@ const logger = new Logger({ prefix: 'STREAMER' });
 export type StreamerLogin = string;
 export type StreamerId = string;
 
+// TODO: Clean these messy interfaces/type regarding Streamer
 export interface Streamer {
     login: StreamerLogin;
     priorityRank: number;
     id: StreamerId;
     displayName: string;
     profileImageUrl: string;
+    /**
+     * @deprecated We no longer show this on the Streamer Card.
+     */
     followersCount: string;
     online?: boolean;
     lastOfflineTime?: number;
@@ -24,6 +28,12 @@ export interface Streamer {
     currentBalance?: number;
     // Is this streamer being watched by the `watcher`.
     watching?: boolean;
+    // This helps us from incrementing `minutesWatched` if the user keeps
+    // pausing and playing the Watcher. This can lead to minuteWatched value to
+    // be wrong. Check it's usage in `watcher.ts`.
+    lastMinuteWatchedEventTime: number; // epoch in secs
+    minutesWatched: number;
+    pointsEarned: number;
 }
 
 interface State {
@@ -37,6 +47,9 @@ type NewStreamer = Omit<
     | 'priorityRank'
     | 'startingBalance'
     | 'currentBalance'
+    | 'minutesWatched'
+    | 'pointsEarned'
+    | 'lastMinuteWatchedEventTime'
 >;
 
 interface UpdateStreamer {
@@ -47,7 +60,10 @@ interface UpdateStreamer {
     lastOfflineTime?: number;
     startingBalance?: number;
     currentBalance?: number;
+    minutesWatched?: number;
+    pointsEarned?: number;
     watching?: boolean;
+    lastMinuteWatchedEventTime?: number;
 }
 
 const getStorageKey = () => `${authStore.getState().user.id}.streamers`;
@@ -98,6 +114,9 @@ export function addStreamer(streamer: NewStreamer) {
     const streamerToAdd: Streamer = {
         ...streamer,
         priorityRank: getState().streamers.length + 1,
+        minutesWatched: 0,
+        pointsEarned: 0,
+        lastMinuteWatchedEventTime: 0,
     };
 
     const updated = [...getState().streamers, streamerToAdd];

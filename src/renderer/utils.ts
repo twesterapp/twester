@@ -27,8 +27,7 @@ export function px2rem(valInPx: number): string {
 }
 
 export function rightNowInSecs(): number {
-    // Little extra time is better than little less time
-    return Math.ceil(Date.now() / 1000);
+    return Math.floor(Date.now() / 1000);
 }
 
 export function noop() {}
@@ -73,4 +72,21 @@ export function abortAllSleepingTasks() {
         console.log('Aborting all sleeping tasks currently in progress');
         abortController.abort();
     }
+}
+
+export function minutesToFormattedString(mins: number): string {
+    const hours = Math.floor(mins / 60);
+    const days = Math.floor(hours / 24);
+    // `hours` can be 0 and we don't want NaN, duh!
+    const minsLeft = hours ? mins % hours : mins;
+
+    // 3d 21h 43m
+    // `0m` only for `m`. If it's `0h 42m`, we ignore `0h`. Same for `0d`
+    let formattedString = '';
+
+    if (days) formattedString += `${days}d`;
+    if (hours || (!hours && days)) formattedString += ` ${hours}h`;
+    formattedString += ` ${minsLeft}m`;
+
+    return formattedString;
 }

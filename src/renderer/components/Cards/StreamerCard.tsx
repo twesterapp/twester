@@ -5,11 +5,8 @@ import {
     updateStreamer,
 } from 'renderer/stores/useStreamerStore';
 import { Avatar, IconCross, IconEye } from 'renderer/ui';
-import { px2rem } from 'renderer/utils';
+import { minutesToFormattedString, px2rem } from 'renderer/utils';
 import styled, { useTheme } from 'styled-components';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import humanFormat from 'human-format';
 import { canStartWatcher } from 'renderer/stores/useWatcherStore';
 import { fetchChannelFollowers, fetchChannelInfo } from 'renderer/api';
 import { useQuery } from 'react-query';
@@ -83,13 +80,12 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
 
                 <div>
                     <h1>{streamer.displayName}</h1>
-                    <p>
-                        {humanFormat(streamer.followersCount, {
-                            decimals: 1,
-                            separator: '',
-                        }).toUpperCase()}{' '}
-                        followers
-                    </p>
+                    <div style={{ display: 'flex', marginTop: '4px' }}>
+                        <p>
+                            {minutesToFormattedString(streamer.minutesWatched)}
+                        </p>
+                        <PointsEarned>+{streamer.pointsEarned}</PointsEarned>
+                    </div>
                 </div>
             </Content>
 
@@ -97,6 +93,11 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
         </Card>
     );
 }
+
+const PointsEarned = styled.p`
+    margin-left: ${px2rem(16)} !important;
+    color: ${(props) => props.theme.color.success} !important;
+`;
 
 const Card = styled.div`
     width: 405px;

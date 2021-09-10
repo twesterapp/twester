@@ -91,6 +91,20 @@ class Watcher {
                                     payload: info.payload,
                                 });
 
+                                if (
+                                    rightNowInSecs() -
+                                        streamer.lastMinuteWatchedEventTime >
+                                        59 ||
+                                    !streamer.lastMinuteWatchedEventTime
+                                ) {
+                                    updateStreamer(streamer.id, {
+                                        minutesWatched:
+                                            (streamer.minutesWatched += 1),
+                                        lastMinuteWatchedEventTime:
+                                            rightNowInSecs(),
+                                    });
+                                }
+
                                 this.logger.debug(
                                     `Sent minute watched event for ${streamer.displayName}`
                                 );
