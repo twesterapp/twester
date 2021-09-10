@@ -36,6 +36,7 @@ export function isWatcherStopped(): boolean {
     return false;
 }
 
+// This is NOT same as `!canStopWatcher()`
 export function canStartWatcher(): boolean {
     if (
         watcherStore.getState().status === WatcherStatus.INIT ||
@@ -47,6 +48,7 @@ export function canStartWatcher(): boolean {
     return false;
 }
 
+// This is NOT same as `!canStartWatcher()`
 export function canStopWatcher(): boolean {
     if (watcherStore.getState().status === WatcherStatus.RUNNING) {
         return true;
