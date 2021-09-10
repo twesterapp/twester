@@ -8,12 +8,13 @@ import {
 import { canStartWatcher } from 'renderer/stores/useWatcherStore';
 import { Button, IconPlus, InputText, Link } from 'renderer/ui';
 import { px2em } from 'renderer/utils';
-import styled from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 
 export function StreamersPage() {
     const [searchText, setSearchText] = React.useState('');
     const [fetchingStreamer, setFetchingStreamer] = React.useState(false);
     const { streamers } = useStreamerStore();
+    const theme = useTheme();
 
     async function handleAddStreamer(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -47,15 +48,15 @@ export function StreamersPage() {
     return (
         <PageWrapper>
             {!canStartWatcher() && (
-                <Warning>
-                    Go to{' '}
-                    <Link to="/" style={{ color: 'white' }}>
-                        Home Page
-                    </Link>{' '}
-                    and <em>stop</em> watcher to make changes to the list below.
-                </Warning>
+                <HelpMessage>
+                    Go to <Link to="/">Watcher Page</Link> and{' '}
+                    <em>
+                        <b>pause</b>
+                    </em>{' '}
+                    the watcher to update streamers
+                </HelpMessage>
             )}
-            <Search onSubmit={handleAddStreamer} canEdit={canStartWatcher()}>
+            <Search onSubmit={handleAddStreamer}>
                 <InputText
                     style={{ marginRight: `${px2em(12)}`, width: '300px' }}
                     placeholder="Streamer to add"
@@ -78,29 +79,50 @@ export function StreamersPage() {
                 You can re-order them by drag and drop.
             </Info>
 
-            {streamers.length > 0 &&
-                streamers.map((streamer) => {
-                    return (
-                        <StreamerCard key={streamer.id} streamer={streamer} />
-                    );
-                })}
+            <Streamers>
+                {streamers.length > 0 &&
+                    streamers.map((streamer) => {
+                        return (
+                            <StreamerCard
+                                key={streamer.id}
+                                streamer={streamer}
+                            />
+                        );
+                    })}
+            </Streamers>
         </PageWrapper>
     );
 }
 
-const Warning = styled.p`
-    position: absolute;
-    font-family: 'Karla';
-    top: 0px;
-    background: ${(props) => props.theme.color.error};
-    margin: 0;
-    padding: ${() => `${px2em(10)} ${px2em(24)}`};
-    border-radius: 0px 0px 50px 50px;
+const Streamers = styled.div`
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: ${`${px2em(16)} ${px2em(48)}`};
 `;
 
-const Search = styled.form<{ canEdit: boolean }>`
-    margin-top: ${(props) =>
-        !props.canEdit ? `${px2em(72)}` : `${px2em(44)}`};
+const HelpMessage = styled.p`
+    font-family: 'Karla';
+    text-align: center;
+    background: ${(props) => props.theme.color.error};
+    margin: 0;
+    margin-bottom: 32px;
+    padding: ${() => `${px2em(10)} ${px2em(24)}`};
+    border-radius: 0px 0px 50px 50px;
+
+    a {
+        color: ${(props) => props.theme.color.textPrimary};
+        font-weight: bold;
+        text-decoration: underline;
+
+        &:hover {
+            text-decoration: none;
+        }
+    }
+`;
+
+const Search = styled.form`
+    margin-top: 44px;
     height: 46px;
     display: flex;
     margin-bottom: ${px2em(22)};

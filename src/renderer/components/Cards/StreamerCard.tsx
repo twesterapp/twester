@@ -105,7 +105,6 @@ const Card = styled.div`
     color: ${(props) => props.theme.color.textPrimary};
     border-radius: 14px;
     position: relative;
-    margin-bottom: ${px2rem(16)};
 
     transition: background-color 200ms ease-out;
 
