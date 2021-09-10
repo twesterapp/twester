@@ -38,6 +38,7 @@ class Watcher {
             !authStore.getState().user.id
         ) {
             console.error('User not authorized');
+            return;
         }
 
         this.logger.debug('Booting');
@@ -57,7 +58,6 @@ class Watcher {
             this.logger.debug(`Watched for ${this.minutesPassed} minutes`);
             const streamersToWatch = getOnlineStreamers().slice(0, 2);
             const numOfStreamersToWatch = streamersToWatch.length;
-            this.logger.debug(`Watching ${numOfStreamersToWatch} streamer(s)`);
 
             if (numOfStreamersToWatch) {
                 for (let i = 0; i < numOfStreamersToWatch; i += 1) {
@@ -77,10 +77,6 @@ class Watcher {
                                 streamer.login
                             );
                             if (info) {
-                                this.logger.debug(
-                                    `Sending watch minute event for ${streamer.displayName}`
-                                );
-
                                 if (!streamer.watching) {
                                     updateStreamer(streamer.id, {
                                         watching: true,
@@ -96,17 +92,16 @@ class Watcher {
                                 });
 
                                 this.logger.debug(
-                                    `Successfully sent watch minute event for ${streamer.displayName}`
+                                    `Sent minute watched event for ${streamer.displayName}`
                                 );
                             }
                         } catch {
-                            console.info(
+                            console.error(
                                 'Error while trying to watch a minute'
                             );
                         }
 
                         const duration = nextIteration - rightNowInSecs();
-                        this.logger.debug(`Sleeping for ${duration}s`);
                         await sleep(duration);
                     }
                 }

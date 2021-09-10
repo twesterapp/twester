@@ -48,8 +48,11 @@ export function StreamersPage() {
         <PageWrapper>
             {!canStartWatcher() && (
                 <Warning>
-                    Go to <Link to="/">Home Page</Link> and <em>stop</em>{' '}
-                    watcher to make changes to the list below.
+                    Go to{' '}
+                    <Link to="/" style={{ color: 'white' }}>
+                        Home Page
+                    </Link>{' '}
+                    and <em>stop</em> watcher to make changes to the list below.
                 </Warning>
             )}
             <Search onSubmit={handleAddStreamer} canEdit={canStartWatcher()}>
@@ -89,7 +92,7 @@ const Warning = styled.p`
     position: absolute;
     font-family: 'Karla';
     top: 0px;
-    background: ${(props) => props.theme.color.background2};
+    background: ${(props) => props.theme.color.error};
     margin: 0;
     padding: ${() => `${px2em(10)} ${px2em(24)}`};
     border-radius: 0px 0px 50px 50px;

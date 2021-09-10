@@ -3,8 +3,10 @@ import create from 'zustand';
 import { isProd } from 'renderer/utils';
 
 enum LoggingLevel {
-    INFO = 0,
-    DEBUG = 1,
+    LESS = 0,
+    INFO = 1,
+    DEBUG = 2,
+    MORE = 3,
 }
 
 export interface Log {
@@ -72,7 +74,7 @@ export class Logger {
 
         if (this.logToConsole) {
             console.log(
-                `${timestamp.toLocaleDateString()} ${timestamp.toLocaleTimeString()}\n ${_text} `
+                `${timestamp.toLocaleDateString()} ${timestamp.toLocaleTimeString()}\n${_text}`
             );
         }
 
