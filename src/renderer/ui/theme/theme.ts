@@ -9,6 +9,7 @@ interface Color {
     primary: string;
     success: string;
     textPrimary: string;
+    textFaded: string;
 }
 
 export interface Theme {
@@ -29,5 +30,6 @@ export const darkTheme: Theme = {
         primary: '#3498DB',
         success: '#0AD48B',
         textPrimary: '#F1F1F1',
+        textFaded: '#979797',
     },
 };
