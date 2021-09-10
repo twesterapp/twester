@@ -96,7 +96,8 @@ const Warning = styled.p`
 `;
 
 const Search = styled.form<{ canEdit: boolean }>`
-    margin-top: ${(props) => (props.canEdit ? `${px2em(72)}` : `${px2em(44)}`)};
+    margin-top: ${(props) =>
+        !props.canEdit ? `${px2em(72)}` : `${px2em(44)}`};
     height: 46px;
     display: flex;
     margin-bottom: ${px2em(22)};
