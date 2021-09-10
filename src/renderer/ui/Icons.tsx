@@ -1,9 +1,15 @@
 import React from 'react';
 
-import { FaSignOutAlt, FaPlay, FaPause, FaUsers, FaEye } from 'react-icons/fa';
+import {
+    FaSignOutAlt,
+    FaPlay,
+    FaPause,
+    FaUsers,
+    FaEye,
+    FaPowerOff,
+} from 'react-icons/fa';
 import { ImCross } from 'react-icons/im';
 import { IconBaseProps } from 'react-icons';
-import { IoTvSharp } from 'react-icons/io5';
 
 export { FaUsers as IconStreamers };
 export { FaEye as IconEye };
@@ -21,4 +27,4 @@ export function IconPlus({ style, ...rest }: IconBaseProps) {
 
 export { FaPlay as IconPlay };
 export { FaPause as IconPause };
-export { IoTvSharp as IconTv };
+export { FaPowerOff as IconPower };
