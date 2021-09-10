@@ -233,7 +233,6 @@
         "electron-updater": "^4.3.8",
         "express": "^4.17.1",
         "history": "4.x.x",
-        "human-format": "^0.11.0",
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
         "react-icons": "^4.2.0",
