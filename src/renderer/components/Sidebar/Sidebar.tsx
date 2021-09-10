@@ -42,11 +42,6 @@ export function Sidebar({ currentPage }: SidebarOptions) {
                     <i>
                         <SidebarIcon
                             icon={!canStartWatcher() ? IconPause : IconPlay}
-                            iconColor={
-                                !canStartWatcher()
-                                    ? theme.color.error
-                                    : theme.color.success
-                            }
                             active={onWatcherPage}
                             onClick={() => history.push('/')}
                         />
