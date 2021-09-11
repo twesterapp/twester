@@ -78,52 +78,68 @@ export function WatcherPage() {
 
     return (
         <PageWrapper>
-            {!hasStreamersToWatch ? (
-                <>
-                    {RenderPlayButton()}
-                    <HelpMessage>
-                        Add at least one streamer on{' '}
-                        <Link to="/streamers">“Streamers Page”</Link> list and
-                        hit the play button above to start harvesting channel
-                        points for you 😎
-                    </HelpMessage>
-                </>
-            ) : (
-                <Content>
-                    <LogContainer>
-                        {logs.length > 0 &&
-                            logs.map((log) => {
-                                return (
-                                    <LogText key={log.id}>
-                                        {log.timestamp.toLocaleDateString()}{' '}
-                                        {log.timestamp.toLocaleTimeString()} -{' '}
-                                        {log.text}
-                                    </LogText>
-                                );
-                            })}
-                        <div ref={logsEndRef} />
-                    </LogContainer>
-
+            <Content>
+                <StatsContainer>
+                    <StatInfo>0m</StatInfo>
+                    <StatInfo style={{ color: theme.color.success }}>
+                        +0
+                    </StatInfo>
                     {!canStartWatcher()
                         ? RenderPauseButton()
                         : RenderPlayButton()}
-                </Content>
-            )}
+                </StatsContainer>
+                <LogContainer>
+                    {logs.length > 0 &&
+                        logs.map((log) => {
+                            return (
+                                <LogText key={log.id}>
+                                    {log.timestamp.toLocaleDateString()}{' '}
+                                    {log.timestamp.toLocaleTimeString()} -{' '}
+                                    {log.text}
+                                </LogText>
+                            );
+                        })}
+                    <div ref={logsEndRef} />
+                </LogContainer>
+            </Content>
         </PageWrapper>
     );
 }
 
+const StatsContainer = styled.div`
+    display: flex;
+    background: ${(props) => props.theme.color.background2};
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    box-sizing: border-box;
+    width: 100%;
+    padding: ${px2em(16)} ${px2em(32)};
+    justify-content: space-between;
+    align-items: center;
+
+    p {
+        margin: 0;
+    }
+`;
+
+const StatInfo = styled.p`
+    font-size: ${px2rem(36)};
+    font-family: 'Poppins';
+    font-weight: bold;
+`;
+
 const Content = styled.div`
     display: flex;
-    align-items: flex-start;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
+    gap: ${px2em(30)} 0;
     width: 100%;
     height: 100%;
-    margin: 50px 50px;
+    padding: 0 ${px2em(24)};
+    box-sizing: border-box;
 
     @media screen and (min-width: 1080px) {
-        max-height: calc(100% - 100px);
-        max-width: calc(100% - 100px);
+        padding: 0 ${px2em(56)};
     }
 `;
 
@@ -131,10 +147,9 @@ const LogContainer = styled.div`
     background: ${(props) => props.theme.color.background2};
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     box-sizing: border-box;
-    padding: ${() => `${px2em(6)} ${px2em(12)}`};
-    margin-right: ${px2em(24)};
-    height: calc(100vh - 100px);
     width: 100%;
+    padding: ${() => `${px2em(6)} ${px2em(12)}`};
+    height: 70%;
     display: flex;
     flex-direction: column;
     overflow-y: scroll;
@@ -162,11 +177,9 @@ const LogText = styled.p`
 
 const PageWrapper = styled.div`
     width: 100%;
+    min-width: calc(640px - 86px);
     height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    min-height: 480px;
 `;
 
 const HelpMessage = styled.p`

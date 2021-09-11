@@ -12,6 +12,7 @@ import {
 import { useQuery } from 'react-query';
 import { delToken, delUser, authStore } from 'renderer/stores/useAuthStore';
 import { useWatcherStore } from 'renderer/stores/useWatcherStore';
+import { clearStreamers } from 'renderer/stores/useStreamerStore';
 import { SidebarIcon } from './SidebarIcon';
 
 interface SidebarOptions {
@@ -70,6 +71,7 @@ export function Sidebar({ currentPage }: SidebarOptions) {
                             onClick={() => {
                                 delToken();
                                 delUser();
+                                clearStreamers();
                             }}
                         />
                     </i>
@@ -103,6 +105,7 @@ export function Sidebar({ currentPage }: SidebarOptions) {
 }
 
 const Container = styled.div`
+    width: 86px;
     height: 100vh;
     padding: 28px 0;
     position: sticky;

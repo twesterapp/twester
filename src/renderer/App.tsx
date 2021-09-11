@@ -57,7 +57,6 @@ const SidebarContainer = styled.div`
 
 const DashboardContainer = styled.div`
     width: 100%;
-    padding: 0 1em;
 `;
 
 const Layout = styled.div`

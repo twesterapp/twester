@@ -68,6 +68,8 @@ interface UpdateStreamer {
 
 const getStorageKey = () => `${authStore.getState().user.id}.streamers`;
 
+console.log({ key: getStorageKey() });
+
 function getInitialState(): State {
     try {
         const streamers: Streamer[] = JSON.parse(
@@ -85,6 +87,10 @@ export const useStreamerStore = create(streamerStore);
 
 export function getAllStreamers(): Streamer[] {
     return streamerStore.getState().streamers;
+}
+
+export function clearStreamers() {
+    streamerStore.setState({ streamers: [] });
 }
 
 export function getOnlineStreamers(): Streamer[] {
