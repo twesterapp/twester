@@ -5,7 +5,7 @@ import {
     updateStreamer,
 } from 'renderer/stores/useStreamerStore';
 import { Avatar, IconCross, IconEye } from 'renderer/ui';
-import { minutesToFormattedString, px2rem } from 'renderer/utils';
+import { formatMinutesToString, px2rem } from 'renderer/utils';
 import styled, { useTheme } from 'styled-components';
 import { canStartWatcher } from 'renderer/stores/useWatcherStore';
 import { fetchChannelFollowers, fetchChannelInfo } from 'renderer/api';
@@ -81,9 +81,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
                 <div>
                     <h1>{streamer.displayName}</h1>
                     <div style={{ display: 'flex', marginTop: '4px' }}>
-                        <p>
-                            {minutesToFormattedString(streamer.minutesWatched)}
-                        </p>
+                        <p>{formatMinutesToString(streamer.minutesWatched)}</p>
                         <PointsEarned>+{streamer.pointsEarned}</PointsEarned>
                     </div>
                 </div>
