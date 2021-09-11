@@ -103,6 +103,8 @@ class Watcher {
                                     this.logger.info(
                                         `Started watching ${streamer.displayName}'s livestream!`
                                     );
+
+                                    this.fixWatchingStatus();
                                 }
 
                                 await nodeClient.post('/minute-watched-event', {
@@ -174,12 +176,33 @@ class Watcher {
     public canPause(): boolean {
         return canStopWatcher();
     }
+
+    // This updates `watching` to `false` for streamers that are no longer being
+    // watched as they are not in the top 2 among all the online streamers.
+    private fixWatchingStatus(): void {
+        // We can only watch the first 2 online streamers. So these are the
+        // streamers we should NOT be watching.
+        const streamersToNotWatch = getOnlineStreamers().slice(2);
+
+        if (!streamersToNotWatch.length) {
+            return;
+        }
+
+        for (const streamer of streamersToNotWatch) {
+            if (streamer.watching) {
+                updateStreamer(streamer.id, { watching: false });
+                this.logger.info(
+                    `Stopped watching ${streamer.displayName}'s livestream!`
+                );
+            }
+        }
+    }
 }
 
 export const watcher = new Watcher();
 
 // IDK if I should compare with 60. This function exists to stop us from doing
-// things that should have happened only once per minute at max.
+// things that should have happened only once per minute.
 function minutePassedSince(time: number): boolean {
     return rightNowInSecs() - time > 59;
 }

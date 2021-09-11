@@ -1,5 +1,6 @@
 import vanillaCreate from 'zustand/vanilla';
 import create from 'zustand';
+import { authStore } from './useAuthStore';
 
 export enum WatcherStatus {
     // Instance is created and has not been run for even once.
@@ -18,10 +19,12 @@ interface State {
 
 type SavedState = Omit<State, 'status'>;
 
+const getStorageKey = () => `${authStore.getState().user.id}.watcher`;
+
 function getInitialState(): State {
     try {
         const savedState: SavedState = JSON.parse(
-            localStorage.getItem('watcher-state') || ''
+            localStorage.getItem(getStorageKey()) || ''
         );
 
         return {
@@ -99,5 +102,5 @@ function syncStateWithStorage() {
         minutesWatched: watcherStore.getState().minutesWatched,
         pointsEarned: watcherStore.getState().pointsEarned,
     };
-    localStorage.setItem('watcher-state', JSON.stringify(state));
+    localStorage.setItem(getStorageKey(), JSON.stringify(state));
 }
