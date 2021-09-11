@@ -14,8 +14,15 @@ import {
     WatcherStatus,
     canStopWatcher,
     canStartWatcher,
+    incrementMinutesWatched,
 } from 'renderer/stores/useWatcherStore';
-import { abortAllSleepingTasks, rightNowInSecs, sleep } from 'renderer/utils';
+import {
+    abortAllSleepingTasks,
+    formatMinutesToString,
+    rightNowInSecs,
+    sleep,
+} from 'renderer/utils';
+import { v4 as uuid } from 'uuid';
 import { loadChannelPointsContext } from './bonus';
 import { getMinuteWatchedRequestInfo, updateStreamersToWatch } from './data';
 import {
@@ -24,12 +31,16 @@ import {
 } from './pubsub';
 
 class Watcher {
-    private minutesPassed = 0;
+    private id: string;
+
+    private startTime: number;
 
     private logger: Logger;
 
     constructor() {
         this.logger = new Logger({ prefix: 'WATCHER' });
+        this.startTime = 0;
+        this.id = '';
     }
 
     public async play() {
@@ -39,6 +50,14 @@ class Watcher {
         ) {
             console.error('User not authorized');
             return;
+        }
+
+        if (!this.id) {
+            this.id = uuid();
+            this.logger.info(`Starting session: ${this.id}`);
+            this.startTime = rightNowInSecs();
+        } else {
+            this.logger.info(`Resuming session: ${this.id}`);
         }
 
         this.logger.debug('Booting');
@@ -55,7 +74,6 @@ class Watcher {
         this.logger.debug('Running');
 
         while (isWatcherRunning()) {
-            this.logger.debug(`Watched for ${this.minutesPassed} minutes`);
             const streamersToWatch = getOnlineStreamers().slice(0, 2);
             const numOfStreamersToWatch = streamersToWatch.length;
 
@@ -76,6 +94,7 @@ class Watcher {
                             const info = getMinuteWatchedRequestInfo(
                                 streamer.login
                             );
+
                             if (info) {
                                 if (!streamer.watching) {
                                     updateStreamer(streamer.id, {
@@ -92,9 +111,9 @@ class Watcher {
                                 });
 
                                 if (
-                                    rightNowInSecs() -
-                                        streamer.lastMinuteWatchedEventTime >
-                                        59 ||
+                                    minutePassedSince(
+                                        streamer.lastMinuteWatchedEventTime
+                                    ) ||
                                     !streamer.lastMinuteWatchedEventTime
                                 ) {
                                     updateStreamer(streamer.id, {
@@ -103,6 +122,7 @@ class Watcher {
                                         lastMinuteWatchedEventTime:
                                             rightNowInSecs(),
                                     });
+                                    incrementMinutesWatched();
                                 }
 
                                 this.logger.debug(
@@ -120,16 +140,22 @@ class Watcher {
                     }
                 }
             } else {
-                this.logger.debug(`Sleeping for 60s`);
                 await sleep(60);
             }
-
-            this.minutesPassed += 1;
         }
     }
 
     public pause() {
+        const timePassedInMinutes = Math.floor(
+            (rightNowInSecs() - this.startTime) / 60
+        );
+        this.logger.info(
+            `Pausing session: ${this.id} - ${formatMinutesToString(
+                timePassedInMinutes
+            )}`
+        );
         this.logger.debug('Stopping');
+
         setWatcherStatus(WatcherStatus.STOPPING);
 
         abortAllSleepingTasks();
@@ -137,6 +163,7 @@ class Watcher {
         resetOnlineStatusOfStreamers();
 
         setWatcherStatus(WatcherStatus.STOPPED);
+
         this.logger.debug('Stopped');
     }
 
@@ -150,3 +177,9 @@ class Watcher {
 }
 
 export const watcher = new Watcher();
+
+// IDK if I should compare with 60. This function exists to stop us from doing
+// things that should have happened only once per minute at max.
+function minutePassedSince(time: number): boolean {
+    return rightNowInSecs() - time > 59;
+}

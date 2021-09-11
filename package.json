@@ -162,6 +162,7 @@
         "@types/react-router-dom": "^5.1.6",
         "@types/react-test-renderer": "^17.0.1",
         "@types/styled-components": "^5.1.13",
+        "@types/uuid": "^8.3.1",
         "@types/webpack-env": "^1.16.0",
         "@typescript-eslint/eslint-plugin": "^4.22.1",
         "@typescript-eslint/parser": "^4.22.1",
@@ -243,6 +244,7 @@
         "typeface-karla": "^1.1.13",
         "typeface-poppins": "^1.1.13",
         "typeface-roboto-mono": "^1.1.13",
+        "uuid": "^8.3.2",
         "zustand": "^3.5.10"
     },
     "devEngines": {
