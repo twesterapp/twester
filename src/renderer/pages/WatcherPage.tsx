@@ -6,16 +6,16 @@ import {
 } from 'renderer/stores/useWatcherStore';
 import { watcher } from 'renderer/core/watcher';
 import { IconPlay, IconPause, Link } from 'renderer/ui';
-import { px2em, px2rem } from 'renderer/utils';
+import { formatMinutesToString, px2em, px2rem } from 'renderer/utils';
 import styled, { useTheme } from 'styled-components';
 import { useLoggerStore } from 'renderer/stores/useLoggerStore';
 
 export function WatcherPage() {
-    const theme = useTheme();
-    const { streamers } = useStreamerStore();
-    useWatcherStore();
-    const { logs } = useLoggerStore();
     const logsEndRef = React.useRef<HTMLDivElement>(null);
+    const { streamers } = useStreamerStore();
+    const { minutesWatched, pointsEarned } = useWatcherStore();
+    const { logs } = useLoggerStore();
+    const theme = useTheme();
 
     const hasStreamersToWatch = streamers.length > 0;
 
@@ -80,26 +80,40 @@ export function WatcherPage() {
         <PageWrapper>
             <Content>
                 <StatsContainer>
-                    <StatInfo>0m</StatInfo>
+                    <StatInfo>{formatMinutesToString(minutesWatched)}</StatInfo>
                     <StatInfo style={{ color: theme.color.success }}>
-                        +0
+                        +{pointsEarned}
                     </StatInfo>
                     {!canStartWatcher()
                         ? RenderPauseButton()
                         : RenderPlayButton()}
                 </StatsContainer>
                 <LogContainer>
-                    {logs.length > 0 &&
-                        logs.map((log) => {
-                            return (
-                                <LogText key={log.id}>
-                                    {log.timestamp.toLocaleDateString()}{' '}
-                                    {log.timestamp.toLocaleTimeString()} -{' '}
-                                    {log.text}
-                                </LogText>
-                            );
-                        })}
-                    <div ref={logsEndRef} />
+                    {!hasStreamersToWatch ? (
+                        <InfoBox>
+                            <InfoText>
+                                Go to{' '}
+                                <Link to="/streamers">Streamers Page</Link> and
+                                add at least 1 streamer to the list and hit the
+                                play button above to start earning channel
+                                points 😎
+                            </InfoText>
+                        </InfoBox>
+                    ) : (
+                        <>
+                            {logs.length > 0 &&
+                                logs.map((log) => {
+                                    return (
+                                        <LogText key={log.id}>
+                                            {log.timestamp.toLocaleDateString()}{' '}
+                                            {log.timestamp.toLocaleTimeString()}{' '}
+                                            - {log.text}
+                                        </LogText>
+                                    );
+                                })}
+                            <div ref={logsEndRef} />
+                        </>
+                    )}
                 </LogContainer>
             </Content>
         </PageWrapper>
@@ -150,6 +164,7 @@ const LogContainer = styled.div`
     width: 100%;
     padding: ${() => `${px2em(6)} ${px2em(12)}`};
     height: 70%;
+    max-height: 70vh;
     display: flex;
     flex-direction: column;
     overflow-y: scroll;
@@ -182,9 +197,29 @@ const PageWrapper = styled.div`
     min-height: 480px;
 `;
 
-const HelpMessage = styled.p`
+const InfoText = styled.p`
     font-family: 'Karla';
     font-size: ${px2rem(16)};
+    color: ${(props) => props.theme.color.textPrimary};
     text-align: center;
-    max-width: 480px;
+    margin: 0;
+`;
+
+const InfoBox = styled.div`
+    background: ${(props) => props.theme.color.error};
+    padding: ${px2em(24)};
+    box-sizing: border-box;
+    max-width: 535px;
+    margin: auto auto;
+    border-radius: 14px;
+
+    a {
+        color: ${(props) => props.theme.color.textPrimary};
+        font-weight: bold;
+        text-decoration: underline;
+
+        &:hover {
+            text-decoration: none;
+        }
+    }
 `;

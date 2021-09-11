@@ -10,9 +10,34 @@ export enum WatcherStatus {
     STOPPED = 'STOPPED',
 }
 
-export const watcherStore = vanillaCreate(() => ({
-    status: WatcherStatus.INIT,
-}));
+interface State {
+    status: WatcherStatus;
+    minutesWatched: number;
+    pointsEarned: number;
+}
+
+type SavedState = Omit<State, 'status'>;
+
+function getInitialState(): State {
+    try {
+        const savedState: SavedState = JSON.parse(
+            localStorage.getItem('watcher-state') || ''
+        );
+
+        return {
+            ...savedState,
+            status: WatcherStatus.INIT,
+        };
+    } catch {
+        return {
+            status: WatcherStatus.INIT,
+            minutesWatched: 0,
+            pointsEarned: 0,
+        };
+    }
+}
+
+export const watcherStore = vanillaCreate(() => getInitialState());
 
 export const useWatcherStore = create(watcherStore);
 
@@ -55,4 +80,24 @@ export function canStopWatcher(): boolean {
     }
 
     return false;
+}
+
+export function addPointsEarned(points: number) {
+    const { getState, setState } = watcherStore;
+    setState({ pointsEarned: getState().pointsEarned + points });
+    syncStateWithStorage();
+}
+
+export function incrementMinutesWatched() {
+    const { getState, setState } = watcherStore;
+    setState({ minutesWatched: (getState().minutesWatched += 1) });
+    syncStateWithStorage();
+}
+
+function syncStateWithStorage() {
+    const state: SavedState = {
+        minutesWatched: watcherStore.getState().minutesWatched,
+        pointsEarned: watcherStore.getState().pointsEarned,
+    };
+    localStorage.setItem('watcher-state', JSON.stringify(state));
 }

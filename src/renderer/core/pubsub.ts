@@ -6,6 +6,7 @@ import {
     updateStreamer,
 } from 'renderer/stores/useStreamerStore';
 import { Logger } from 'renderer/stores/useLoggerStore';
+import { addPointsEarned } from 'renderer/stores/useWatcherStore';
 import {
     channelIdExistsInCache,
     checkOnline,
@@ -295,6 +296,7 @@ class WebSocketsPool {
                             currentBalance: newBalance,
                             pointsEarned: streamer.pointsEarned + pointsEarned,
                         });
+                        addPointsEarned(pointsEarned);
                     }
                 } else if (messageType === 'claim-available') {
                     const channelId = messageData.claim.channel_id;
