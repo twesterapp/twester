@@ -97,6 +97,7 @@ const Streamers = styled.div`
     flex-wrap: wrap;
     justify-content: center;
     gap: ${`${px2em(16)} ${px2em(48)}`};
+    padding: 0 ${px2em(16)};
 `;
 
 const HelpMessage = styled.p`

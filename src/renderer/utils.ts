@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-implied-eval */
 import { User, setUser, setToken } from './stores/useAuthStore';
 
 export const isProd = process.env.NODE_ENV === 'PRODUCTION';
