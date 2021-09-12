@@ -201,7 +201,7 @@ export function updateStreamer(id: StreamerId, newValue: UpdateStreamer) {
     });
 }
 
-export function setOnlineStatus(login: StreamerLogin, status: boolean) {
+export function setOnlineStatus(login: StreamerLogin, online: boolean) {
     const { getState, setState } = streamerStore;
 
     const updated: Streamer[] = getState().streamers.map(
@@ -209,15 +209,15 @@ export function setOnlineStatus(login: StreamerLogin, status: boolean) {
             if (streamer.login === login) {
                 logger.info(
                     `${streamer.displayName} (${streamer.startingBalance}) is ${
-                        status ? 'Online' : 'Offline'
+                        online ? 'Online' : 'Offline'
                     }!`
                 );
 
                 // Setting streamer to `Offline`
-                if (!status) {
+                if (!online) {
                     return {
                         ...streamer,
-                        online: status,
+                        online,
                         lastOfflineTime: rightNowInSecs(),
                         watching: false,
                     };
@@ -226,7 +226,7 @@ export function setOnlineStatus(login: StreamerLogin, status: boolean) {
                 // Setting streamer to `Online`
                 return {
                     ...streamer,
-                    online: status,
+                    online,
                 };
             }
 
