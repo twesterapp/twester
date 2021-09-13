@@ -4,8 +4,8 @@ import {
     removeStreamer,
     updateStreamer,
 } from 'renderer/stores/useStreamerStore';
-import { Avatar, IconCross, IconEye } from 'renderer/ui';
-import { formatMinutesToString, px2rem } from 'renderer/utils';
+import { Avatar, IconClock, IconCross, IconEye, IconStar } from 'renderer/ui';
+import { formatMinutesToString, px2em, px2rem } from 'renderer/utils';
 import styled, { useTheme } from 'styled-components';
 import { canStartWatcher } from 'renderer/stores/useWatcherStore';
 import { fetchChannelFollowers, fetchChannelInfo } from 'renderer/api';
@@ -62,7 +62,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
                             {streamer.watching && (
                                 <IconEye
                                     size={24}
-                                    color={theme.color.success}
+                                    color={theme.color.secondary}
                                 />
                             )}
                         </>
@@ -73,17 +73,36 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
                     src={streamer.profileImageUrl}
                     size={64}
                     alt={`${streamer.displayName} profile`}
-                    border={streamer.online || false}
+                    borderColor={
+                        streamer.online
+                            ? theme.color.secondary
+                            : theme.color.borderOnDisabled
+                    }
                     margin="14px"
                     showLiveStatus={streamer.online}
+                    liveStatusBgColor={theme.color.secondary}
                 />
 
                 <div>
                     <h1>{streamer.displayName}</h1>
-                    <div style={{ display: 'flex', marginTop: '4px' }}>
-                        <p>{formatMinutesToString(streamer.minutesWatched)}</p>
-                        <PointsEarned>+{streamer.pointsEarned}</PointsEarned>
-                    </div>
+                    <StatsContainer>
+                        <StatInfo style={{ marginRight: px2em(16) }}>
+                            <IconClock
+                                size={16}
+                                color={theme.color.brightBlue}
+                            />
+                            <p>
+                                {formatMinutesToString(streamer.minutesWatched)}
+                            </p>
+                        </StatInfo>
+                        <StatInfo>
+                            <IconStar
+                                size={16}
+                                color={theme.color.brightBlue}
+                            />
+                            <p>+{streamer.pointsEarned}</p>
+                        </StatInfo>
+                    </StatsContainer>
                 </div>
             </Content>
 
@@ -92,9 +111,23 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
     );
 }
 
-const PointsEarned = styled.p`
-    margin-left: ${px2rem(16)} !important;
-    color: ${(props) => props.theme.color.success} !important;
+const StatsContainer = styled.div`
+    display: flex;
+    align-items: center;
+    margin-top: ${px2em(8)};
+`;
+
+const StatInfo = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    p {
+        font-family: Poppins;
+        font-size: ${px2rem(16)};
+        margin: 0 !important;
+        margin-left: ${px2em(4)} !important;
+    }
 `;
 
 const Card = styled.div`

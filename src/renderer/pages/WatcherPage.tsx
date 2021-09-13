@@ -137,10 +137,10 @@ const StatsContainer = styled.div`
     background: ${(props) => props.theme.color.background2};
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     box-sizing: border-box;
-    width: 100%;
-    padding: ${px2em(16)} ${px2em(32)};
     justify-content: space-between;
     align-items: center;
+    width: 100%;
+    padding: ${px2em(16)} ${px2em(32)};
 `;
 
 const StatInfo = styled.div`
@@ -152,7 +152,7 @@ const StatInfo = styled.div`
         font-family: 'Poppins';
         font-weight: bold;
         margin: 0;
-        margin-left: 8px;
+        margin-left: ${px2em(8)};
     }
 `;
 
