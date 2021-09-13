@@ -47,11 +47,11 @@ export function StreamersPage() {
         <PageWrapper>
             {!canStartWatcher() && (
                 <HelpMessage>
-                    Go to <Link to="/">Watcher Page</Link> and{' '}
+                    Go to <Link to="/">Home</Link> tab and{' '}
                     <em>
                         <b>pause</b>
                     </em>{' '}
-                    the watcher to update streamers
+                    the watcher to update streamers 🎉
                 </HelpMessage>
             )}
             <Search onSubmit={handleAddStreamer}>
@@ -103,14 +103,15 @@ const Streamers = styled.div`
 const HelpMessage = styled.p`
     font-family: 'Karla';
     text-align: center;
-    background: ${(props) => props.theme.color.error};
+    background: ${(props) => props.theme.color.brightBlue};
+    color: ${(props) => props.theme.color.textAlter};
     margin: 0;
     margin-bottom: 32px;
     padding: ${() => `${px2em(10)} ${px2em(24)}`};
     border-radius: 0px 0px 50px 50px;
 
     a {
-        color: ${(props) => props.theme.color.textPrimary};
+        color: ${(props) => props.theme.color.textAlter};
         font-weight: bold;
         text-decoration: underline;
 
