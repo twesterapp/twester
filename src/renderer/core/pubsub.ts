@@ -282,21 +282,21 @@ class WebSocketsPool {
 
                         if (!streamer) {
                             console.error(
-                                `Not watching any streamer with id: ${channelId}`
+                                `Ignoring points earned for streamer with id: ${channelId} - Reason: STREAMER_NOT_FOUND`
                             );
                             return;
                         }
 
                         if (!streamer.watching) {
                             logger.debug(
-                                `${streamer.displayName} - ignoring ${pointsEarned} points earned because watcher is not watching this streamer. User might be watching it on Twitch.`
+                                `Ignoring ${pointsEarned} points earned for ${streamer.displayName} - Reason: NOT_WATCHING`
                             );
                             return;
                         }
 
                         if (reason === 'PREDICTION') {
                             logger.debug(
-                                `${streamer.displayName} - ignoring ${pointsEarned} points earned because the reason is ${reason}.`
+                                `Ignoring ${pointsEarned} points earned for ${streamer.displayName} - Reason: PREDICTION_NOT_SUPPORTED`
                             );
                             return;
                         }
@@ -316,9 +316,23 @@ class WebSocketsPool {
 
                     if (channelIdExistsInCache(channelId)) {
                         const claimId = messageData.claim.id;
-                        const streamerLogin =
-                            getStreamerLoginByChannelIdFromCache(channelId);
-                        claimChannelPointsBonus(streamerLogin, claimId);
+                        const streamer = getStreamerById(channelId);
+
+                        if (!streamer) {
+                            console.error(
+                                `Cannot claim bonus for streamer with id: ${channelId} - Reason: STREAMER_NOT_FOUND`
+                            );
+                            return;
+                        }
+
+                        if (!streamer.watching) {
+                            logger.debug(
+                                `Not claiming bonus for ${streamer.displayName} - Reason: NOT_WATCHING`
+                            );
+                            return;
+                        }
+
+                        claimChannelPointsBonus(streamer.login, claimId);
                     }
                 }
             } else if (topic === 'video-playback-by-id') {
