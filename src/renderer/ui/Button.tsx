@@ -42,9 +42,13 @@ const StyledText = styled.span``;
 const StyledButton = styled.button<Omit<ButtonOptions, 'text'>>`
     position: relative;
     background: ${(props) =>
-        props.disabled ? '#464649' : props.theme.color.primary};
+        props.disabled
+            ? props.theme.color.disabled
+            : props.theme.color.primary};
     color: ${(props) =>
-        props.disabled ? '#A0A0A0' : props.theme.color.onPrimary};
+        props.disabled
+            ? props.theme.color.onDisabled
+            : props.theme.color.onPrimary};
     font-size: 1rem;
     font-weight: 700;
     padding: 0.875em;
@@ -59,7 +63,8 @@ const StyledButton = styled.button<Omit<ButtonOptions, 'text'>>`
     transition: background-color 200ms ease-out;
 
     &:hover {
-        background: ${(props) => !props.disabled && '#1484CF'};
+        background: ${(props) =>
+            !props.disabled && props.theme.color.onPrimaryHover};
     }
 
     &:active {
