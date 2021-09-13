@@ -66,6 +66,12 @@ h1 {
   margin: 0.67em 0;
 }
 
+p {
+  font-size: 1rem;
+  margin: 0;
+  font-family: 'Karla';
+}
+
 /* Grouping content
    ========================================================================== */
 

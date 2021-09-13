@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 
 import { LoadingScreen } from 'renderer/components';
 import { fetchChannelInfo, nodeClient } from 'renderer/api';
@@ -9,9 +9,9 @@ import {
     setUser,
     setToken,
 } from 'renderer/stores/useAuthStore';
-import { Button, InputText } from '../ui';
+import { Button, IconGithub, InputText } from 'renderer/ui';
 
-import { fakeLogin, px2em } from '../utils';
+import { fakeLogin, login, px2em } from '../utils';
 
 enum FlowStep {
     CREDENTIALS = 'credentials',
@@ -29,6 +29,7 @@ interface VerifyOptions {
 // TODO: Clean this mess.
 export function AuthPage() {
     const { user } = useAuthStore();
+    const theme = useTheme();
     const [flowStep, setFlowStep] = useState<FlowStep>(FlowStep.CREDENTIALS);
     const [verifyOptions, setVerifyOptions] = useState<VerifyOptions>({
         username: '',
@@ -42,29 +43,113 @@ export function AuthPage() {
         setVerifyOptions(data);
     }
 
-    if (!user.id) {
+    const renderCredentialsForm = () => (
+        <>
+            {/* REMOVE THIS BUTTON BEFORE SHIPPING LULW */}
+            <button type="button" onClick={() => fakeLogin()}>
+                Fake Login
+            </button>
+            <AskForLoginCredentials nextStepCallback={handleNextStepCallback} />
+        </>
+    );
+
+    const renderCodeForm = () => <VerifyWithCode {...verifyOptions} />;
+
+    const renderTwoFaForm = () => <VerifyWithTwoFa {...verifyOptions} />;
+
+    const renderForm = () => {
         if (flowStep === FlowStep.TWITCHGUARD_CODE) {
-            return <VerifyWithCode {...verifyOptions} />;
-        }
-        if (flowStep === FlowStep.TWO_FA_TOKEN) {
-            return <VerifyWithTwoFa {...verifyOptions} />;
+            return renderCodeForm();
         }
 
+        if (flowStep === FlowStep.TWO_FA_TOKEN) {
+            return renderTwoFaForm();
+        }
+
+        return renderCredentialsForm();
+    };
+
+    if (!user.id) {
         return (
-            <AskForLoginCredentials nextStepCallback={handleNextStepCallback} />
+            <PageWrapper>
+                <OpenSource>
+                    <p>
+                        Twester is{' '}
+                        <a
+                            href="https://github.com/ceoshikhar/twester"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            Open Source
+                        </a>
+                    </p>
+                    <IconGithub size={24} color={theme.color.textPrimary} />
+                </OpenSource>
+                {renderForm()}
+                <Footer>
+                    Created by{' '}
+                    <a
+                        href="https://ceoshikhar.com"
+                        target="_blank"
+                        rel="noreferrer"
+                    >
+                        @ceoshikhar
+                    </a>{' '}
+                    with love in India
+                </Footer>
+            </PageWrapper>
         );
     }
 
     return <LoadingScreen />;
 }
 
-const Container = styled.div`
+const Footer = styled.p`
+    font-size: 14px;
+    margin-bottom: 16px;
+
+    a {
+        color: ${(props) => props.theme.color.primary};
+        text-decoration: none;
+        font-weight: bold;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+`;
+
+const OpenSource = styled.div`
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin: 16px 16px 0 0;
+
+    a {
+        color: ${(props) => props.theme.color.primary};
+        text-decoration: none;
+        font-weight: bold;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    p {
+        font-size: 14px;
+        margin-right: 4px;
+    }
+`;
+
+const PageWrapper = styled.div`
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
     width: 100vw;
     height: 100vh;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     text-align: center;
 `;
 
@@ -72,6 +157,12 @@ const Form = styled.form`
     display: flex;
     flex-direction: column;
     max-width: 300px;
+`;
+
+const FormContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 `;
 
 export default AuthPage;
@@ -111,17 +202,7 @@ function AskForLoginCredentials({
         setSendingReq(false);
 
         if (res.data.access_token) {
-            setToken(res.data.access_token);
-            const result = await fetchChannelInfo(username);
-            const info = result.data.data[0];
-            const user: User = {
-                displayName: info.display_name,
-                id: info.id,
-                login: info.login,
-                profileImageUrl: info.profile_image_url,
-            };
-            setUser(user);
-            return;
+            login(res.data.access_token, username);
         }
 
         if (res.data.captcha) {
@@ -147,14 +228,7 @@ function AskForLoginCredentials({
     }
 
     return (
-        <Container>
-            <Button
-                onClick={() => {
-                    fakeLogin();
-                }}
-            >
-                Fake Login
-            </Button>
+        <FormContainer>
             <h1 style={{ margin: 0, marginBottom: px2em(43) }}>
                 Login to your Twitch account to start
             </h1>
@@ -184,7 +258,7 @@ function AskForLoginCredentials({
                     loading={sendingReq}
                 />
             </Form>
-        </Container>
+        </FormContainer>
     );
 }
 
@@ -215,17 +289,7 @@ function VerifyWithCode({
         });
 
         if (res.data.access_token) {
-            setToken(res.data.access_token);
-            const result = await fetchChannelInfo(username);
-            const info = result.data.data[0];
-            const user: User = {
-                displayName: info.display_name,
-                id: info.id,
-                login: info.login,
-                profileImageUrl: info.profile_image_url,
-            };
-            setUser(user);
-            return;
+            login(res.data.access_token, username);
         }
 
         setErr(res.data?.error?.message);
@@ -233,7 +297,7 @@ function VerifyWithCode({
     }
 
     return (
-        <Container>
+        <FormContainer>
             <h1 style={{ margin: 0 }}>Enter the verification code sent to</h1>
             <p style={{ marginBottom: px2em(43) }}>{email}</p>
             <Form onSubmit={handleSubmit}>
@@ -255,7 +319,7 @@ function VerifyWithCode({
                     disabled={!code.trim()}
                 />
             </Form>
-        </Container>
+        </FormContainer>
     );
 }
 
@@ -282,17 +346,7 @@ function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
         });
 
         if (res.data.access_token) {
-            setToken(res.data.access_token);
-            const result = await fetchChannelInfo(username);
-            const info = result.data.data[0];
-            const user: User = {
-                displayName: info.display_name,
-                id: info.id,
-                login: info.login,
-                profileImageUrl: info.profile_image_url,
-            };
-            setUser(user);
-            return;
+            login(res.data.access_token, username);
         }
 
         setErr(res.data?.error?.message);
@@ -304,7 +358,7 @@ function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
     }, []);
 
     return (
-        <Container>
+        <FormContainer>
             <h1 style={{ marginTop: 0, marginBottom: px2em(43) }}>
                 Enter the token from your authenticator app
             </h1>
@@ -328,6 +382,6 @@ function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
                     disabled={!twoFa.trim()}
                 />
             </Form>
-        </Container>
+        </FormContainer>
     );
 }

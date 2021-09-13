@@ -96,7 +96,6 @@ const StyledInput = styled.input<InputTextOptions & { ref: any }>`
 
     &::placeholder {
         color: ${(props) => props.theme.color.onDisabled};
-        opacity: 0.85;
     }
 
     &:hover {
@@ -105,7 +104,6 @@ const StyledInput = styled.input<InputTextOptions & { ref: any }>`
 
     &:focus::placeholder {
         color: ${(props) => props.theme.color.onDisabled};
-        opacity: 1;
     }
 
     &:focus {

@@ -9,6 +9,7 @@ import {
     FaHome,
     FaClock,
     FaStar,
+    FaGithub,
 } from 'react-icons/fa';
 import { ImCross } from 'react-icons/im';
 import { IconBaseProps } from 'react-icons';
@@ -32,3 +33,4 @@ export { FaPause as IconPause };
 export { FaClock as IconClock };
 export { FaStar as IconStar };
 export { FaHome as IconHome };
+export { FaGithub as IconGithub };
