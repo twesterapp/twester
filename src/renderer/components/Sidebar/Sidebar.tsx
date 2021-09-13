@@ -28,17 +28,17 @@ export function Sidebar({ currentPage }: SidebarOptions) {
 
     const { data } = useQuery('ME_INFO', () => fetchChannelInfo());
 
-    const onWatcherPage = currentPage === '/';
+    const onHomePage = currentPage === '/';
     const onStreamersPage = currentPage === '/streamers';
 
     return (
         <Container>
             <Top>
-                <Tooltip title="Watcher" placement="right" enterDelay={1000}>
+                <Tooltip title="Home" placement="right" enterDelay={1000}>
                     <i>
                         <SidebarIcon
                             icon={IconHome}
-                            active={onWatcherPage}
+                            active={onHomePage}
                             onClick={() => history.push('/')}
                         />
                     </i>

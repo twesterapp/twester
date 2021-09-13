@@ -1,3 +1,3 @@
 export { AuthPage } from './AuthPage';
-export { WatcherPage } from './WatcherPage';
+export { HomePage } from './HomePage';
 export { StreamersPage } from './StreamersPage';

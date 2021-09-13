@@ -10,7 +10,7 @@ import { formatMinutesToString, px2em, px2rem } from 'renderer/utils';
 import styled, { useTheme } from 'styled-components';
 import { useLoggerStore } from 'renderer/stores/useLoggerStore';
 
-export function WatcherPage() {
+export function HomePage() {
     const logsEndRef = React.useRef<HTMLDivElement>(null);
     const { streamers } = useStreamerStore();
     const { minutesWatched, pointsEarned } = useWatcherStore();
@@ -151,7 +151,7 @@ const StatInfo = styled.div`
         font-family: 'Poppins';
         font-weight: bold;
         margin: 0;
-        margin-left: ${px2em(8)};
+        margin-left: 8px;
     }
 `;
 
