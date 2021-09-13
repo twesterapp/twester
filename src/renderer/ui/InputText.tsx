@@ -15,6 +15,7 @@ export interface InputTextOptions
         | 'url';
     width?: string;
     value?: string | number;
+    hidePlaceholderOnFocus?: boolean;
 }
 
 export const InputText = React.forwardRef(
@@ -26,6 +27,7 @@ export const InputText = React.forwardRef(
             placeholder = '',
             onFocus,
             onBlur,
+            hidePlaceholderOnFocus = true,
             ...rest
         }: Omit<InputTextOptions, 'type'>,
         ref
@@ -33,12 +35,12 @@ export const InputText = React.forwardRef(
         const [placeholderText, setPlaceholderText] = useState(placeholder);
 
         function handleOnFocus(event: React.FocusEvent<HTMLInputElement>) {
-            setPlaceholderText('');
+            if (hidePlaceholderOnFocus) setPlaceholderText('');
             if (onFocus) onFocus(event);
         }
 
         function handleOnBlur(event: React.FocusEvent<HTMLInputElement>) {
-            setPlaceholderText(placeholder);
+            if (hidePlaceholderOnFocus) setPlaceholderText(placeholder);
             if (onBlur) onBlur(event);
         }
 
