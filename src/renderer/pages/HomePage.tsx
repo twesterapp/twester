@@ -4,7 +4,7 @@ import {
     canStartWatcher,
     useWatcherStore,
 } from 'renderer/stores/useWatcherStore';
-import { watcher } from 'renderer/core/watcher';
+import { watcher } from 'renderer/core';
 import { IconPlay, IconPause, Link, IconClock, IconStar } from 'renderer/ui';
 import { formatMinutesToString, px2em, px2rem } from 'renderer/utils';
 import styled, { useTheme } from 'styled-components';
