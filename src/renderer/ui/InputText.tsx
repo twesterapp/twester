@@ -82,7 +82,7 @@ const StyledInput = styled.input<InputTextOptions & { ref: any }>`
     border-radius: 12px;
     padding: 0.875em;
     border: none;
-    background: #464649;
+    background: ${(props) => props.theme.color.disabled};
     border: 2px solid transparent;
     transition: border 200ms ease-out, background-color 200ms ease-out;
     box-sizing: border-box;
@@ -93,21 +93,21 @@ const StyledInput = styled.input<InputTextOptions & { ref: any }>`
     width: ${(props) => props.width};
 
     &::placeholder {
-        color: #c2c2c3;
+        color: ${(props) => props.theme.color.onDisabled};
         opacity: 0.85;
     }
 
     &:hover {
-        border: 2px solid #6c6c6c;
+        border: 2px solid ${(props) => props.theme.color.borderOnDisabled};
     }
 
     &:focus::placeholder {
-        color: #c2c2c3;
+        color: ${(props) => props.theme.color.onDisabled};
         opacity: 1;
     }
 
     &:focus {
-        border: 2px solid #3498db;
+        border: 2px solid ${(props) => props.theme.color.primary};
         background: #000000;
         outline: none;
         color: ${(props) => props.theme.color.textPrimary};
