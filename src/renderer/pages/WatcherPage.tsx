@@ -5,7 +5,7 @@ import {
     useWatcherStore,
 } from 'renderer/stores/useWatcherStore';
 import { watcher } from 'renderer/core/watcher';
-import { IconPlay, IconPause, Link } from 'renderer/ui';
+import { IconPlay, IconPause, Link, IconClock, IconStar } from 'renderer/ui';
 import { formatMinutesToString, px2em, px2rem } from 'renderer/utils';
 import styled, { useTheme } from 'styled-components';
 import { useLoggerStore } from 'renderer/stores/useLoggerStore';
@@ -39,11 +39,12 @@ export function WatcherPage() {
         <IconPlay
             style={{
                 cursor: isPlayButtonActive() ? 'pointer' : 'not-allowed',
+                filter: 'drop-shadow(0px 3px 6px rgba(0, 0, 0, 0.25))',
             }}
             size={64}
             color={
                 isPlayButtonActive()
-                    ? theme.color.success
+                    ? theme.color.brightBlue
                     : theme.color.disabled
             }
             onClick={() => isPlayButtonActive() && watcher.play()}
@@ -54,10 +55,14 @@ export function WatcherPage() {
         <IconPause
             style={{
                 cursor: isPauseButtonActive() ? 'pointer' : 'not-allowed',
+                textShadow: '0px 3px 6px rgba(0, 0, 0, 0.25)',
+                filter: 'drop-shadow(0px 3px 6px rgba(0, 0, 0, 0.25))',
             }}
             size={64}
             color={
-                isPauseButtonActive() ? theme.color.error : theme.color.disabled
+                isPauseButtonActive()
+                    ? theme.color.brightBlue
+                    : theme.color.disabled
             }
             onClick={() => isPauseButtonActive() && watcher.pause()}
         />
@@ -80,14 +85,21 @@ export function WatcherPage() {
         <PageWrapper>
             <Content>
                 <StatsContainer>
-                    <StatInfo>{formatMinutesToString(minutesWatched)}</StatInfo>
-                    <StatInfo style={{ color: theme.color.success }}>
-                        +{pointsEarned}
+                    <StatInfo>
+                        <IconClock size={32} color={theme.color.brightBlue} />
+                        <p>{formatMinutesToString(minutesWatched)}</p>
                     </StatInfo>
+
+                    <StatInfo>
+                        <IconStar size={32} color={theme.color.brightBlue} />
+                        <p>+{pointsEarned}</p>
+                    </StatInfo>
+
                     {!canStartWatcher()
                         ? RenderPauseButton()
                         : RenderPlayButton()}
                 </StatsContainer>
+
                 <LogContainer>
                     {!hasStreamersToWatch ? (
                         <InfoBox>
@@ -129,16 +141,19 @@ const StatsContainer = styled.div`
     padding: ${px2em(16)} ${px2em(32)};
     justify-content: space-between;
     align-items: center;
-
-    p {
-        margin: 0;
-    }
 `;
 
-const StatInfo = styled.p`
-    font-size: ${px2rem(36)};
-    font-family: 'Poppins';
-    font-weight: bold;
+const StatInfo = styled.div`
+    display: flex;
+    align-items: center;
+
+    p {
+        font-size: ${px2rem(36)};
+        font-family: 'Poppins';
+        font-weight: bold;
+        margin: 0;
+        margin-left: 8px;
+    }
 `;
 
 const Content = styled.div`
@@ -179,7 +194,7 @@ const LogContainer = styled.div`
     }
 
     &::-webkit-scrollbar-thumb {
-        background: ${(props) => props.theme.color.background4};
+        background: ${(props) => props.theme.color.background3};
     }
 `;
 
