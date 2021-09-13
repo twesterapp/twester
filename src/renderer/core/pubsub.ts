@@ -282,21 +282,27 @@ class WebSocketsPool {
 
                         if (!streamer) {
                             console.error(
-                                'Not watching any streamer with id: ',
-                                channelId
+                                `Not watching any streamer with id: ${channelId}`
                             );
                             return;
                         }
 
                         if (!streamer.watching) {
                             logger.debug(
-                                `Ignoring ${pointsEarned} points earned message for ${streamer.displayName} because we are not watching this channel, user might be watching it on Twitch`
+                                `${streamer.displayName} - ignoring ${pointsEarned} points earned because watcher is not watching this streamer. User might be watching it on Twitch.`
+                            );
+                            return;
+                        }
+
+                        if (reason === 'PREDICTION') {
+                            logger.debug(
+                                `${streamer.displayName} - ignoring ${pointsEarned} points earned because the reason is ${reason}.`
                             );
                             return;
                         }
 
                         logger.info(
-                            `+${pointsEarned} -> ${streamer.displayName} (${newBalance} points) from (${streamer.startingBalance}) - Reason: ${reason}`
+                            `+${pointsEarned} for ${streamer.displayName} (${newBalance}) from (${streamer.startingBalance}) - Reason: ${reason}`
                         );
 
                         updateStreamer(streamer.id, {
