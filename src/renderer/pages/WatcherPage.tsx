@@ -104,11 +104,10 @@ export function WatcherPage() {
                     {!hasStreamersToWatch ? (
                         <InfoBox>
                             <InfoText>
-                                Go to{' '}
-                                <Link to="/streamers">Streamers Page</Link> and
-                                add at least 1 streamer to the list and hit the
-                                play button above to start earning channel
-                                points 😎
+                                Go to <Link to="/streamers">Streamers</Link> tab
+                                and add at least one streamer to the list and
+                                hit the play button above to start harvesting
+                                channel points 🎉
                             </InfoText>
                         </InfoBox>
                     ) : (
@@ -215,13 +214,13 @@ const PageWrapper = styled.div`
 const InfoText = styled.p`
     font-family: 'Karla';
     font-size: ${px2rem(16)};
-    color: ${(props) => props.theme.color.textPrimary};
+    color: ${(props) => props.theme.color.textAlter};
     text-align: center;
     margin: 0;
 `;
 
 const InfoBox = styled.div`
-    background: ${(props) => props.theme.color.error};
+    background: ${(props) => props.theme.color.brightBlue};
     padding: ${px2em(24)};
     box-sizing: border-box;
     max-width: 535px;
@@ -229,7 +228,7 @@ const InfoBox = styled.div`
     border-radius: 14px;
 
     a {
-        color: ${(props) => props.theme.color.textPrimary};
+        color: ${(props) => props.theme.color.textAlter};
         font-weight: bold;
         text-decoration: underline;
 
