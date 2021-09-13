@@ -1,5 +1,11 @@
 import { fetchChannelInfo } from './api';
-import { User, setUser, setToken } from './stores/useAuthStore';
+import {
+    delToken,
+    delUser,
+    setToken,
+    setUser,
+    User,
+} from './stores/useAuthStore';
 
 export const isProd = process.env.NODE_ENV === 'PRODUCTION';
 
@@ -28,6 +34,12 @@ export async function login(token: string, username: string) {
         profileImageUrl: info.profile_image_url,
     };
     setUser(user);
+    window.location.reload();
+}
+
+export function signout() {
+    delToken();
+    delUser();
     window.location.reload();
 }
 

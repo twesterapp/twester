@@ -10,8 +10,9 @@ import {
     IconHome,
 } from 'renderer/ui';
 import { useQuery } from 'react-query';
-import { delToken, delUser, authStore } from 'renderer/stores/useAuthStore';
+import { authStore, useAuthStore } from 'renderer/stores/useAuthStore';
 import { useWatcherStore } from 'renderer/stores/useWatcherStore';
+import { signout } from 'renderer/utils';
 import { SidebarIcon } from './SidebarIcon';
 
 interface SidebarOptions {
@@ -23,10 +24,11 @@ interface SidebarOptions {
 export function Sidebar({ currentPage }: SidebarOptions) {
     const history = useHistory();
     const theme = useTheme();
+    const { user } = useAuthStore();
     // So that we can conditionally re-render `IconPause` or `IconPlay`.
     useWatcherStore();
 
-    const { data } = useQuery('ME_INFO', () => fetchChannelInfo());
+    const { data } = useQuery('ME_INFO', () => fetchChannelInfo(user.login));
 
     const onHomePage = currentPage === '/';
     const onStreamersPage = currentPage === '/streamers';
@@ -68,9 +70,7 @@ export function Sidebar({ currentPage }: SidebarOptions) {
                         <SidebarIcon
                             icon={IconSignOut}
                             onClick={() => {
-                                delToken();
-                                delUser();
-                                window.location.reload();
+                                signout();
                             }}
                         />
                     </i>

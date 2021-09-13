@@ -2,13 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled, { useTheme } from 'styled-components';
 
 import { LoadingScreen } from 'renderer/components';
-import { fetchChannelInfo, nodeClient } from 'renderer/api';
-import {
-    useAuthStore,
-    User,
-    setUser,
-    setToken,
-} from 'renderer/stores/useAuthStore';
+import { nodeClient } from 'renderer/api';
+import { useAuthStore } from 'renderer/stores/useAuthStore';
 import { Button, IconGithub, InputText } from 'renderer/ui';
 
 import { fakeLogin, login, px2em } from '../utils';

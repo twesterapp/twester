@@ -47,9 +47,7 @@ bearerClient.interceptors.request.use(
     }
 );
 
-export function fetchChannelInfo(
-    streamerLogin = authStore.getState().user.login
-) {
+export function fetchChannelInfo(streamerLogin: string) {
     return bearerClient.get(
         `https://api.twitch.tv/helix/users?login=${streamerLogin}`
     );
