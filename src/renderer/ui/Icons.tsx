@@ -6,7 +6,7 @@ import {
     FaPause,
     FaUsers,
     FaEye,
-    FaPowerOff,
+    FaHome,
     FaClock,
     FaStar,
 } from 'react-icons/fa';
@@ -29,6 +29,6 @@ export function IconPlus({ style, ...rest }: IconBaseProps) {
 
 export { FaPlay as IconPlay };
 export { FaPause as IconPause };
-export { FaPowerOff as IconPower };
 export { FaClock as IconClock };
 export { FaStar as IconStar };
+export { FaHome as IconHome };

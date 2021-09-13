@@ -4,12 +4,14 @@ import { IconType } from 'react-icons';
 
 interface SidebarIconOptions extends React.HTMLAttributes<HTMLDivElement> {
     active?: boolean;
+    bgColorOnHover?: string;
     iconColor?: string;
     icon: IconType;
 }
 
 export function SidebarIcon({
     active = false,
+    bgColorOnHover = '',
     icon,
     ...rest
 }: SidebarIconOptions) {
@@ -20,35 +22,47 @@ export function SidebarIcon({
             return rest.iconColor;
         }
 
-        return active ? theme.color.primary : theme.color.textPrimary;
+        return active ? theme.color.textPrimary : theme.color.brightBlue;
     };
 
     return (
-        <IconContainer active={active} {...rest}>
+        <IconContainer
+            active={active}
+            bgColorOnHover={bgColorOnHover}
+            {...rest}
+        >
             <Icon size={32} color={getColor()} />
         </IconContainer>
     );
 }
 
-const IconContainer = styled.div<{ active: boolean }>`
+const IconContainer = styled.div<{ active: boolean; bgColorOnHover: string }>`
     width: 56px;
     height: 56px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 14px;
+    box-sizing: border-box;
     cursor: pointer;
+    background-color: ${(props) =>
+        props.active && props.theme.color.background2};
     transition: background-color 200ms ease-out;
-    background: ${(props) => props.active && props.theme.color.background4};
 
     &:hover {
-        background: ${(props) =>
-            props.active
-                ? props.theme.color.background3
-                : props.theme.color.background4};
+        background: ${(props) => {
+            if (!props.active) {
+                return props.bgColorOnHover
+                    ? props.bgColorOnHover
+                    : props.theme.color.background2;
+            }
+
+            return '';
+        }};
     }
 
     &:active {
-        background: ${(props) => props.theme.color.background3};
+        background: ${(props) =>
+            !props.active && props.theme.color.background3};
     }
 `;

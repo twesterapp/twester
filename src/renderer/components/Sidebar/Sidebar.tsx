@@ -7,7 +7,7 @@ import {
     Avatar,
     Tooltip,
     IconStreamers,
-    IconPower,
+    IconHome,
 } from 'renderer/ui';
 import { useQuery } from 'react-query';
 import { delToken, delUser, authStore } from 'renderer/stores/useAuthStore';
@@ -37,7 +37,7 @@ export function Sidebar({ currentPage }: SidebarOptions) {
                 <Tooltip title="Watcher" placement="right" enterDelay={1000}>
                     <i>
                         <SidebarIcon
-                            icon={IconPower}
+                            icon={IconHome}
                             active={onWatcherPage}
                             onClick={() => history.push('/')}
                         />
@@ -111,7 +111,6 @@ const Container = styled.div`
     top: 0px;
     left: 0px;
     box-sizing: border-box;
-    background: ${(props) => props.theme.color.background2};
     display: flex;
     flex-direction: column;
     align-items: center;

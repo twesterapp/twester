@@ -26,10 +26,10 @@ export function Tooltip({
 
     const StyledTooltip = withStyles({
         tooltip: {
-            fontFamily: 'Poppins',
-            fontSize: `${px2rem(14)}`,
-            background: background || theme.color.primary,
-            color: color || theme.color.onPrimary,
+            fontFamily: 'Karla',
+            fontSize: `${px2rem(16)}`,
+            background: background || theme.color.borderOnDisabled,
+            color: color || theme.color.textPrimary,
             borderRadius: '6px',
             padding: '4px 8px',
         },
