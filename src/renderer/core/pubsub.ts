@@ -288,6 +288,13 @@ class WebSocketsPool {
                             return;
                         }
 
+                        if (!streamer.watching) {
+                            logger.debug(
+                                `Ignoring ${pointsEarned} points earned message for ${streamer.displayName} because we are not watching this channel, user might be watching it on Twitch`
+                            );
+                            return;
+                        }
+
                         logger.info(
                             `+${pointsEarned} -> ${streamer.displayName} (${newBalance} points) from (${streamer.startingBalance}) - Reason: ${reason}`
                         );
