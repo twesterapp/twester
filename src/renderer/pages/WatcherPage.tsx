@@ -92,7 +92,7 @@ export function WatcherPage() {
 
                     <StatInfo>
                         <IconStar size={32} color={theme.color.brightBlue} />
-                        <p>+{pointsEarned}</p>
+                        <p>{pointsEarned}</p>
                     </StatInfo>
 
                     {!canStartWatcher()

@@ -100,7 +100,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
                                 size={16}
                                 color={theme.color.brightBlue}
                             />
-                            <p>+{streamer.pointsEarned}</p>
+                            <p>{streamer.pointsEarned}</p>
                         </StatInfo>
                     </StatsContainer>
                 </div>
@@ -119,8 +119,6 @@ const StatsContainer = styled.div`
 
 const StatInfo = styled.div`
     display: flex;
-    align-items: center;
-    justify-content: center;
 
     p {
         font-family: Poppins;
