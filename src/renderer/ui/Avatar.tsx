@@ -5,7 +5,9 @@ import defaultAvatar from '../assets/default-avatar.png';
 
 interface AvatarOptions extends React.ImgHTMLAttributes<HTMLImageElement> {
     border?: boolean;
+    borderColor?: string;
     showLiveStatus?: boolean;
+    liveStatusBgColor?: string;
     src: string;
     size?: number;
     margin?: string;
@@ -14,7 +16,9 @@ interface AvatarOptions extends React.ImgHTMLAttributes<HTMLImageElement> {
 export function Avatar({
     size = 48,
     border = true,
+    borderColor = '',
     showLiveStatus = false,
+    liveStatusBgColor = '',
     margin = '',
     src,
     ...rest
@@ -24,10 +28,11 @@ export function Avatar({
             <StyledImage
                 {...rest}
                 border={border}
+                borderColor={borderColor}
                 src={src ?? defaultAvatar}
                 size={size}
             />
-            {showLiveStatus && <Live>LIVE</Live>}
+            {showLiveStatus && <Live background={liveStatusBgColor}>LIVE</Live>}
         </Container>
     );
 }
@@ -47,18 +52,28 @@ const StyledImage = styled.img<AvatarOptions>`
     box-sizing: border-box;
     border-radius: 50%;
     padding: 0.15rem;
-    border: ${(props) =>
-        props.border && `0.15rem solid ${props.theme.color.primary}`};
+    border: ${(props) => {
+        if (props.border) {
+            if (props.borderColor) {
+                return `0.15rem solid ${props.borderColor}`;
+            }
+            return `0.15rem solid ${props.theme.color.primary}`;
+        }
+
+        return '';
+    }};
     user-select: none;
 `;
 
-const Live = styled.p`
+const Live = styled.p<{ background?: string }>`
     font-size: ${px2rem(13)} !important;
     font-family: 'Karla' !important;
     font-weight: bold;
     position: absolute;
     bottom: -6px;
-    background: ${(props) => props.theme.color.primary};
+    background: ${(props) =>
+        props.background ? props.background : props.theme.color.primary};
     padding: 2px 3.6px;
     border-radius: 5px;
+    color: ${(props) => props.theme.color.textAlter} !important;
 `;
