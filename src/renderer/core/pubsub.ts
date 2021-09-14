@@ -302,7 +302,7 @@ class WebSocketsPool {
                         }
 
                         logger.info(
-                            `+${pointsEarned} for ${streamer.displayName} (${newBalance}) from (${streamer.startingBalance}) - Reason: ${reason}`
+                            `+${pointsEarned} ${streamer.displayName} (${newBalance}) - Reason: ${reason}`
                         );
 
                         updateStreamer(streamer.id, {

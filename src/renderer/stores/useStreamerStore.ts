@@ -22,8 +22,6 @@ export interface Streamer {
     followersCount: string;
     online?: boolean;
     lastOfflineTime?: number;
-    // Channel points for the streamer when the watcher session was started.
-    startingBalance?: number;
     // Channel points for the streamer at the current time of the watcher session.
     currentBalance?: number;
     // Is this streamer being watched by the `watcher`.
@@ -45,7 +43,6 @@ type NewStreamer = Omit<
     | 'online'
     | 'lastOfflineTime'
     | 'priorityRank'
-    | 'startingBalance'
     | 'currentBalance'
     | 'minutesWatched'
     | 'pointsEarned'
@@ -58,7 +55,6 @@ interface UpdateStreamer {
     followersCount?: string;
     online?: boolean;
     lastOfflineTime?: number;
-    startingBalance?: number;
     currentBalance?: number;
     minutesWatched?: number;
     pointsEarned?: number;
@@ -184,7 +180,6 @@ export function updateStreamer(id: StreamerId, newValue: UpdateStreamer) {
         ...streamer,
         online: undefined,
         lastOfflineTime: undefined,
-        startingBalance: undefined,
         currentBalance: undefined,
         watching: undefined,
     }));
@@ -208,7 +203,7 @@ export function setOnlineStatus(login: StreamerLogin, online: boolean) {
         (streamer): Streamer => {
             if (streamer.login === login) {
                 logger.info(
-                    `${streamer.displayName} (${streamer.startingBalance}) is ${
+                    `${streamer.displayName} (${streamer.currentBalance}) is ${
                         online ? 'Online' : 'Offline'
                     }!`
                 );

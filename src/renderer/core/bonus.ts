@@ -52,7 +52,7 @@ export async function loadChannelPointsContext() {
             response.data.community.channel.self.communityPoints;
         const initialBalance = communityPoints.balance;
         updateStreamer(streamer.id, {
-            startingBalance: streamer.startingBalance ?? initialBalance,
+            currentBalance: initialBalance,
         });
 
         const availableClaim = communityPoints.availableClaim;
