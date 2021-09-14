@@ -99,6 +99,7 @@ const Streamers = styled.div`
     display: flex;
     flex-direction: column;
     row-gap: ${px2em(14)};
+    margin: 0 24px 24px 24px;
 `;
 
 const HelpMessage = styled.p`
