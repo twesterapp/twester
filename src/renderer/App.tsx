@@ -12,6 +12,8 @@ import 'typeface-poppins';
 import 'typeface-karla';
 import 'typeface-roboto-mono';
 
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import { darkTheme, GlobalStyle } from './ui';
 import { AuthPage, StreamersPage, HomePage } from './pages';
 import { Sidebar } from './components';
@@ -23,15 +25,17 @@ const Dashboard = () => {
     const history = useHistory();
 
     return (
-        <Layout>
-            <SidebarContainer>
-                <Sidebar currentPage={history.location.pathname} />
-            </SidebarContainer>
-            <DashboardContainer>
-                <Route path="/" exact component={HomePage} />
-                <Route path="/streamers" component={StreamersPage} />
-            </DashboardContainer>
-        </Layout>
+        <DndProvider backend={HTML5Backend}>
+            <Layout>
+                <SidebarContainer>
+                    <Sidebar currentPage={history.location.pathname} />
+                </SidebarContainer>
+                <DashboardContainer>
+                    <Route path="/" exact component={HomePage} />
+                    <Route path="/streamers" component={StreamersPage} />
+                </DashboardContainer>
+            </Layout>
+        </DndProvider>
     );
 };
 

@@ -3,6 +3,9 @@ import {
     Streamer,
     removeStreamer,
     updateStreamer,
+    moveStreamerCard,
+    findStreamerCard,
+    StreamerId,
 } from 'renderer/stores/useStreamerStore';
 import { Avatar, IconClock, IconCross, IconEye, IconStar } from 'renderer/ui';
 import { formatMinutesToString, px2em, px2rem } from 'renderer/utils';
@@ -10,18 +13,64 @@ import styled, { useTheme } from 'styled-components';
 import { canStartWatcher } from 'renderer/stores/useWatcherStore';
 import { fetchChannelFollowers, fetchChannelInfo } from 'renderer/api';
 import { useQuery } from 'react-query';
+import { useDrag, useDrop } from 'react-dnd';
+
+// Blatantly copied from React DnD's example, check
+// https://react-dnd.github.io/react-dnd/examples/sortable/cancel-on-drop-outside
 
 interface StreamerCardProps {
     streamer: Streamer;
 }
 
-// TODO: For grabbing state UI/Cursor we would probably use some state
-// provided by `react-dnd` (drag-n-drop).
+interface Item {
+    streamerId: StreamerId;
+    originalIndex: number;
+}
+
+export enum ItemTypes {
+    CARD = 'card',
+}
+
 export function StreamerCard({ streamer }: StreamerCardProps) {
     const theme = useTheme();
 
     const { data } = useQuery(`STREAMER_CARD_INFO.${streamer.login}`, () =>
         fetchChannelInfo(streamer.login)
+    );
+
+    const originalIndex = findStreamerCard(streamer.id).index;
+
+    const [{ isDragging }, drag] = useDrag(
+        () => ({
+            type: ItemTypes.CARD,
+            item: { streamerId: streamer.id, originalIndex },
+            collect: (monitor) => ({
+                isDragging: monitor.isDragging(),
+            }),
+            canDrag: () => !!canStartWatcher(),
+            end: (item, monitor) => {
+                const { streamerId: droppedId, originalIndex } = item;
+                const didDrop = monitor.didDrop();
+                if (!didDrop) {
+                    moveStreamerCard(droppedId, originalIndex);
+                }
+            },
+        }),
+        [streamer.id, originalIndex, moveStreamerCard]
+    );
+
+    const [, drop] = useDrop(
+        () => ({
+            accept: ItemTypes.CARD,
+            canDrop: () => false,
+            hover({ streamerId: draggedId }: Item) {
+                if (draggedId !== streamer.id) {
+                    const { index: overIndex } = findStreamerCard(streamer.id);
+                    moveStreamerCard(draggedId, overIndex);
+                }
+            },
+        }),
+        [findStreamerCard, moveStreamerCard]
     );
 
     React.useEffect(() => {
@@ -43,7 +92,12 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
     }, [data, streamer.id]);
 
     return (
-        <Card>
+        <Card
+            ref={(node) => drag(drop(node))}
+            style={{
+                opacity: isDragging ? 0 : 1,
+            }}
+        >
             <Content>
                 <TopRight>
                     {canStartWatcher() ? (
@@ -106,7 +160,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
                 </div>
             </Content>
 
-            <p id="streamer-priority-rank">#{streamer.priorityRank}</p>
+            <p id="streamer-priority-rank">#{originalIndex + 1}</p>
         </Card>
     );
 }

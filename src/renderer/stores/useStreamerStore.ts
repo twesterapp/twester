@@ -12,7 +12,6 @@ export type StreamerId = string;
 // TODO: Clean these messy interfaces/type regarding Streamer
 export interface Streamer {
     login: StreamerLogin;
-    priorityRank: number;
     id: StreamerId;
     displayName: string;
     profileImageUrl: string;
@@ -42,7 +41,6 @@ type NewStreamer = Omit<
     Streamer,
     | 'online'
     | 'lastOfflineTime'
-    | 'priorityRank'
     | 'currentBalance'
     | 'minutesWatched'
     | 'pointsEarned'
@@ -84,9 +82,6 @@ export function getAllStreamers(): Streamer[] {
 }
 
 export function getOnlineStreamers(): Streamer[] {
-    // Streamers were already ordered based on `priorityRank` which is their
-    // index from first to last (top to bottom), therefore just filtering the
-    // online streamers will have correct `priority`.
     const onlineStreamers: Streamer[] = getAllStreamers().filter(
         (streamer) => streamer.online === true
     );
@@ -109,7 +104,6 @@ export function addStreamer(streamer: NewStreamer) {
 
     const streamerToAdd: Streamer = {
         ...streamer,
-        priorityRank: getState().streamers.length + 1,
         minutesWatched: 0,
         pointsEarned: 0,
         lastMinuteWatchedEventTime: 0,
@@ -147,8 +141,8 @@ export function removeStreamer(id: StreamerId) {
 
     const updated = getState()
         .streamers.filter((streamer) => streamer.id !== id)
-        .map((streamer, idx) => {
-            return { ...streamer, priorityRank: idx + 1 };
+        .map((streamer) => {
+            return { ...streamer };
         });
 
     try {
@@ -254,4 +248,44 @@ export function resetOnlineStatusOfStreamers() {
         watching: undefined,
     }));
     setState({ streamers: updated });
+}
+
+export function findStreamerCard(id: StreamerId) {
+    const streamer = streamerStore
+        .getState()
+        .streamers.filter((streamer) => streamer.id === id)[0];
+
+    return {
+        streamer,
+        index: streamerStore.getState().streamers.indexOf(streamer),
+    };
+}
+
+export function moveStreamerCard(id: StreamerId, hoverIndex: number) {
+    const drag = findStreamerCard(id);
+    const dragIndex = drag.index;
+    const hover = streamerStore.getState().streamers[hoverIndex];
+
+    const updated = [...streamerStore.getState().streamers];
+    updated[dragIndex] = hover;
+    updated[hoverIndex] = drag.streamer;
+
+    // We don't want to store these keys to storage. The `updated` array is for
+    // app state. This one is for persisting to localStorage.
+    const updatedForPersisting = updated.map((streamer) => ({
+        ...streamer,
+        online: undefined,
+        lastOfflineTime: undefined,
+        currentBalance: undefined,
+        watching: undefined,
+    }));
+
+    try {
+        localStorage.setItem(
+            getStorageKey(),
+            JSON.stringify(updatedForPersisting)
+        );
+    } catch {}
+
+    return streamerStore.setState({ streamers: updated });
 }

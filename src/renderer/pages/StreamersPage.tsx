@@ -1,6 +1,7 @@
 import React from 'react';
+import { useDrop } from 'react-dnd';
 import { fetchChannelFollowers, fetchChannelInfo } from 'renderer/api';
-import { StreamerCard } from 'renderer/components';
+import { ItemTypes, StreamerCard } from 'renderer/components';
 import {
     useStreamerStore,
     addStreamer,
@@ -43,6 +44,8 @@ export function StreamersPage() {
         setFetchingStreamer(false);
     }
 
+    const [, drop] = useDrop(() => ({ accept: ItemTypes.CARD }));
+
     return (
         <PageWrapper>
             {!canStartWatcher() && (
@@ -77,7 +80,7 @@ export function StreamersPage() {
                 You can re-order them by drag and drop.
             </Info>
 
-            <Streamers>
+            <Streamers ref={drop}>
                 {streamers.length > 0 &&
                     streamers.map((streamer) => {
                         return (
