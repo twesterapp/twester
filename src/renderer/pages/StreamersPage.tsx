@@ -97,10 +97,8 @@ export function StreamersPage() {
 
 const Streamers = styled.div`
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: ${`${px2em(16)} ${px2em(48)}`};
-    padding: 0 ${px2em(16)};
+    flex-direction: column;
+    row-gap: ${px2em(14)};
 `;
 
 const HelpMessage = styled.p`
