@@ -79,8 +79,8 @@ const createWindow = async () => {
 
     mainWindow = new BrowserWindow({
         show: false,
-        width: 1600,
-        height: 900,
+        width: 1100,
+        height: 700,
         icon: getAssetPath('icon.png'),
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
@@ -118,7 +118,7 @@ const createWindow = async () => {
 
     // Remove this if your app does not use auto updates
     // eslint-disable-next-line
-  new AppUpdater();
+    new AppUpdater();
 };
 
 /**
