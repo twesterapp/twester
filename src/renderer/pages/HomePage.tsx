@@ -12,6 +12,8 @@ import { useLoggerStore } from 'renderer/stores/useLoggerStore';
 
 export function HomePage() {
     const logsEndRef = React.useRef<HTMLDivElement>(null);
+    const [isScrollAtBottom, setScrollAtBottom] = React.useState(true);
+
     const { streamers } = useStreamerStore();
     const { minutesWatched, pointsEarned } = useWatcherStore();
     const { logs } = useLoggerStore();
@@ -19,21 +21,34 @@ export function HomePage() {
 
     const hasStreamersToWatch = streamers.length > 0;
 
-    function isPlayButtonActive(): boolean {
+    const isPlayButtonActive = (): boolean => {
         if (watcher.canPlay() && hasStreamersToWatch) {
             return true;
         }
 
         return false;
-    }
+    };
 
-    function isPauseButtonActive(): boolean {
+    const isPauseButtonActive = (): boolean => {
         if (watcher.canPause()) {
             return true;
         }
 
         return false;
-    }
+    };
+
+    const handleScroll = (e: any) => {
+        // Copied from https://stackoverflow.com/a/49573628/13904394
+        const bottom =
+            e.target.scrollHeight - e.target.scrollTop ===
+            e.target.clientHeight;
+
+        if (bottom) {
+            setScrollAtBottom(true);
+        } else {
+            setScrollAtBottom(false);
+        }
+    };
 
     const RenderPlayButton = () => (
         <IconPlay
@@ -70,16 +85,20 @@ export function HomePage() {
 
     // For the initial mounting we don't want to animate(`smooth`) the scroll.
     // It will be annoying to see the scroll animation whenever user comes on
-    // HomePage.
+    // HomePage. We will start with scroll at bottom.
     React.useEffect(() => {
         logsEndRef.current?.scrollIntoView({ behavior: 'auto' });
     }, []);
 
     // After the initial mounting we want to animate(`smooth`) the scroll
-    // whenever logs change(new logs are added).
+    // whenever logs change(new logs are added) and the scroll is at bottom.
+    // If the scroll is not at the bottom, that probably means the user is
+    // looking at some log and it would annoy the user if we scroll to bottom.
     React.useEffect(() => {
-        logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [logs]);
+        if (isScrollAtBottom) {
+            logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [isScrollAtBottom, logs]);
 
     return (
         <PageWrapper>
@@ -100,7 +119,7 @@ export function HomePage() {
                         : RenderPlayButton()}
                 </StatsContainer>
 
-                <LogContainer>
+                <LogContainer onScroll={handleScroll}>
                     {!hasStreamersToWatch ? (
                         <InfoBox>
                             <InfoText>
