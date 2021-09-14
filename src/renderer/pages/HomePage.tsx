@@ -87,7 +87,7 @@ export function HomePage() {
     // It will be annoying to see the scroll animation whenever user comes on
     // HomePage. We will start with scroll at bottom.
     React.useEffect(() => {
-        logsEndRef.current?.scrollIntoView({ behavior: 'auto' });
+        logsEndRef.current?.scrollIntoView();
     }, []);
 
     // After the initial mounting we want to animate(`smooth`) the scroll
@@ -96,7 +96,7 @@ export function HomePage() {
     // looking at some log and it would annoy the user if we scroll to bottom.
     React.useEffect(() => {
         if (isScrollAtBottom) {
-            logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+            logsEndRef.current?.scrollIntoView();
         }
     }, [isScrollAtBottom, logs]);
 
