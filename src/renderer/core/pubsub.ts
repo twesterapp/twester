@@ -67,6 +67,7 @@ function getNeededTopics(): PubSubTopic[] {
 
     for (const streamer of getAllStreamers()) {
         topics.push(new PubSubTopic('video-playback-by-id', streamer.login));
+        topics.push(new PubSubTopic('raid', streamer.login));
     }
 
     return topics;
