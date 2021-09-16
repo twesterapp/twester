@@ -33,13 +33,10 @@ import {
 class Watcher {
     private id: string;
 
-    private startTime: number;
-
     private logger: Logger;
 
     constructor() {
         this.logger = new Logger({ prefix: 'WATCHER' });
-        this.startTime = 0;
         this.id = '';
     }
 
@@ -54,10 +51,9 @@ class Watcher {
 
         if (!this.id) {
             this.id = uuid();
-            this.logger.info(`Starting session: ${this.id}`);
-            this.startTime = rightNowInSecs();
+            this.logger.info(`Starting Watcher`);
         } else {
-            this.logger.info(`Resuming session: ${this.id}`);
+            this.logger.info(`Resuming Watcher`);
         }
 
         this.logger.debug('Booting');
@@ -148,14 +144,7 @@ class Watcher {
     }
 
     public pause() {
-        const timePassedInMinutes = Math.floor(
-            (rightNowInSecs() - this.startTime) / 60
-        );
-        this.logger.info(
-            `Pausing session: ${this.id} - ${formatMinutesToString(
-                timePassedInMinutes
-            )}`
-        );
+        this.logger.info(`Pausing Watcher`);
         this.logger.debug('Stopping');
 
         setWatcherStatus(WatcherStatus.STOPPING);

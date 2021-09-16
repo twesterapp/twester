@@ -131,7 +131,7 @@ function updateRaid(streamer: Streamer, raid: Raid) {
     };
     makeGraphqlRequest(data);
     logger.info(
-        `Joining raid from ${streamer.displayName} to ${raid.loginToRaid}`
+        `Joining raid from ${streamer.displayName} to ${raid.loginToRaid}!`
     );
 }
 
