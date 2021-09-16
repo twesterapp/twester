@@ -3,16 +3,14 @@ import {
     getAllStreamers,
     getStreamerById,
     setOnlineStatus,
+    Streamer,
+    StreamerLogin,
     updateStreamer,
 } from 'renderer/stores/useStreamerStore';
 import { Logger } from 'renderer/stores/useLoggerStore';
 import { addPointsEarned } from 'renderer/stores/useWatcherStore';
-import {
-    channelIdExistsInCache,
-    checkOnline,
-    getChannelId,
-    getStreamerLoginByChannelIdFromCache,
-} from './data';
+import { makeGraphqlRequest } from 'renderer/api';
+import { channelIdExistsInCache, checkOnline, getChannelId } from './data';
 import { claimChannelPointsBonus } from './bonus';
 
 /**
@@ -95,6 +93,45 @@ class PubSubTopic {
 
         return `${this.topic}.${await getChannelId(this.channelLogin!)}`;
     }
+}
+
+class Raid {
+    public id: string;
+
+    public loginToRaid: StreamerLogin;
+
+    constructor(raidId: string, targetLogin: StreamerLogin) {
+        this.id = raidId;
+        this.loginToRaid = targetLogin;
+    }
+}
+
+const raidCache: Map<StreamerLogin, Raid> = new Map();
+
+function updateRaid(streamer: Streamer, raid: Raid) {
+    if (raidCache.get(streamer.login)) {
+        logger.debug(
+            `Skipping to join the raid of ${raid.loginToRaid} from ${streamer.displayName} - Reason: JOINED_RAID_ALREADY`
+        );
+        return;
+    }
+
+    raidCache.set(streamer.login, raid);
+    const data = {
+        operationName: 'JoinRaid',
+        variables: { input: { raidID: raid.id } },
+        extensions: {
+            persistedQuery: {
+                version: 1,
+                sha256Hash:
+                    'c6a332a86d1087fbbb1a8623aa01bd1313d2386e7c63be60fdb2d1901f01a4ae',
+            },
+        },
+    };
+    makeGraphqlRequest(data);
+    logger.info(
+        `Joining raid from ${streamer.displayName} to ${raid.loginToRaid}`
+    );
 }
 
 function createNonce(length: number) {
@@ -248,7 +285,7 @@ class WebSocketsPool {
         if (data.type === 'PONG') {
             logger.debug('Received PONG');
         } else if (data.type === 'MESSAGE') {
-            const [topic, topicUser] = data.data.topic.split('.');
+            const [topic, streamerId] = data.data.topic.split('.');
             const message = JSON.parse(data.data.message);
             const messageType = message.type;
             let messageData = null;
@@ -336,16 +373,33 @@ class WebSocketsPool {
                     }
                 }
             } else if (topic === 'video-playback-by-id') {
-                const streamerLogin =
-                    getStreamerLoginByChannelIdFromCache(topicUser);
+                const streamer = getStreamerById(streamerId);
+
+                if (!streamer) {
+                    console.error(`No streamer found with id: ${streamerId}`);
+                    return;
+                }
 
                 // There is stream-up message type, but it's sent earlier than
                 // the API updates. Therefore making it useless to check for it
                 //  here, as `checkOnline` will return `isOffline` status.
                 if (messageType === 'stream-down') {
-                    setOnlineStatus(streamerLogin, false);
+                    setOnlineStatus(streamer.login, false);
                 } else if (messageType === 'viewcount') {
-                    checkOnline(streamerLogin);
+                    checkOnline(streamer.login);
+                }
+            } else if (topic === 'raid') {
+                const streamer = getStreamerById(streamerId);
+
+                if (!streamer) {
+                    console.error(`No streamer found with id: ${streamerId}`);
+                    return;
+                }
+
+                if (messageType === 'raid_update_v2') {
+                    const raidInfo = message.raid;
+                    const raid = new Raid(raidInfo.id, raidInfo.target_login);
+                    updateRaid(streamer, raid);
                 }
             }
         } else if (data.type === 'RESPONSE' && data.error.length > 0) {
