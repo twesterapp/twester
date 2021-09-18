@@ -15,7 +15,7 @@ import 'typeface-roboto-mono';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { darkTheme, GlobalStyle } from './ui';
-import { AuthPage, StreamersPage, HomePage } from './pages';
+import { AuthPage, StreamersPage, HomePage, ErrorFallback } from './screens';
 import { Sidebar } from './components';
 import { useAuthStore } from './stores/useAuthStore';
 

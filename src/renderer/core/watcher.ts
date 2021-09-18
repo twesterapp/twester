@@ -144,7 +144,6 @@ class Watcher {
     }
 
     public pause() {
-        this.logger.info(`Pausing Watcher`);
         this.logger.debug('Stopping');
 
         setWatcherStatus(WatcherStatus.STOPPING);
@@ -155,6 +154,7 @@ class Watcher {
 
         setWatcherStatus(WatcherStatus.STOPPED);
 
+        this.logger.info(`Paused Watcher`);
         this.logger.debug('Stopped');
     }
 
