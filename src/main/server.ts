@@ -112,8 +112,7 @@ function getTwitchAuthErrorMessage(code: TwitchAuthErrorCodes) {
         }
 
         case 1000: {
-            message =
-                'You have made several failed login attempts. You will have to wait for sometime(typically several hours) before trying again. This occurs because a CAPTCHA SOLVING is required by Twitch and we cannot do that.';
+            message = 'Captcha Solving required';
             break;
         }
 

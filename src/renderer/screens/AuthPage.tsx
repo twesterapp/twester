@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled, { useTheme } from 'styled-components';
 
-import { LoadingScreen } from 'renderer/components';
+import { LoadingScreen, CaptchaSolvingErrorModal } from 'renderer/components';
 import { nodeClient } from 'renderer/api';
 import { useAuthStore } from 'renderer/stores/useAuthStore';
 import { Button, IconGithub, InputText } from 'renderer/ui';
@@ -65,36 +65,37 @@ export function AuthPage() {
 
         return renderCredentialsForm();
     };
-
     if (!user.id) {
         return (
-            <PageWrapper>
-                <OpenSource>
-                    <p>
-                        Twester is{' '}
+            <>
+                <PageWrapper>
+                    <OpenSource>
+                        <p>
+                            Twester is{' '}
+                            <a
+                                href="https://github.com/ceoshikhar/twester"
+                                target="_blank"
+                                rel="noreferrer"
+                            >
+                                Open Source
+                            </a>
+                        </p>
+                        <IconGithub size={24} color={theme.color.textPrimary} />
+                    </OpenSource>
+                    {renderForm()}
+                    <Footer>
+                        Created & Designed by{' '}
                         <a
-                            href="https://github.com/ceoshikhar/twester"
+                            href="https://ceoshikhar.com"
                             target="_blank"
                             rel="noreferrer"
                         >
-                            Open Source
-                        </a>
-                    </p>
-                    <IconGithub size={24} color={theme.color.textPrimary} />
-                </OpenSource>
-                {renderForm()}
-                <Footer>
-                    Created by{' '}
-                    <a
-                        href="https://ceoshikhar.com"
-                        target="_blank"
-                        rel="noreferrer"
-                    >
-                        @ceoshikhar
-                    </a>{' '}
-                    with love in India
-                </Footer>
-            </PageWrapper>
+                            @ceoshikhar
+                        </a>{' '}
+                        with love in India
+                    </Footer>
+                </PageWrapper>
+            </>
         );
     }
 
@@ -171,6 +172,9 @@ interface AskForLoginCredentialsOptions {
 function AskForLoginCredentials({
     nextStepCallback,
 }: AskForLoginCredentialsOptions) {
+    const theme = useTheme();
+    const [loginFailedOnce, setLoginFailedOnce] = useState(false);
+    const [showErrorInfoDialog, setShowErrorInfoDialog] = useState(false);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [err, setErr] = useState('');
@@ -222,42 +226,84 @@ function AskForLoginCredentials({
         }
 
         setErr(res.data?.error?.message);
+        setLoginFailedOnce(true);
     }
 
+    const renderErrorInfoDialog = () => (
+        <CaptchaSolvingErrorModal
+            closeModal={() => setShowErrorInfoDialog(false)}
+        />
+    );
+
     return (
-        <FormContainer>
-            <h1 style={{ margin: 0, marginBottom: px2em(43) }}>
-                Login to your Twitch account to start
-            </h1>
-            <Form onSubmit={handleSubmit}>
-                <InputText
-                    width="300px"
-                    placeholder="Username"
-                    style={{ marginBottom: px2em(23) }}
-                    value={username}
-                    onChange={handleUsernameOnChange}
-                />
-                <InputText
-                    variant="password"
-                    width="300px"
-                    placeholder="Password"
-                    style={{ marginBottom: px2em(52) }}
-                    value={password}
-                    onChange={handlePasswordOnChange}
-                />
-                {err && <p style={{ color: 'orange' }}>{err}</p>}
-                <Button
-                    variant="submit"
-                    text="Login"
-                    width="300px"
-                    onClick={handleSubmit}
-                    disabled={isButtonDisabled}
-                    loading={sendingReq}
-                />
-            </Form>
-        </FormContainer>
+        <>
+            {showErrorInfoDialog && renderErrorInfoDialog()}
+            <FormContainer>
+                <h1
+                    style={{
+                        margin: 0,
+                        marginBottom: loginFailedOnce ? px2em(8) : px2em(42),
+                    }}
+                >
+                    Login to your Twitch account to start
+                </h1>
+
+                {loginFailedOnce && (
+                    <p
+                        style={{
+                            margin: 0,
+                            marginBottom: px2em(42),
+                            color: theme.color.secondary,
+                        }}
+                    >
+                        Please read{' '}
+                        <Colored onClick={() => setShowErrorInfoDialog(true)}>
+                            this
+                        </Colored>{' '}
+                        before retrying login
+                    </p>
+                )}
+
+                <Form onSubmit={handleSubmit}>
+                    <InputText
+                        width="300px"
+                        placeholder="Username"
+                        style={{ marginBottom: px2em(23) }}
+                        value={username}
+                        onChange={handleUsernameOnChange}
+                    />
+                    <InputText
+                        variant="password"
+                        width="300px"
+                        placeholder="Password"
+                        style={{ marginBottom: px2em(52) }}
+                        value={password}
+                        onChange={handlePasswordOnChange}
+                    />
+                    {err && <p style={{ color: 'orange' }}>{err}</p>}
+                    <Button
+                        variant="submit"
+                        text="Login"
+                        width="300px"
+                        onClick={handleSubmit}
+                        disabled={isButtonDisabled}
+                        loading={sendingReq}
+                    />
+                </Form>
+            </FormContainer>
+        </>
     );
 }
+
+const Colored = styled.span`
+    font-weight: bold;
+    color: ${(props) => props.theme.color.brightBlue};
+    cursor: pointer;
+
+    &:hover {
+        text-decoration: underline;
+    }
+`;
 
 function VerifyWithCode({
     username,
