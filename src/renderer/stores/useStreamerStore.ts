@@ -94,7 +94,7 @@ export function addStreamer(streamer: NewStreamer) {
 
     for (let i = 0; i < getState().streamers.length; i += 1) {
         if (getState().streamers[i].id === streamer.id) {
-            console.error('Streamer already exists');
+            logger.debug('Streamer already exists');
 
             return setState({
                 streamers: getState().streamers,
