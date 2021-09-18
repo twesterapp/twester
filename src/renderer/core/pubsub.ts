@@ -111,9 +111,6 @@ const raidCache: Map<StreamerLogin, Raid> = new Map();
 
 function updateRaid(streamer: Streamer, raid: Raid) {
     if (raidCache.get(streamer.login)) {
-        logger.debug(
-            `Skipping to join the raid of ${raid.loginToRaid} from ${streamer.displayName} - Reason: JOINED_RAID_ALREADY`
-        );
         return;
     }
 
