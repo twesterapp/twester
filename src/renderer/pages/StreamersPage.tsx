@@ -64,6 +64,7 @@ export function StreamersPage() {
                     value={searchText}
                     disabled={!canStartWatcher() || fetchingStreamer}
                     onChange={(e) => setSearchText(e.target.value)}
+                    hidePlaceholderOnFocus={false}
                 />
                 <Button
                     width="46px"
