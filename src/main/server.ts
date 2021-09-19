@@ -2,10 +2,10 @@ import axios from 'axios';
 import express, { Application, NextFunction, Request, Response } from 'express';
 import querystring from 'querystring';
 
-const isProd = process.env.NODE_ENV === 'PRODUCTION';
+export const isDev = process.env.NODE_ENV === 'development';
 
 function log(...args: any) {
-    if (!isProd) {
+    if (isDev) {
         console.info('[AUTH_NODE_SERVER]:', ...args);
     }
 }
