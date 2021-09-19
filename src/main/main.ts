@@ -59,9 +59,8 @@ const installExtensions = async () => {
         .catch(console.info);
 };
 
+startServer();
 const createWindow = async () => {
-    startServer();
-
     if (
         process.env.NODE_ENV === 'development' ||
         process.env.DEBUG_PROD === 'true'
