@@ -18,6 +18,8 @@ import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import { startServer } from './server';
 
+startServer();
+
 export default class AppUpdater {
     constructor() {
         log.transports.file.level = 'info';
@@ -59,7 +61,6 @@ const installExtensions = async () => {
         .catch(console.info);
 };
 
-startServer();
 const createWindow = async () => {
     if (
         process.env.NODE_ENV === 'development' ||
@@ -147,6 +148,6 @@ if (!gotTheLock) {
         }
     });
 
-    // Create myWindow, load the rest of the app, etc...
+    // Create window, load the rest of the app, etc...
     app.whenReady().then(createWindow).catch(console.info);
 }

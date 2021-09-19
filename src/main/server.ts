@@ -1,6 +1,7 @@
 import axios from 'axios';
 import express, { Application, NextFunction, Request, Response } from 'express';
 import querystring from 'querystring';
+import { createServer } from 'http';
 
 export const isDev = process.env.NODE_ENV === 'development';
 
@@ -345,8 +346,25 @@ app.post('/auth', login);
 app.post('/auth/two-fa', twoFA);
 app.post('/auth/code', code);
 
-export function startServer() {
-    app.listen('6969', () => {
-        log('Starting on port 6969');
+// This helps to prevent express from throwing `EADDRINUSE` error when user
+// tries to start another instance of the app.
+function isPortFree(port: string) {
+    return new Promise((resolve) => {
+        const server = createServer()
+            .listen(port, () => {
+                server.close();
+                resolve(true);
+            })
+            .on('error', () => {
+                resolve(false);
+            });
     });
+}
+
+export async function startServer() {
+    if (await isPortFree('6969')) {
+        app.listen('6969', () => {
+            log('Starting on port 6969');
+        });
+    }
 }
