@@ -2,8 +2,8 @@
 
 <div align="center">
   <h1>Twester</h1>
-  <p><strong>Twitch channel points without watching Twitch!</strong></p>
-  <h3 align="center">
+  <p>Twitch channel points without watching Twitch!</p>
+  <h4 align="center">
     <a href="#download">Download</a>
     <span> | </span>
     <a href="#features">Features</a>
@@ -78,4 +78,4 @@ Thanks to <a href="https://www.vecteezy.com/free-vector/web">Web Vectors by Vect
 
 ---
 
-##### Created & Designed by [@ceoshikhar](https://ceoshikhar.com/) with love in India
+###### Created & Designed by [@ceoshikhar](https://ceoshikhar.com/) with love in India
