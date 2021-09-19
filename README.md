@@ -36,7 +36,7 @@ Twester is a free and open source desktop app that will watch Twitch livestreams
 
 -   **Minimal and Intuitive UI**. Start and pause Twester will a click of a button.
 -   Add **unlimited streamers** to streamer's list and Twester will watch them\* and harvest channel points for you.
--   **Streamers** tab to manage streamer's list and check their stats (time watched, points harvested, is online/offline, twester watching).
+-   **Streamers tab** to manage streamer's list and check their stats (time watched, points harvested, is online/offline, twester watching).
 -   **Event logs** about all the things you need to know. Example, when a streamer goes offline or online, when channel points are earned, when Twester starts or stops watching a livestream and more.
 
 > \* Twitch allows max 2 livestreams to be watched at a time. Twester will pick the highest priority streamers to be watched.
