@@ -32,7 +32,7 @@
     },
     "build": {
         "productName": "Twester",
-        "appId": "org.erb.Twester",
+        "appId": "co.twester",
         "asar": true,
         "asarUnpack": "**\\*.{node,dll}",
         "files": [
