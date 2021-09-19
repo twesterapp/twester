@@ -1,7 +1,7 @@
 {
     "name": "twester",
     "productName": "Twester",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "description": "Earn channel points without watching Twitch",
     "main": "./dist/main/main.js",
     "author": {
