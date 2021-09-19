@@ -128,10 +128,25 @@ app.on('window-all-closed', () => {
     }
 });
 
-app.whenReady().then(createWindow).catch(console.info);
-
 app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (mainWindow === null) createWindow();
 });
+
+const gotTheLock = app.requestSingleInstanceLock();
+
+if (!gotTheLock) {
+    app.quit();
+} else {
+    app.on('second-instance', () => {
+        // Someone tried to run a second instance, we should focus our window.
+        if (mainWindow) {
+            if (mainWindow.isMinimized()) mainWindow.restore();
+            mainWindow.focus();
+        }
+    });
+
+    // Create myWindow, load the rest of the app, etc...
+    app.whenReady().then(createWindow).catch(console.info);
+}
