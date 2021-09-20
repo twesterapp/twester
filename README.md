@@ -1,6 +1,5 @@
-![readme banner](./images/twester_readme_banner.png)
-
 <div align="center">
+  <img src="./images/twester_readme_banner.png" />
   <h1>Twester</h1>
   <p>Twitch channel points without watching Twitch!</p>
   <h4 align="center">
