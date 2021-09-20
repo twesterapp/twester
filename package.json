@@ -70,8 +70,7 @@
         "linux": {
             "target": [
                 "AppImage"
-            ],
-            "category": "Development"
+            ]
         },
         "directories": {
             "app": "build/app",
