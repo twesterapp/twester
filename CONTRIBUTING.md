@@ -23,7 +23,12 @@ Please click [here](https://github.com/twesterapp/twester/issues/new/choose) and
 
 ## Build and run from source
 
-This project was bootstrapped with [Electron React Boilerplate](https://electron-react-boilerplate.js.org). **So If you have installation or compilation issues with this project, please see [their debugging guide](https://github.com/electron-react-boilerplate/electron-react-boilerplate/issues/400)**
+This project was bootstrapped with [Electron React Boilerplate (ERB)](https://electron-react-boilerplate.js.org). To understand the project structure and electron specific things, checking out [ERB's documentation](https://electron-react-boilerplate.js.org/docs/installation) might be a good place to start.
+
+This is my first electron project and I am sure this boilerplate might have some bloat stuff that Twester doesn't use.
+Please feel free to make a PR to remove them.
+
+**If you have installation or compilation issues with this project, please see [ERB's debugging guide](https://github.com/electron-react-boilerplate/electron-react-boilerplate/issues/400)**.
 
 Clone the repo via git and install dependencies:
 
