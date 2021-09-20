@@ -20,7 +20,7 @@ assignees: ''
 
 <!-- Checked checkbox should look like this: [x] -->
 
--   [ ] I am on the [latest](https://github.com/twesterapp/twester/releases/latest) Hyper.app version
+-   [ ] I am on the [latest](https://github.com/twesterapp/twester/releases/latest) Twester version
 -   [ ] I have searched the [issues](https://github.com/twesterapp/twester/issues) of this repo and believe that this is not a duplicate
 
 <!--
