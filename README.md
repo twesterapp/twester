@@ -11,6 +11,8 @@
     <span> | </span>
     <a href="#how-it-works">How it works?</a>
     <span> | </span>
+    <a href="#support">Support</a>
+    <span> | </span>
     <a href="#credits">Credits</a>
   </h3>
 </div>
@@ -68,6 +70,14 @@ Twester is a free and open source desktop app that will watch Twitch livestreams
     -   Participating in a Raid
 -   Twitch allows users to watch and get channel points for maximum of 2 streamers at a time. That’s why Twester asks you to keep the streamers on Streamers tab sorted(top to bottom) based on priority. Twester picks the 2 streamers from the list with highest priority that are online and “watches” their livestream.
 -   To “watch” a livestream, Twester sends a “minute watched event” request to Twitch’s API for that livestream. Twitch uses that request to know which user has watched a livestream for a minute. After several of these requests, Twitch rewards the user with channel points.
+
+## Support
+
+If you want to support this project, please leave a star 🌟 and share it with your friends! 😎
+
+A coffee is always a gesture of LOVE ❤️
+
+<a href="https://www.buymeacoffee.com/ceoshikhar" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/lato-yellow.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
 ## Credits
 
