@@ -163,6 +163,12 @@ const FormContainer = styled.div`
     align-items: center;
 `;
 
+const ErrMsg = styled.p`
+    text-align: left;
+    margin-top: 0.5rem;
+    color: ${(props) => props.theme.color.error};
+`;
+
 export default AuthPage;
 
 interface AskForLoginCredentialsOptions {
@@ -276,12 +282,12 @@ function AskForLoginCredentials({
                         variant="password"
                         width="300px"
                         placeholder="Password"
-                        style={{ marginBottom: px2em(52) }}
                         value={password}
                         onChange={handlePasswordOnChange}
                     />
-                    {err && <p style={{ color: 'orange' }}>{err}</p>}
+                    {err && <ErrMsg>{err}</ErrMsg>}
                     <Button
+                        style={{ marginTop: px2em(52) }}
                         variant="submit"
                         text="Login"
                         width="300px"

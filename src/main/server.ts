@@ -88,7 +88,7 @@ function getTwitchAuthErrorMessage(code: TwitchAuthErrorCodes) {
 
     switch (code) {
         case 3001 || 3002 || 3003: {
-            message = 'Invalid username or password';
+            message = 'Invalid login credentials';
             break;
         }
 
