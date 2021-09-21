@@ -1,6 +1,6 @@
 {
     "name": "twester",
-    "version": "0.2.4",
+    "version": "0.2.5",
     "productName": "Twester",
     "description": "Twitch channel points without watching Twitch!",
     "scripts": {
