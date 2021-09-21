@@ -6,7 +6,7 @@ import { nodeClient } from 'renderer/api';
 import { useAuthStore } from 'renderer/stores/useAuthStore';
 import { Button, IconGithub, InputText } from 'renderer/ui';
 
-import { fakeLogin, isDev, login, px2em } from '../utils';
+import { isDev, login, px2em } from '../utils';
 
 enum FlowStep {
     CREDENTIALS = 'credentials',
@@ -39,15 +39,7 @@ export function AuthPage() {
     }
 
     const renderCredentialsForm = () => (
-        <>
-            {/* REMOVE THIS BUTTON BEFORE SHIPPING LULW */}
-            {isDev && (
-                <button type="button" onClick={() => fakeLogin()}>
-                    Fake Login
-                </button>
-            )}
-            <AskForLoginCredentials nextStepCallback={handleNextStepCallback} />
-        </>
+        <AskForLoginCredentials nextStepCallback={handleNextStepCallback} />
     );
 
     const renderCodeForm = () => <VerifyWithCode {...verifyOptions} />;

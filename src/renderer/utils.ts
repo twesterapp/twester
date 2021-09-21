@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-cycle
 import { fetchChannelInfo } from './api';
 import {
     delToken,
@@ -9,20 +10,6 @@ import {
 
 export const isProd = process.env.NODE_ENV === 'production';
 export const isDev = process.env.NODE_ENV === 'development';
-
-export function fakeLogin() {
-    const user: User = {
-        id: '670111413',
-        displayName: 'ceoshikhar',
-        login: 'ceoshikhar',
-        profileImageUrl:
-            'https://static-cdn.jtvnw.net/jtv_user_pictures/40f633ca-8793-4eb7-bcd9-a225d5879537-profile_image-300x300.pn0',
-    };
-
-    setUser(user);
-    setToken('ep0202p2qbm0pqx34edauumbuwerl2');
-    window.location.reload();
-}
 
 export async function login(token: string, username: string) {
     setToken(token);
