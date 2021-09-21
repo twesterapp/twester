@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import styled, { ThemeProvider, useTheme } from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 import {
     MemoryRouter as Router,
     Switch,
@@ -15,8 +15,8 @@ import 'typeface-roboto-mono';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import toast, { Toaster } from 'react-hot-toast';
-import { Button, darkTheme, GlobalStyle } from './ui';
-import { AuthPage, StreamersPage, HomePage } from './screens';
+import { GlobalStyle } from './ui';
+import { AuthPage, StreamersPage, HomePage } from './pages';
 import { Sidebar } from './components';
 import { useAuthStore } from './stores/useAuthStore';
 

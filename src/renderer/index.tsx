@@ -3,7 +3,7 @@ import { render } from 'react-dom';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ThemeProvider } from 'styled-components';
 import { App } from './App';
-import { ErrorFallback } from './screens';
+import { ErrorFallback } from './pages';
 import { darkTheme } from './ui';
 
 render(

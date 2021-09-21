@@ -9,8 +9,10 @@ import { IconPlay, IconPause, Link, IconClock, IconStar } from 'renderer/ui';
 import { formatMinutesToString, px2em, px2rem } from 'renderer/utils';
 import styled, { useTheme } from 'styled-components';
 import { useLoggerStore } from 'renderer/stores/useLoggerStore';
+import { useAppVersion } from 'renderer/hooks';
 
 export function HomePage() {
+    const version = useAppVersion();
     const logsEndRef = React.useRef<HTMLDivElement>(null);
     const [isScrollAtBottom, setScrollAtBottom] = React.useState(true);
 
@@ -102,6 +104,20 @@ export function HomePage() {
 
     return (
         <PageWrapper>
+            {version && (
+                <p
+                    style={{
+                        fontSize: '14px',
+                        fontFamily: 'Roboto Mono',
+                        color: theme.color.borderOnDisabled,
+                        position: 'absolute',
+                        bottom: '4px',
+                        left: '12px',
+                    }}
+                >
+                    v{version}
+                </p>
+            )}
             <Content>
                 <StatsContainer>
                     <StatInfo>
@@ -182,11 +198,11 @@ const Content = styled.div`
     gap: ${px2em(30)} 0;
     width: 100%;
     height: 100%;
-    padding: 0 ${px2em(24)};
+    padding: ${px2em(16)} ${px2em(24)};
     box-sizing: border-box;
 
     @media screen and (min-width: 1080px) {
-        padding: 0 ${px2em(56)};
+        padding: ${px2em(24)} ${px2em(56)};
     }
 `;
 
@@ -228,6 +244,7 @@ const PageWrapper = styled.div`
     min-width: calc(640px - 86px);
     height: 100%;
     min-height: 480px;
+    position: relative;
 `;
 
 const InfoText = styled.p`

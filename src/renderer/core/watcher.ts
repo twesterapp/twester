@@ -16,12 +16,7 @@ import {
     canStartWatcher,
     incrementMinutesWatched,
 } from 'renderer/stores/useWatcherStore';
-import {
-    abortAllSleepingTasks,
-    formatMinutesToString,
-    rightNowInSecs,
-    sleep,
-} from 'renderer/utils';
+import { abortAllSleepingTasks, rightNowInSecs, sleep } from 'renderer/utils';
 import { v4 as uuid } from 'uuid';
 import { loadChannelPointsContext } from './bonus';
 import { getMinuteWatchedRequestInfo, updateStreamersToWatch } from './data';
