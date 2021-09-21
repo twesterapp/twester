@@ -72,26 +72,26 @@ export function AuthPage() {
                     <OpenSource>
                         <p>
                             Twester is{' '}
-                            <a
+                            <Anchor
                                 href="https://github.com/ceoshikhar/twester"
                                 target="_blank"
                                 rel="noreferrer"
                             >
                                 Open Source
-                            </a>
+                            </Anchor>
                         </p>
                         <IconGithub size={24} color={theme.color.textPrimary} />
                     </OpenSource>
                     {renderForm()}
                     <Footer>
                         Created & Designed by{' '}
-                        <a
+                        <Anchor
                             href="https://ceoshikhar.com"
                             target="_blank"
                             rel="noreferrer"
                         >
                             @ceoshikhar
-                        </a>{' '}
+                        </Anchor>{' '}
                         with love in India
                     </Footer>
                 </PageWrapper>
@@ -105,15 +105,16 @@ export function AuthPage() {
 const Footer = styled.p`
     font-size: 14px;
     margin-bottom: 16px;
+`;
 
-    a {
-        color: ${(props) => props.theme.color.primary};
-        text-decoration: none;
-        font-weight: bold;
+const Anchor = styled.a`
+    color: ${(props) => props.theme.color.primary};
+    text-decoration: none;
+    font-weight: bold;
+    cursor: pointer;
 
-        &:hover {
-            text-decoration: underline;
-        }
+    &:hover {
+        text-decoration: underline;
     }
 `;
 
@@ -123,16 +124,6 @@ const OpenSource = styled.div`
     align-items: center;
     justify-content: flex-end;
     margin: 16px 16px 0 0;
-
-    a {
-        color: ${(props) => props.theme.color.primary};
-        text-decoration: none;
-        font-weight: bold;
-
-        &:hover {
-            text-decoration: underline;
-        }
-    }
 
     p {
         font-size: 14px;
@@ -320,6 +311,7 @@ function VerifyWithCode({
     const [code, setCode] = useState('');
     const [err, setErr] = useState('');
     const [sendingReq, setSendingReq] = useState(false);
+    const [sendingResendReq, setSendingResendReq] = useState(false);
 
     function handleCodeInput(event: React.ChangeEvent<HTMLInputElement>) {
         setCode(event.target.value);
@@ -345,21 +337,49 @@ function VerifyWithCode({
         setSendingReq(false);
     }
 
+    async function handleResendCode(event: React.FormEvent<EventTarget>) {
+        event.preventDefault();
+        setSendingResendReq(true);
+        setErr('');
+
+        const res = await nodeClient.post(
+            `/auth/resend-code?streamerLogin=${username || 'ceoshikhar'}`
+        );
+
+        if (res.data?.error) {
+            setErr(res.data.error);
+        }
+    }
+
     return (
         <FormContainer>
             <h1 style={{ margin: 0 }}>Enter the verification code sent to</h1>
             <p style={{ marginBottom: px2em(43) }}>{email}</p>
             <Form onSubmit={handleSubmit}>
+                {err && (
+                    <ErrMsg style={{ marginBottom: px2em(8) }}>{err}</ErrMsg>
+                )}
                 <InputText
                     placeholder="Code"
                     variant="number"
                     value={code}
                     onChange={handleCodeInput}
                     width="300px"
-                    style={{ marginBottom: px2em(52) }}
                 />
-                {err && <p style={{ color: 'orange' }}>{err}</p>}
+                <Anchor
+                    style={{
+                        marginTop: '0.5rem',
+                        fontSize: '14px',
+                        textAlign: 'left',
+                        fontWeight: 'normal',
+                        opacity: sendingResendReq ? '0.75' : '1',
+                    }}
+                    onClick={(e) => !sendingResendReq && handleResendCode(e)}
+                >
+                    Resend Code
+                </Anchor>
                 <Button
+                    style={{ marginTop: px2em(52) }}
                     text="Verify"
                     variant="submit"
                     width="300px"
@@ -412,6 +432,9 @@ function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
                 Enter the token from your authenticator app
             </h1>
             <Form onSubmit={handleSubmit}>
+                {err && (
+                    <ErrMsg style={{ marginBottom: px2em(8) }}>{err}</ErrMsg>
+                )}
                 <InputText
                     ref={inputRef}
                     placeholder="Token"
@@ -421,7 +444,6 @@ function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
                     onChange={handleTwoFaInput}
                     style={{ marginBottom: px2em(52) }}
                 />
-                {err && <p style={{ color: 'orange' }}>{err}</p>}
                 <Button
                     width="300px"
                     text="Verify"

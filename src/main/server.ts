@@ -312,7 +312,29 @@ async function sendMinuteWatchedEvent(
     }
 }
 
-function logger(req: Request, res: Response, next: NextFunction) {
+async function resendCode(req: Request, res: Response): Promise<Response> {
+    const streamerLogin = req.query.streamerLogin;
+
+    if (!streamerLogin) {
+        return res.status(400).json({
+            error: {
+                message: 'No streamer login provide in the request query',
+            },
+        });
+    }
+
+    try {
+        await client.post(
+            `https://passport.twitch.tv/resend_login_verification_email?login=${streamerLogin}`
+        );
+
+        return res.status(200).json({});
+    } catch (e) {
+        return res.status(200).json(e.response?.data);
+    }
+}
+
+function loggerMiddleware(req: Request, res: Response, next: NextFunction) {
     const startTime = new Date().getTime();
 
     res.on('finish', () => {
@@ -328,7 +350,7 @@ const app: Application = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(logger);
+app.use(loggerMiddleware);
 
 app.use((_, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
@@ -345,6 +367,7 @@ app.post('/minute-watched-event', sendMinuteWatchedEvent);
 app.post('/auth', login);
 app.post('/auth/two-fa', twoFA);
 app.post('/auth/code', code);
+app.post('/auth/resend-code', resendCode);
 
 // This helps to prevent express from throwing `EADDRINUSE` error when user
 // tries to start another instance of the app.
