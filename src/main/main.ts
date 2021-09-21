@@ -109,7 +109,11 @@ const createWindow = async () => {
 
     // Check for update once app is loading
     mainWindow.once('ready-to-show', () => {
-        autoUpdater.checkForUpdatesAndNotify();
+        // We don't want to check for updates on macOS as our releases are not
+        // code signed and it's a requirement for macOS.
+        if (process.platform !== 'darwin') {
+            autoUpdater.checkForUpdatesAndNotify();
+        }
     });
 };
 
