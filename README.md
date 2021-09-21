@@ -15,6 +15,9 @@
     <span> | </span>
     <a href="#credits">Credits</a>
   </h3>
+  <br />
+    <img src="https://img.shields.io/github/v/release/twesterapp/twester?color=00A8E8&label=%20&style=for-the-badge" />
+    <img src="https://img.shields.io/github/downloads/twesterapp/twester/total?color=00A8E8&style=for-the-badge" />
 </div>
 
 ## Download

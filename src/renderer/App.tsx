@@ -98,6 +98,7 @@ export function App() {
                         background: theme.color.borderOnDisabled,
                         color: theme.color.textPrimary,
                         fontFamily: 'Karla',
+                        fontSize: '14px',
                     },
                 }}
             />
