@@ -80,11 +80,16 @@
         },
         "extraResources": [
             "./assets/**"
-        ]
+        ],
+        "publish": {
+            "provider": "github",
+            "owner": "twesterapp",
+            "repo": "twester"
+        }
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/ceoshikhar/twester.git"
+        "url": "https://github.com/twesterapp/twester.git"
     },
     "author": {
         "name": "Shikhar Sharma",
@@ -93,7 +98,7 @@
     },
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/ceoshikhar/twester/issues"
+        "url": "https://github.com/twesterapp/twester/issues"
     },
     "keywords": [
         "twitch",
@@ -101,7 +106,7 @@
         "twitch-channel-points",
         "channel-points"
     ],
-    "homepage": "https://github.com/ceoshikhar/twester#readme",
+    "homepage": "https://github.com/twesterapp/twester#readme",
     "jest": {
         "testURL": "http://localhost/",
         "moduleNameMapper": {
@@ -240,6 +245,7 @@
         "react-dnd-html5-backend": "^14.0.1",
         "react-dom": "^17.0.2",
         "react-error-boundary": "^3.1.3",
+        "react-hot-toast": "^2.1.1",
         "react-icons": "^4.2.0",
         "react-query": "^3.21.1",
         "react-router-dom": "^5.2.0",

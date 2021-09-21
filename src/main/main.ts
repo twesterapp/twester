@@ -20,14 +20,6 @@ import { startServer } from './server';
 
 startServer();
 
-export default class AppUpdater {
-    constructor() {
-        log.transports.file.level = 'info';
-        autoUpdater.logger = log;
-        autoUpdater.checkForUpdatesAndNotify();
-    }
-}
-
 let mainWindow: BrowserWindow | null = null;
 
 ipcMain.on('ipc-example', async (event, arg) => {
@@ -115,6 +107,11 @@ const createWindow = async () => {
         event.preventDefault();
         shell.openExternal(url);
     });
+
+    // Check for update once app is loading
+    mainWindow.once('ready-to-show', () => {
+        autoUpdater.checkForUpdatesAndNotify();
+    });
 };
 
 /**
@@ -151,3 +148,19 @@ if (!gotTheLock) {
     // Create window, load the rest of the app, etc...
     app.whenReady().then(createWindow).catch(console.info);
 }
+
+ipcMain.on('app_version', (event) => {
+    event.sender.send('app_version', { version: app.getVersion() });
+});
+
+autoUpdater.on('update-available', () => {
+    if (mainWindow) {
+        mainWindow.webContents.send('update_available');
+    }
+});
+
+autoUpdater.on('update-downloaded', () => {
+    if (mainWindow) {
+        mainWindow.webContents.send('update_downloaded');
+    }
+});

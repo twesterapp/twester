@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import {
     MemoryRouter as Router,
@@ -14,8 +14,9 @@ import 'typeface-roboto-mono';
 
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import toast, { Toaster } from 'react-hot-toast';
 import { darkTheme, GlobalStyle } from './ui';
-import { AuthPage, StreamersPage, HomePage, ErrorFallback } from './screens';
+import { AuthPage, StreamersPage, HomePage } from './screens';
 import { Sidebar } from './components';
 import { useAuthStore } from './stores/useAuthStore';
 
@@ -39,8 +40,29 @@ const Dashboard = () => {
     );
 };
 
+const updateAvailableToast = () =>
+    toast.loading('New update available. Downloading...', { icon: '🦄' });
+
+const updateDownloadedToast = () =>
+    toast.success('Update completed. Restart the app to use latest version.', {
+        icon: '🚀',
+    });
+
 export function App() {
     const { user } = useAuthStore();
+    const [availableToastId, setAvailableToastId] = useState('');
+
+    const ipc = window.electron.ipcRenderer;
+
+    ipc.on('update_available', () => {
+        const id = updateAvailableToast();
+        setAvailableToastId(id);
+    });
+
+    ipc.on('update_downloaded', () => {
+        toast.remove(availableToastId);
+        updateDownloadedToast();
+    });
 
     return (
         <ThemeProvider theme={darkTheme}>
@@ -51,6 +73,7 @@ export function App() {
                 </Router>
                 <ReactQueryDevtools position="bottom-right" />
             </QueryClientProvider>
+            <Toaster position="top-right" />
         </ThemeProvider>
     );
 }

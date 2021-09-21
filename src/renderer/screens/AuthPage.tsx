@@ -6,7 +6,8 @@ import { nodeClient } from 'renderer/api';
 import { useAuthStore } from 'renderer/stores/useAuthStore';
 import { Button, IconGithub, InputText } from 'renderer/ui';
 
-import { isDev, login, px2em } from '../utils';
+import { useAppVersion } from 'renderer/hooks';
+import { login, px2em } from '../utils';
 
 enum FlowStep {
     CREDENTIALS = 'credentials',
@@ -23,6 +24,7 @@ interface VerifyOptions {
 
 // TODO: Clean this mess.
 export function AuthPage() {
+    const version = useAppVersion();
     const { user } = useAuthStore();
     const theme = useTheme();
     const [flowStep, setFlowStep] = useState<FlowStep>(FlowStep.CREDENTIALS);
@@ -57,23 +59,45 @@ export function AuthPage() {
 
         return renderCredentialsForm();
     };
+
     if (!user.id) {
         return (
             <>
                 <PageWrapper>
-                    <OpenSource>
-                        <p>
-                            Twester is{' '}
-                            <Anchor
-                                href="https://github.com/ceoshikhar/twester"
-                                target="_blank"
-                                rel="noreferrer"
-                            >
-                                Open Source
-                            </Anchor>
-                        </p>
-                        <IconGithub size={24} color={theme.color.textPrimary} />
-                    </OpenSource>
+                    <Header>
+                        <HeaderItem
+                            style={{
+                                marginLeft: '16px',
+                            }}
+                        >
+                            {version && (
+                                <p
+                                    style={{
+                                        fontFamily: 'Roboto Mono',
+                                        color: theme.color.borderOnDisabled,
+                                    }}
+                                >
+                                    v{version}
+                                </p>
+                            )}
+                        </HeaderItem>
+                        <HeaderItem style={{ marginRight: '16px' }}>
+                            <p style={{ marginRight: '4px' }}>
+                                Twester is{' '}
+                                <Anchor
+                                    href="https://github.com/twesterapp/twester"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                >
+                                    Open Source
+                                </Anchor>
+                            </p>
+                            <IconGithub
+                                size={24}
+                                color={theme.color.textPrimary}
+                            />
+                        </HeaderItem>
+                    </Header>
                     {renderForm()}
                     <Footer>
                         Created & Designed by{' '}
@@ -94,6 +118,11 @@ export function AuthPage() {
     return <LoadingScreen />;
 }
 
+const HeaderItem = styled.div`
+    display: flex;
+    align-items: center;
+`;
+
 const Footer = styled.p`
     font-size: 14px;
     margin-bottom: 16px;
@@ -110,16 +139,15 @@ const Anchor = styled.a`
     }
 `;
 
-const OpenSource = styled.div`
+const Header = styled.div`
     width: 100%;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    margin: 16px 16px 0 0;
+    justify-content: space-between;
+    margin: 16px 0;
 
     p {
         font-size: 14px;
-        margin-right: 4px;
     }
 `;
 
