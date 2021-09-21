@@ -1,8 +1,8 @@
 {
     "name": "twester",
-    "version": "0.2.3",
+    "version": "0.2.4",
     "productName": "Twester",
-    "description": "Earn channel points without watching Twitch",
+    "description": "Twitch channel points without watching Twitch!",
     "scripts": {
         "build": "concurrently \"yarn build:main\" \"yarn build:renderer\"",
         "build:main": "cross-env NODE_ENV=production webpack --config ./.erb/configs/webpack.config.main.prod.babel.js",
@@ -46,7 +46,8 @@
             "hardenedRuntime": true,
             "entitlements": "assets/entitlements.mac.plist",
             "entitlementsInherit": "assets/entitlements.mac.plist",
-            "gatekeeperAssess": false
+            "gatekeeperAssess": false,
+            "icon": "icons/icon.png"
         },
         "dmg": {
             "contents": [
@@ -63,12 +64,14 @@
             ]
         },
         "win": {
+            "icon": "icons/icon.ico",
             "target": [
                 "nsis"
             ]
         },
         "linux": {
             "category": "Productivity",
+            "icon": "icons/icon.png",
             "target": [
                 "AppImage"
             ]
