@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { authStore } from 'renderer/stores/useAuthStore';
+// eslint-disable-next-line import/no-cycle
+import { signout } from './utils';
 
 export const nodeClient = axios.create({
     baseURL: 'http://localhost:6969',
@@ -32,6 +34,22 @@ oauthClient.interceptors.request.use(
     }
 );
 
+oauthClient.interceptors.response.use(
+    (response) => {
+        return response;
+    },
+    (error) => {
+        if (
+            error.response.status === 401 ||
+            error.response.data.error === 'Unauthorized'
+        ) {
+            signout();
+        }
+
+        return error;
+    }
+);
+
 bearerClient.interceptors.request.use(
     (config) => {
         const token = authStore.getState().accessToken;
@@ -44,6 +62,22 @@ bearerClient.interceptors.request.use(
     },
     (err) => {
         return Promise.reject(err);
+    }
+);
+
+bearerClient.interceptors.response.use(
+    (response) => {
+        return response;
+    },
+    (error) => {
+        if (
+            error.response.status === 401 ||
+            error.response.data.error === 'Unauthorized'
+        ) {
+            signout();
+        }
+
+        return error;
     }
 );
 

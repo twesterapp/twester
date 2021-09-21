@@ -4,7 +4,6 @@ import { FallbackProps } from 'react-error-boundary';
 // This is very basic fallback just to let the user at least reload the app
 // if it breaks.
 export function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
-    console.log('FALLBACK?');
     return (
         <div
             role="alert"
