@@ -14,6 +14,7 @@ contextBridge.exposeInMainWorld('electron', {
                 'app_version',
                 'update_available',
                 'update_downloaded',
+                'update_failed',
             ];
             if (validChannels.includes(channel)) {
                 // Deliberately strip event as it includes `sender`
@@ -26,6 +27,7 @@ contextBridge.exposeInMainWorld('electron', {
                 'app_version',
                 'update_available',
                 'update_downloaded',
+                'update_failed',
             ];
             if (validChannels.includes(channel)) {
                 // Deliberately strip event as it includes `sender`

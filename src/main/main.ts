@@ -164,3 +164,11 @@ autoUpdater.on('update-downloaded', () => {
         mainWindow.webContents.send('update_downloaded');
     }
 });
+
+autoUpdater.on('error', (message) => {
+    console.error('There was a problem updating the application');
+    console.error(message);
+    if (mainWindow) {
+        mainWindow.webContents.send('update_failed');
+    }
+});

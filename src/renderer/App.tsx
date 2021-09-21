@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import styled, { ThemeProvider } from 'styled-components';
+import styled, { ThemeProvider, useTheme } from 'styled-components';
 import {
     MemoryRouter as Router,
     Switch,
@@ -15,7 +15,7 @@ import 'typeface-roboto-mono';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import toast, { Toaster } from 'react-hot-toast';
-import { darkTheme, GlobalStyle } from './ui';
+import { Button, darkTheme, GlobalStyle } from './ui';
 import { AuthPage, StreamersPage, HomePage } from './screens';
 import { Sidebar } from './components';
 import { useAuthStore } from './stores/useAuthStore';
@@ -40,32 +40,50 @@ const Dashboard = () => {
     );
 };
 
-const updateAvailableToast = () =>
-    toast.loading('New update available. Downloading...', { icon: '🦄' });
+const onUpdateAvailableToast = () =>
+    toast.loading('Updating to the latest version');
 
-const updateDownloadedToast = () =>
-    toast.success('Update completed. Restart the app to use latest version.', {
-        icon: '🚀',
+const onUpdateDownloadedToast = () =>
+    toast.success('Restart the app to use the latest version', {
+        icon: '🎉',
+        duration: 6900,
     });
 
+const onUpdateFailedToast = () => {
+    toast.error('There was a problem updating the app', {
+        icon: '😞',
+        duration: 5000,
+    });
+};
+
 export function App() {
+    const theme = useTheme();
     const { user } = useAuthStore();
     const [availableToastId, setAvailableToastId] = useState('');
 
+    // @ts-ignore
     const ipc = window.electron.ipcRenderer;
 
-    ipc.on('update_available', () => {
-        const id = updateAvailableToast();
-        setAvailableToastId(id);
-    });
+    ipc.once('update_available', handleUpdateAvailable);
+    ipc.once('update_downloaded', handleUpdateDownloaded);
+    ipc.once('update_failed', handleUpdateFailed);
 
-    ipc.on('update_downloaded', () => {
-        toast.remove(availableToastId);
-        updateDownloadedToast();
-    });
+    function handleUpdateAvailable() {
+        const id = onUpdateAvailableToast();
+        setAvailableToastId(id);
+    }
+
+    function handleUpdateDownloaded() {
+        toast.dismiss(availableToastId);
+        onUpdateDownloadedToast();
+    }
+
+    function handleUpdateFailed() {
+        onUpdateFailedToast();
+    }
 
     return (
-        <ThemeProvider theme={darkTheme}>
+        <>
             <QueryClientProvider client={queryClient}>
                 <GlobalStyle />
                 <Router>
@@ -73,8 +91,17 @@ export function App() {
                 </Router>
                 <ReactQueryDevtools position="bottom-right" />
             </QueryClientProvider>
-            <Toaster position="top-right" />
-        </ThemeProvider>
+            <Toaster
+                position="bottom-right"
+                toastOptions={{
+                    style: {
+                        background: theme.color.borderOnDisabled,
+                        color: theme.color.textPrimary,
+                        fontFamily: 'Karla',
+                    },
+                }}
+            />
+        </>
     );
 }
 

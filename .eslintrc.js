@@ -22,6 +22,7 @@ module.exports = {
         'max-classes-per-file': 'off',
         '@typescript-eslint/no-non-null-assertion': 'off',
         'consistent-return': 'off',
+        '@typescript-eslint/ban-ts-comment': 'off',
     },
     parserOptions: {
         ecmaVersion: 2020,
