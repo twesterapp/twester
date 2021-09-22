@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./images/twester_readme_banner.png" />
+  <img src="https://raw.githubusercontent.com/twesterapp/twester/main/images/twester_readme_banner.png" alt="readme banner" />
   <h1>Twester</h1>
   <p>Twitch channel points without watching Twitch!</p>
   <h4 align="center">
@@ -48,14 +48,14 @@ Twester is a free and open source desktop app that will watch Twitch livestreams
 
 > **Home** tab - Twester is _watching_
 
-<img src="./images/twester_home_tab.png" height="400px"/>
+<img src="https://raw.githubusercontent.com/twesterapp/twester/main/images/twester_home_tab.png" alt="twesters home tab" width="800px"/>
 
 <br />
 <br />
 
 > **Streamers** tab - Twester is _watching_ **xQcOW** and **jamiepinelive**
 
- <img src="./images/twester_streamers_tab.png" height="400px" />
+ <img src="https://raw.githubusercontent.com/twesterapp/twester/main/images/twester_streamers_tab.png" alt="twester streamers tab" width="800px" />
 
 ## How it works?
 
