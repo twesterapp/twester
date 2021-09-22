@@ -30,12 +30,6 @@ Twester is a free and open source desktop app that will watch Twitch livestreams
 
 > We all love to use channel points in our favorite Twitch streamer's chat, especially doing some _gamba_ in the hope of more channel points. Sometimes, the _gamba_ screws you and you go broke and start from 0. Well, no more! Now you can earn channel points without having to watch Twitch's livestream.
 
-## Demo
-
-> Twester is running and harvesting channel points.
-
-**Add GIF here and on twester.co**
-
 ## Features
 
 -   **Minimal and Intuitive UI**. Start and pause Twester will a click of a button.
