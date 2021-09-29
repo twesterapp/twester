@@ -1,7 +1,9 @@
 import vanillaCreate from 'zustand/vanilla';
 import create from 'zustand';
+// eslint-disable-next-line import/no-cycle
 import { rightNowInSecs } from 'renderer/utils';
 import { authStore } from './useAuthStore';
+// eslint-disable-next-line import/no-cycle
 import { Logger } from './useLoggerStore';
 
 const logger = new Logger({ prefix: 'STREAMER' });
@@ -15,10 +17,6 @@ export interface Streamer {
     id: StreamerId;
     displayName: string;
     profileImageUrl: string;
-    /**
-     * @deprecated We no longer show this on the Streamer Card.
-     */
-    followersCount: string;
     online?: boolean;
     lastOfflineTime?: number;
     // Channel points for the streamer at the current time of the watcher session.
@@ -50,7 +48,6 @@ type NewStreamer = Omit<
 interface UpdateStreamer {
     displayName?: string;
     profileImageUrl?: string;
-    followersCount?: string;
     online?: boolean;
     lastOfflineTime?: number;
     currentBalance?: number;

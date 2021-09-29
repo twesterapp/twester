@@ -81,18 +81,6 @@ bearerClient.interceptors.response.use(
     }
 );
 
-export function fetchChannelInfo(streamerLogin: string) {
-    return bearerClient.get(
-        `https://api.twitch.tv/helix/users?login=${streamerLogin}`
-    );
-}
-
-export function fetchChannelFollowers(channelId: string) {
-    return bearerClient.get(
-        `https://api.twitch.tv/helix/users/follows?to_id=${channelId}`
-    );
-}
-
 export async function makeGraphqlRequest(
     data: Record<string, unknown>
 ): Promise<Record<string, any>> {

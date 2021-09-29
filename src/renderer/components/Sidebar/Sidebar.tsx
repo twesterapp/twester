@@ -1,6 +1,6 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
-import { fetchChannelInfo } from 'renderer/api';
+import { fetchChannelId, getUserProfilePicture } from 'renderer/core/data';
 import styled, { useTheme } from 'styled-components';
 import {
     IconSignOut,
@@ -28,7 +28,10 @@ export function Sidebar({ currentPage }: SidebarOptions) {
     // So that we can conditionally re-render `IconPause` or `IconPlay`.
     useWatcherStore();
 
-    const { data } = useQuery('ME_INFO', () => fetchChannelInfo(user.login));
+    const { data: profileImageUrl } = useQuery('ME_INFO', async () => {
+        const id = await fetchChannelId(user.login);
+        return getUserProfilePicture(id);
+    });
 
     const onHomePage = currentPage === '/';
     const onStreamersPage = currentPage === '/streamers';
@@ -91,10 +94,7 @@ export function Sidebar({ currentPage }: SidebarOptions) {
                             target="_blank"
                             rel="noreferrer"
                         >
-                            <Avatar
-                                src={data?.data.data[0].profile_image_url}
-                                size={48}
-                            />
+                            <Avatar src={profileImageUrl} size={48} />
                         </a>
                     </i>
                 </Tooltip>

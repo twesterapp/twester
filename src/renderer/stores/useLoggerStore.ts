@@ -1,5 +1,6 @@
 import vanillaCreate from 'zustand/vanilla';
 import create from 'zustand';
+// eslint-disable-next-line import/no-cycle
 import { isProd } from 'renderer/utils';
 
 enum LoggingLevel {
