@@ -1,7 +1,10 @@
 import React from 'react';
 import { useDrop } from 'react-dnd';
-import { fetchChannelFollowers, fetchChannelInfo } from 'renderer/api';
 import { ItemTypes, StreamerCard } from 'renderer/components';
+import {
+    getChannelContextInfo,
+    getUserProfilePicture,
+} from 'renderer/core/data';
 import {
     useStreamerStore,
     addStreamer,
@@ -22,19 +25,18 @@ export function StreamersPage() {
         try {
             setFetchingStreamer(true);
 
-            const result = await fetchChannelInfo(searchText.trim());
-            if (!result.data.data.length) {
+            const result = await getChannelContextInfo(searchText.trim());
+            if (!result) {
                 console.error(`No streamer found with ${searchText}`);
+                return;
             }
-            const info = result.data.data[0];
-            const followersResult = await fetchChannelFollowers(info.id);
+            const profileImageUrl = await getUserProfilePicture(result.id);
 
             addStreamer({
-                id: info.id,
-                login: info.login,
-                displayName: info.display_name,
-                profileImageUrl: info.profile_image_url,
-                followersCount: followersResult.data.total,
+                id: result.id,
+                login: result.login,
+                displayName: result.displayName,
+                profileImageUrl,
             });
         } catch {
             console.error('Failed to fetch channel info');

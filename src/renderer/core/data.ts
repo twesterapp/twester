@@ -1,11 +1,15 @@
-import { fetchChannelInfo, makeGraphqlRequest, nodeClient } from 'renderer/api';
+// eslint-disable-next-line import/no-cycle
+import { makeGraphqlRequest, nodeClient } from 'renderer/api';
 import { authStore } from 'renderer/stores/useAuthStore';
+// eslint-disable-next-line import/no-cycle
 import {
     getAllStreamers,
     isOnline,
     setOnlineStatus,
+    StreamerId,
     StreamerLogin,
 } from 'renderer/stores/useStreamerStore';
+// eslint-disable-next-line import/no-cycle
 import { rightNowInSecs } from 'renderer/utils';
 import { StreamerIsOfflineError } from './errors';
 
@@ -82,14 +86,11 @@ export async function getChannelId(streamerLogin: string): Promise<string> {
         return channelIdByStreamerLogin.get(streamerLogin)!;
     }
 
-    return fetchChannelInfo(streamerLogin)
-        .then((res) => {
-            const id = res.data.data[0].id;
-            channelIdByStreamerLogin.set(streamerLogin, id);
-            streamerLoginByChannelId.set(id, streamerLogin);
-            return id;
-        })
-        .catch((e) => console.error('Error: ', e));
+    const id = await fetchChannelId(streamerLogin);
+    channelIdByStreamerLogin.set(streamerLogin, id);
+    streamerLoginByChannelId.set(id, streamerLogin);
+
+    return id;
 }
 
 export function channelIdExistsInCache(id: string): boolean {
@@ -154,4 +155,99 @@ export async function checkOnline(login: StreamerLogin) {
             }
         }
     }
+}
+
+export async function fetchChannelId(login: StreamerLogin) {
+    const data = {
+        operationName: 'ReportMenuItem',
+        variables: {
+            channelLogin: login,
+        },
+        extensions: {
+            persistedQuery: {
+                version: 1,
+                sha256Hash:
+                    '8f3628981255345ca5e5453dfd844efffb01d6413a9931498836e6268692a30c',
+            },
+        },
+    };
+
+    const response = await makeGraphqlRequest(data);
+    const responseData = response.data;
+
+    const id = responseData?.user?.id;
+
+    // This should never happen, it's just for precaution so that app doesn't
+    // crash in production. If a valid `login` is provided, a valid `channelId`
+    // will be returned.
+    if (!id) {
+        console.error('Failed to fetch channel id');
+        return '';
+    }
+
+    return id;
+}
+
+export async function getUserProfilePicture(id: StreamerId) {
+    const data = {
+        query: 'query GetUserProfilePicture($userId: ID!) {user(id: $userId) {profileImageURL(width: 300)}}',
+        variables: {
+            userId: id,
+        },
+    };
+
+    const response = await makeGraphqlRequest(data);
+    const profilePictureUrl = response?.data?.user?.profileImageURL;
+
+    if (!profilePictureUrl) {
+        console.error('Failed to fetch channel id');
+        return '';
+    }
+
+    return profilePictureUrl;
+}
+
+export interface ContextUser {
+    displayName: string;
+    id: string;
+    login: string;
+}
+
+export async function getChannelContextInfo(
+    login: StreamerLogin
+): Promise<ContextUser | null> {
+    const data = {
+        operationName: 'PersonalSections',
+        variables: {
+            channelLogin: login,
+            creatorAnniversariesExperimentEnabled: false,
+            input: {
+                contextChannelName: login,
+                sectionInputs: [
+                    'FOLLOWED_SECTION',
+                    'RECOMMENDED_SECTION',
+                    'SIMILAR_SECTION',
+                    'SOCIALPROOF_SECTION',
+                ],
+            },
+            withChannelUser: true,
+        },
+        extensions: {
+            persistedQuery: {
+                version: 1,
+                sha256Hash:
+                    '9fbdfb00156f754c26bde81eb47436dee146655c92682328457037da1a48ed39',
+            },
+        },
+    };
+
+    const response = await makeGraphqlRequest(data);
+    const contextUser: ContextUser = response?.data?.contextUser;
+
+    if (!contextUser) {
+        console.error('Failed to fetch channel context info');
+        return null;
+    }
+
+    return contextUser;
 }

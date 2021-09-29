@@ -11,9 +11,13 @@ import { Avatar, IconClock, IconCross, IconEye, IconStar } from 'renderer/ui';
 import { formatMinutesToString, px2em, px2rem } from 'renderer/utils';
 import styled, { useTheme } from 'styled-components';
 import { canStartWatcher } from 'renderer/stores/useWatcherStore';
-import { fetchChannelFollowers, fetchChannelInfo } from 'renderer/api';
 import { useQuery } from 'react-query';
 import { useDrag, useDrop } from 'react-dnd';
+import {
+    ContextUser,
+    getChannelContextInfo,
+    getUserProfilePicture,
+} from 'renderer/core/data';
 
 // Blatantly copied from React DnD's example, check
 // https://react-dnd.github.io/react-dnd/examples/sortable/cancel-on-drop-outside
@@ -35,7 +39,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
     const theme = useTheme();
 
     const { data } = useQuery(`STREAMER_CARD_INFO.${streamer.login}`, () =>
-        fetchChannelInfo(streamer.login)
+        getChannelContextInfo(streamer.login)
     );
 
     const originalIndex = findStreamerCard(streamer.id).index;
@@ -74,20 +78,18 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
     );
 
     React.useEffect(() => {
-        const info = data?.data.data[0];
-
-        const run = async () => {
-            const followersResult = await fetchChannelFollowers(info.id);
+        const run = async (data: ContextUser) => {
+            const result = await getChannelContextInfo(data.login);
+            const profileImageUrl = await getUserProfilePicture(data.id);
 
             updateStreamer(streamer.id, {
-                displayName: info.display_name,
-                profileImageUrl: info.profile_image_url,
-                followersCount: followersResult.data.total,
+                displayName: result?.displayName || data.displayName,
+                profileImageUrl,
             });
         };
 
-        if (info) {
-            run();
+        if (data) {
+            run(data);
         }
     }, [data, streamer.id]);
 

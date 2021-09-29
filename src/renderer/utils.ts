@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/no-cycle
-import { fetchChannelInfo } from './api';
+import { getChannelContextInfo, getUserProfilePicture } from './core/data';
 import {
     delToken,
     delUser,
@@ -13,13 +13,21 @@ export const isDev = process.env.NODE_ENV === 'development';
 
 export async function login(token: string, username: string) {
     setToken(token);
-    const result = await fetchChannelInfo(username);
-    const info = result.data.data[0];
+    const result = await getChannelContextInfo(username);
+
+    // This should never happen but if somehow it did happen, we will logout
+    // the user
+    if (!result) {
+        return signout();
+    }
+
+    const profileImageUrl = await getUserProfilePicture(result.id);
+
     const user: User = {
-        displayName: info.display_name,
-        id: info.id,
-        login: info.login,
-        profileImageUrl: info.profile_image_url,
+        displayName: result.displayName,
+        id: result.id,
+        login: result.login,
+        profileImageUrl,
     };
     setUser(user);
     window.location.reload();
