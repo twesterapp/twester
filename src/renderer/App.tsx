@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import styled, { useTheme } from 'styled-components';
+import React, { useRef } from 'react';
+import styled from 'styled-components';
 import {
     MemoryRouter as Router,
     Switch,
@@ -14,11 +14,14 @@ import 'typeface-roboto-mono';
 
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import toast, { Toaster } from 'react-hot-toast';
+import { toast, ToastContainer } from 'react-toastify';
+import { injectStyle } from 'react-toastify/dist/inject-style';
 import { GlobalStyle } from './ui';
 import { AuthPage, StreamersPage, HomePage } from './pages';
 import { Sidebar } from './components';
 import { useAuthStore } from './stores/useAuthStore';
+
+injectStyle();
 
 const queryClient = new QueryClient();
 
@@ -46,20 +49,19 @@ const onUpdateAvailableToast = () =>
 const onUpdateDownloadedToast = () =>
     toast.success('Restart the app to use the latest version', {
         icon: '🎉',
-        duration: 6900,
+        autoClose: 6900,
     });
 
 const onUpdateFailedToast = () => {
     toast.error('There was a problem updating the app', {
         icon: '😞',
-        duration: 5000,
+        autoClose: 5000,
     });
 };
 
 export function App() {
-    const theme = useTheme();
     const { user } = useAuthStore();
-    const [availableToastId, setAvailableToastId] = useState('');
+    const availableToastId = useRef<React.ReactText | null>(null);
 
     // @ts-ignore
     const ipc = window.electron.ipcRenderer;
@@ -69,12 +71,14 @@ export function App() {
     ipc.once('update_failed', handleUpdateFailed);
 
     function handleUpdateAvailable() {
-        const id = onUpdateAvailableToast();
-        setAvailableToastId(id);
+        availableToastId.current = onUpdateAvailableToast();
     }
 
     function handleUpdateDownloaded() {
-        toast.dismiss(availableToastId);
+        if (availableToastId.current) {
+            toast.dismiss(availableToastId.current);
+        }
+
         onUpdateDownloadedToast();
     }
 
@@ -91,17 +95,7 @@ export function App() {
                 </Router>
                 <ReactQueryDevtools position="bottom-right" />
             </QueryClientProvider>
-            <Toaster
-                position="bottom-right"
-                toastOptions={{
-                    style: {
-                        background: theme.color.borderOnDisabled,
-                        color: theme.color.textPrimary,
-                        fontFamily: 'Karla',
-                        fontSize: '14px',
-                    },
-                }}
-            />
+            <StyledToastContainer position="bottom-right" />
         </>
     );
 }
@@ -117,4 +111,24 @@ const DashboardContainer = styled.div`
 const Layout = styled.div`
     display: flex;
     max-width: 100vw;
+`;
+
+const StyledToastContainer = styled(ToastContainer).attrs({
+    className: 'toast-container',
+    toastClassName: 'toast',
+})`
+    /* .toast is passed to toastClassName */
+    .toast {
+        background-color: ${(props) => props.theme.color.background3};
+        color: ${(props) => props.theme.color.textPrimary};
+        font-family: Karla;
+    }
+
+    button[aria-label='close'] {
+        color: ${(props) => props.theme.color.onPrimary};
+
+        &:hover {
+            color: ${(props) => props.theme.color.textPrimary};
+        }
+    }
 `;
