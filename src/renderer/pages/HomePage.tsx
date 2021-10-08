@@ -10,6 +10,7 @@ import { formatMinutesToString, px2em, px2rem } from 'renderer/utils';
 import styled, { useTheme } from 'styled-components';
 import { useLoggerStore } from 'renderer/stores/useLoggerStore';
 import { useAppVersion } from 'renderer/hooks';
+import { toast } from 'react-toastify';
 
 export function HomePage() {
     const version = useAppVersion();
