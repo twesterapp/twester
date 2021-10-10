@@ -5,9 +5,17 @@ import { createServer } from 'http';
 
 export const isDev = process.env.NODE_ENV === 'development';
 
+function formatDateForLogging(date: Date): string {
+    return `${date.getDate()}-${
+        date.getMonth() + 1
+    }-${date.getFullYear()} ${date.toLocaleTimeString('en-us', {
+        hour12: false,
+    })}:${date.getMilliseconds().toString().padStart(3, '0')}`;
+}
+
 function log(...args: any) {
     if (isDev) {
-        console.info('[AUTH_NODE_SERVER]:', ...args);
+        console.info(`[${formatDateForLogging(new Date())}]`, ...args);
     }
 }
 
@@ -340,7 +348,7 @@ function loggerMiddleware(req: Request, res: Response, next: NextFunction) {
     res.on('finish', () => {
         const endTime = new Date().getTime() - startTime;
 
-        log(`${req.method} ${req.originalUrl} ${res.statusCode} ${endTime}ms`);
+        log(`${res.statusCode} ${req.method} ${req.originalUrl} ${endTime}ms`);
     });
 
     next();
