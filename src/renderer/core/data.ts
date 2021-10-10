@@ -1,7 +1,5 @@
-// eslint-disable-next-line import/no-cycle
 import { makeGraphqlRequest, nodeClient } from 'renderer/api';
 import { authStore } from 'renderer/stores/useAuthStore';
-// eslint-disable-next-line import/no-cycle
 import {
     getAllStreamers,
     isOnline,
@@ -9,8 +7,7 @@ import {
     StreamerId,
     StreamerLogin,
 } from 'renderer/stores/useStreamerStore';
-// eslint-disable-next-line import/no-cycle
-import { rightNowInSecs } from 'renderer/utils';
+import { rightNowInSecs } from 'renderer/utils/rightNowInSecs';
 import { StreamerIsOfflineError } from './errors';
 
 interface MinuteWatchedRequest {
@@ -53,8 +50,7 @@ export async function updateMinuteWatchedEventRequestInfo(
         channel_id: await getChannelId(streamerLogin),
         broadcast_id: await getBroadcastId(streamerLogin),
         player: 'site',
-        // eslint-disable-next-line radix
-        user_id: parseInt(authStore.getState().user.id),
+        user_id: parseInt(authStore.getState().user.id, 10),
     };
 
     const minuteWatched = {

@@ -12,7 +12,7 @@ import {
 import { useQuery } from 'react-query';
 import { authStore, useAuthStore } from 'renderer/stores/useAuthStore';
 import { useWatcherStore } from 'renderer/stores/useWatcherStore';
-import { signout } from 'renderer/utils';
+import { signout } from 'renderer/utils/auth';
 import { SidebarIcon } from './SidebarIcon';
 
 interface SidebarOptions {

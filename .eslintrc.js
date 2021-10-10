@@ -23,6 +23,7 @@ module.exports = {
         '@typescript-eslint/no-non-null-assertion': 'off',
         'consistent-return': 'off',
         '@typescript-eslint/ban-ts-comment': 'off',
+        '@typescript-eslint/no-empty-interface': 'off',
     },
     parserOptions: {
         ecmaVersion: 2020,

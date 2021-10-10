@@ -1,15 +1,6 @@
-// eslint-disable-next-line import/no-cycle
+import { signout } from 'renderer/utils/auth';
 import { getChannelContextInfo, getUserProfilePicture } from './core/data';
-import {
-    delToken,
-    delUser,
-    setToken,
-    setUser,
-    User,
-} from './stores/useAuthStore';
-
-export const isProd = process.env.NODE_ENV === 'production';
-export const isDev = process.env.NODE_ENV === 'development';
+import { setToken, setUser, User } from './stores/useAuthStore';
 
 export async function login(token: string, username: string) {
     setToken(token);
@@ -33,12 +24,6 @@ export async function login(token: string, username: string) {
     window.location.reload();
 }
 
-export function signout() {
-    delToken();
-    delUser();
-    window.location.reload();
-}
-
 export function px2em(valInPx: number): string {
     const valInEm = valInPx / 16;
     return `${valInEm}em`;
@@ -47,10 +32,6 @@ export function px2em(valInPx: number): string {
 export function px2rem(valInPx: number): string {
     const valInEm = valInPx / 16;
     return `${valInEm}rem`;
-}
-
-export function rightNowInSecs(): number {
-    return Math.floor(Date.now() / 1000);
 }
 
 export function noop() {}

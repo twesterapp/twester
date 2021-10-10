@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { authStore } from 'renderer/stores/useAuthStore';
-// eslint-disable-next-line import/no-cycle
-import { signout } from './utils';
+import { signout } from 'renderer/utils/auth';
+
+const token = localStorage.getItem('access-token') || '';
 
 export const nodeClient = axios.create({
     baseURL: 'http://localhost:6969',
@@ -21,8 +21,6 @@ export const bearerClient = axios.create({
 
 oauthClient.interceptors.request.use(
     (config) => {
-        const token = authStore.getState().accessToken;
-
         if (token) {
             config.headers.Authorization = `OAuth ${token}`;
         }
@@ -52,8 +50,6 @@ oauthClient.interceptors.response.use(
 
 bearerClient.interceptors.request.use(
     (config) => {
-        const token = authStore.getState().accessToken;
-
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
