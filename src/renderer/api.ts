@@ -3,8 +3,10 @@ import { signout } from 'renderer/utils/auth';
 
 const token = localStorage.getItem('access-token') || '';
 
+const PORT = '42069';
+
 export const nodeClient = axios.create({
-    baseURL: 'http://localhost:6969',
+    baseURL: `http://localhost:${PORT}`,
 });
 
 export const oauthClient = axios.create({

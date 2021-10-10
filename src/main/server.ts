@@ -2,6 +2,7 @@ import axios from 'axios';
 import express, { Application, NextFunction, Request, Response } from 'express';
 import querystring from 'querystring';
 import { createServer } from 'http';
+import chalk from 'chalk';
 
 export const isDev = process.env.NODE_ENV === 'development';
 
@@ -15,7 +16,12 @@ function formatDateForLogging(date: Date): string {
 
 function log(...args: any) {
     if (isDev) {
-        console.info(`[${formatDateForLogging(new Date())}]`, ...args);
+        console.info(
+            `[${formatDateForLogging(new Date())}] ${chalk.blueBright(
+                '[DEBUG]'
+            )}`,
+            ...args
+        );
     }
 }
 
@@ -181,7 +187,6 @@ async function makeRequest(body: AuthBody): Promise<TwitchAuthResponse> {
         twitchResponse = e.response.data;
     }
 
-    log(twitchResponse);
     return twitchResponse;
 }
 
@@ -345,10 +350,28 @@ async function resendCode(req: Request, res: Response): Promise<Response> {
 function loggerMiddleware(req: Request, res: Response, next: NextFunction) {
     const startTime = new Date().getTime();
 
+    const colorStatusCode = (code: number) => {
+        const codeAsStr = code.toString();
+
+        if (codeAsStr.startsWith('3')) {
+            return chalk.yellowBright(code);
+        }
+
+        if (codeAsStr.startsWith('4') || codeAsStr.startsWith('5')) {
+            return chalk.redBright(code);
+        }
+
+        return chalk.greenBright(code);
+    };
+
     res.on('finish', () => {
         const endTime = new Date().getTime() - startTime;
 
-        log(`${res.statusCode} ${req.method} ${req.originalUrl} ${endTime}ms`);
+        log(
+            `${colorStatusCode(res.statusCode)} ${req.method} ${
+                req.originalUrl
+            } ${endTime}ms`
+        );
     });
 
     next();
@@ -392,10 +415,12 @@ function isPortFree(port: string) {
     });
 }
 
+const PORT = '42069';
+
 export async function startServer() {
-    if (await isPortFree('6969')) {
-        app.listen('6969', () => {
-            log('Starting on port 6969');
+    if (await isPortFree(PORT)) {
+        app.listen(PORT, () => {
+            log(`Node server starting on port: ${PORT}`);
         });
     }
 }
