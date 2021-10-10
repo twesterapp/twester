@@ -1,9 +1,8 @@
 import vanillaCreate from 'zustand/vanilla';
 import create from 'zustand';
-// eslint-disable-next-line import/no-cycle
-import { rightNowInSecs } from 'renderer/utils';
+
+import { rightNowInSecs } from 'renderer/utils/rightNowInSecs';
 import { authStore } from './useAuthStore';
-// eslint-disable-next-line import/no-cycle
 import { Logger } from './useLoggerStore';
 
 const logger = new Logger({ prefix: 'STREAMER' });
