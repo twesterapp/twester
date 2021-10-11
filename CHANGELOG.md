@@ -10,7 +10,7 @@
 
 ## 1.0.1 (29-09-2021)
 
--   Bugfix: Fixed a bug which caused crash on launch if user is authenticated and user was not able to login if not authenticated. ([#4](https://github.com/twesterapp/twester/issues/4)) ([#5](https://github.com/twesterapp/twester/pull/5))
+-   Bugfix: Fixed a bug which caused crash on launch if user is authenticated and user was not able to login if not authenticated. ([#5](https://github.com/twesterapp/twester/pull/5))
 
 ## 1.0.0 (22-09-2021)
 
