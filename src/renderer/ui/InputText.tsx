@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { logging } from 'renderer/core/logging';
 import { px2em } from '../utils';
+
+const log = logging.getLogger();
 
 export interface InputTextOptions
     extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -60,7 +63,7 @@ export const InputText = React.forwardRef(
             const { id } = rest;
 
             if (!id) {
-                console.warn(
+                log.warning(
                     'Option "id" is missing in "InputText". This can cause unexpected behavior.'
                 );
             }

@@ -7,8 +7,11 @@ import {
     StreamerId,
     StreamerLogin,
 } from 'renderer/stores/useStreamerStore';
+import { logging } from 'renderer/core/logging';
 import { rightNowInSecs } from 'renderer/utils/rightNowInSecs';
 import { StreamerIsOfflineError } from './errors';
+
+const log = logging.getLogger('DATA');
 
 interface MinuteWatchedRequest {
     url: string;
@@ -40,7 +43,12 @@ async function getMinuteWatchedRequestUrl(
     return nodeClient
         .get(`/minute-watched-request-url?streamerLogin=${streamerLogin}`)
         .then((res) => res.data.data.minute_watched_url)
-        .catch((e) => console.error('Error: ', e));
+        .catch((err) =>
+            log.error(
+                'Error while trying to fetch minute watched request URL. \nError:',
+                err
+            )
+        );
 }
 
 export async function updateMinuteWatchedEventRequestInfo(
@@ -61,8 +69,11 @@ export async function updateMinuteWatchedEventRequestInfo(
     let afterBase64: string;
     try {
         afterBase64 = btoa(JSON.stringify([minuteWatched]));
-    } catch (e) {
-        console.error('Failed Base64 encoding');
+    } catch (err) {
+        log.error(
+            'Failed to perform Base64 encoding for minute watched event request info. \nError:',
+            err
+        );
         return undefined;
     }
 
@@ -177,7 +188,7 @@ export async function fetchChannelId(login: StreamerLogin) {
     // crash in production. If a valid `login` is provided, a valid `channelId`
     // will be returned.
     if (!id) {
-        console.error('Failed to fetch channel id');
+        log.error('Failed to fetch channel ID');
         return '';
     }
 
@@ -196,7 +207,7 @@ export async function getUserProfilePicture(id: StreamerId) {
     const profilePictureUrl = response?.data?.user?.profileImageURL;
 
     if (!profilePictureUrl) {
-        console.error('Failed to fetch channel id');
+        log.error(`No user profile picture found for #${id}`);
         return '';
     }
 
@@ -241,7 +252,7 @@ export async function getChannelContextInfo(
     const contextUser: ContextUser = response?.data?.contextUser;
 
     if (!contextUser) {
-        console.error('Failed to fetch channel context info');
+        log.error(`No channel context info found for ${login}`);
         return null;
     }
 

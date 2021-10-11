@@ -2,10 +2,10 @@ import vanillaCreate from 'zustand/vanilla';
 import create from 'zustand';
 
 import { rightNowInSecs } from 'renderer/utils/rightNowInSecs';
+import { logging } from 'renderer/core/logging';
 import { authStore } from './useAuthStore';
-import { Logger } from './useLoggerStore';
 
-const logger = new Logger({ prefix: 'STREAMER' });
+const log = logging.getLogger('STREAMER');
 
 export type StreamerLogin = string;
 export type StreamerId = string;
@@ -90,7 +90,9 @@ export function addStreamer(streamer: NewStreamer) {
 
     for (let i = 0; i < getState().streamers.length; i += 1) {
         if (getState().streamers[i].id === streamer.id) {
-            logger.debug('Streamer already exists');
+            log.warning(
+                `Skipping to add ${streamer.displayName} because it's already added`
+            );
 
             return setState({
                 streamers: getState().streamers,
@@ -192,10 +194,10 @@ export function setOnlineStatus(login: StreamerLogin, online: boolean) {
     const updated: Streamer[] = getState().streamers.map(
         (streamer): Streamer => {
             if (streamer.login === login) {
-                logger.info(
+                log.info(
                     `${streamer.displayName} (${streamer.currentBalance}) is ${
                         online ? 'Online' : 'Offline'
-                    }!`
+                    }`
                 );
 
                 // Setting streamer to `Offline`

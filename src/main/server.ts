@@ -2,13 +2,13 @@ import axios from 'axios';
 import express, { Application, NextFunction, Request, Response } from 'express';
 import querystring from 'querystring';
 import { createServer } from 'http';
+import { print } from './util';
 
-export const isDev = process.env.NODE_ENV === 'development';
+const SERVER = 'SERVER   ';
+const SERVER_HEX = '#C266FC';
 
 function log(...args: any) {
-    if (isDev) {
-        console.info('[AUTH_NODE_SERVER]:', ...args);
-    }
+    print(new Date(), SERVER, SERVER_HEX, ...args);
 }
 
 const client = axios.create({
@@ -173,7 +173,6 @@ async function makeRequest(body: AuthBody): Promise<TwitchAuthResponse> {
         twitchResponse = e.response.data;
     }
 
-    log(twitchResponse);
     return twitchResponse;
 }
 
@@ -339,8 +338,7 @@ function loggerMiddleware(req: Request, res: Response, next: NextFunction) {
 
     res.on('finish', () => {
         const endTime = new Date().getTime() - startTime;
-
-        log(`${req.method} ${req.originalUrl} ${res.statusCode} ${endTime}ms`);
+        log(`${res.statusCode} ${req.method} ${req.originalUrl} ${endTime}ms`);
     });
 
     next();
@@ -376,18 +374,22 @@ function isPortFree(port: string) {
         const server = createServer()
             .listen(port, () => {
                 server.close();
+                log(`Port ${port} is free`);
                 resolve(true);
             })
             .on('error', () => {
+                log(`Port ${port} is not free`);
                 resolve(false);
             });
     });
 }
 
+const PORT = '42069';
+
 export async function startServer() {
-    if (await isPortFree('6969')) {
-        app.listen('6969', () => {
-            log('Starting on port 6969');
+    if (await isPortFree(PORT)) {
+        app.listen(PORT, () => {
+            log(`Server started at http://127.0.0.1:${PORT} 🚀`);
         });
     }
 }

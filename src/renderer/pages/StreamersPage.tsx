@@ -1,5 +1,6 @@
 import React from 'react';
 import { useDrop } from 'react-dnd';
+import styled from 'styled-components';
 import { ItemTypes, StreamerCard } from 'renderer/components';
 import {
     getChannelContextInfo,
@@ -12,7 +13,9 @@ import {
 import { canStartWatcher } from 'renderer/stores/useWatcherStore';
 import { Button, IconPlus, InputText, Link } from 'renderer/ui';
 import { px2em } from 'renderer/utils';
-import styled from 'styled-components';
+import { logging } from 'renderer/core/logging';
+
+const log = logging.getLogger('STREAMERS_PAGE');
 
 export function StreamersPage() {
     const [searchText, setSearchText] = React.useState('');
@@ -27,7 +30,7 @@ export function StreamersPage() {
 
             const result = await getChannelContextInfo(searchText.trim());
             if (!result) {
-                console.error(`No streamer found with ${searchText}`);
+                log.error(`No streamer found with search query: ${searchText}`);
                 return;
             }
             const profileImageUrl = await getUserProfilePicture(result.id);
@@ -39,7 +42,8 @@ export function StreamersPage() {
                 profileImageUrl,
             });
         } catch {
-            console.error('Failed to fetch channel info');
+            // What am I trying to catch here? No function above throws error.
+            log.error('Failed to fetch channel info');
         }
 
         setSearchText('');

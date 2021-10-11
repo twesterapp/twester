@@ -14,12 +14,16 @@ import path from 'path';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import MenuBuilder from './menu';
-import { resolveHtmlPath } from './util';
+import { resolveHtmlPath, print } from './util';
 import { startServer } from './server';
 
 startServer();
 
 let mainWindow: BrowserWindow | null = null;
+
+ipcMain.on('logging', async (_, args) => {
+    print(args.date, args.level, args.hex, ...args.content);
+});
 
 ipcMain.on('ipc-example', async (event, arg) => {
     const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
@@ -53,10 +57,7 @@ const installExtensions = async () => {
 };
 
 const createWindow = async () => {
-    if (
-        process.env.NODE_ENV === 'development' ||
-        process.env.DEBUG_PROD === 'true'
-    ) {
+    if (isDevelopment) {
         await installExtensions();
     }
 
