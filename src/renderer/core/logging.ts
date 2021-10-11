@@ -14,8 +14,8 @@ enum Hex {
     EXCEPTION = '#FF5252',
     ERROR = '#FF5C8A',
     WARNING = '#FFB703',
-    INFO = '#0AD48B',
-    DEBUG = '#8ECAE6',
+    INFO = '#8CD3FF',
+    DEBUG = '#26ABFF',
 }
 
 interface Store {
