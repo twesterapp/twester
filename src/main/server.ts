@@ -2,10 +2,11 @@ import axios from 'axios';
 import express, { Application, NextFunction, Request, Response } from 'express';
 import querystring from 'querystring';
 import { createServer } from 'http';
-import { print } from './util';
+import chalk from 'chalk';
+import { print, Hex } from './util';
 
 const SERVER = 'SERVER   ';
-const SERVER_HEX = '#C266FC';
+const SERVER_HEX = '#0066AE';
 
 function log(...args: any) {
     print(new Date(), SERVER, SERVER_HEX, ...args);
@@ -336,9 +337,32 @@ async function resendCode(req: Request, res: Response): Promise<Response> {
 function loggerMiddleware(req: Request, res: Response, next: NextFunction) {
     const startTime = new Date().getTime();
 
+    const colorStatusCode = (code: number) => {
+        const codeAsStr = code.toString();
+
+        if (codeAsStr.startsWith('3')) {
+            return chalk.hex(Hex.WARNING)(codeAsStr);
+        }
+
+        if (codeAsStr.startsWith('4')) {
+            return chalk.hex(Hex.ERROR)(codeAsStr);
+        }
+
+        if (codeAsStr.startsWith('5')) {
+            return chalk.hex(Hex.EXCEPTION)(codeAsStr);
+        }
+
+        return chalk.hex(Hex.INFO)(codeAsStr);
+    };
+
     res.on('finish', () => {
         const endTime = new Date().getTime() - startTime;
-        log(`${res.statusCode} ${req.method} ${req.originalUrl} ${endTime}ms`);
+
+        log(
+            `${colorStatusCode(res.statusCode)} ${req.method} ${
+                req.originalUrl
+            } ${endTime}ms`
+        );
     });
 
     next();
