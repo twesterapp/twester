@@ -7,7 +7,7 @@ import {
     StreamerLogin,
     updateStreamer,
 } from 'renderer/stores/useStreamerStore';
-import { Logger } from 'renderer/stores/useLoggerStore';
+import { logging } from 'renderer/core/logging';
 import { addPointsEarned } from 'renderer/stores/useWatcherStore';
 import { makeGraphqlRequest } from 'renderer/api';
 import { channelIdExistsInCache, checkOnline, getChannelId } from './data';
@@ -38,7 +38,7 @@ import { claimChannelPointsBonus } from './bonus';
  *    listening to topics for the new streamer.
  */
 
-const logger = new Logger({ prefix: 'PUBSUB' });
+const logger = logging.getLogger('PUBSUB');
 let wsPool: WebSocketsPool | null = null;
 
 export function listenForChannelPoints() {

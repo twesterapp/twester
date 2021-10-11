@@ -3,25 +3,14 @@ import express, { Application, NextFunction, Request, Response } from 'express';
 import querystring from 'querystring';
 import { createServer } from 'http';
 import chalk from 'chalk';
+import { isDev, print, Hex } from './util';
 
-export const isDev = process.env.NODE_ENV === 'development';
-
-function formatDateForLogging(date: Date): string {
-    return `${date.getDate()}-${
-        date.getMonth() + 1
-    }-${date.getFullYear()} ${date.toLocaleTimeString('en-us', {
-        hour12: false,
-    })}:${date.getMilliseconds().toString().padStart(3, '0')}`;
-}
+export const INFO = 'INFO     ';
+export const DEBUG = 'DEBUG    ';
 
 function log(...args: any) {
     if (isDev) {
-        console.info(
-            `[${formatDateForLogging(new Date())}] ${chalk.blueBright(
-                '[DEBUG]'
-            )}`,
-            ...args
-        );
+        print(new Date(), DEBUG, Hex.DEBUG, ...args);
     }
 }
 
@@ -354,14 +343,18 @@ function loggerMiddleware(req: Request, res: Response, next: NextFunction) {
         const codeAsStr = code.toString();
 
         if (codeAsStr.startsWith('3')) {
-            return chalk.yellowBright(code);
+            return chalk.hex(Hex.WARNING)(codeAsStr);
         }
 
-        if (codeAsStr.startsWith('4') || codeAsStr.startsWith('5')) {
-            return chalk.redBright(code);
+        if (codeAsStr.startsWith('4')) {
+            return chalk.hex(Hex.ERROR)(codeAsStr);
         }
 
-        return chalk.greenBright(code);
+        if (codeAsStr.startsWith('5')) {
+            return chalk.hex(Hex.EXCEPTION)(codeAsStr);
+        }
+
+        return chalk.hex(Hex.INFO)(codeAsStr);
     };
 
     res.on('finish', () => {
@@ -420,7 +413,12 @@ const PORT = '42069';
 export async function startServer() {
     if (await isPortFree(PORT)) {
         app.listen(PORT, () => {
-            log(`Node server starting on port: ${PORT}`);
+            print(
+                new Date(),
+                INFO,
+                Hex.INFO,
+                `Server started at http://127.0.0.1:${PORT} 🚀`
+            );
         });
     }
 }

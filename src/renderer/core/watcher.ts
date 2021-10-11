@@ -1,6 +1,5 @@
 import { nodeClient } from 'renderer/api';
 import { authStore } from 'renderer/stores/useAuthStore';
-import { Logger } from 'renderer/stores/useLoggerStore';
 import {
     getAllStreamers,
     getOnlineStreamers,
@@ -26,13 +25,15 @@ import {
     stopListeningForChannelPoints,
 } from './pubsub';
 
+import { logging, LoggerType } from './logging';
+
 class Watcher {
     private id: string;
 
-    private logger: Logger;
+    private log: LoggerType;
 
     constructor() {
-        this.logger = new Logger({ prefix: 'WATCHER' });
+        this.log = logging.getLogger('WATCHER');
         this.id = '';
     }
 
@@ -41,29 +42,29 @@ class Watcher {
             !authStore.getState().accessToken ||
             !authStore.getState().user.id
         ) {
-            console.error('User not authorized');
+            this.log.error('User is unauthorized. Skipping to start Watcher.');
             return;
         }
 
+        this.log.debug('Watcher is booting');
+        setWatcherStatus(WatcherStatus.BOOTING);
+
         if (!this.id) {
             this.id = uuid();
-            this.logger.info(`Starting Watcher`);
+            this.log.info(`Watcher is starting`);
         } else {
-            this.logger.info(`Resuming Watcher`);
+            this.log.info(`Watcher is resuming`);
         }
 
-        this.logger.debug('Booting');
-        setWatcherStatus(WatcherStatus.BOOTING);
-        this.logger.info(
+        this.log.info(
             `Loading data for ${getAllStreamers().length} streamers...`
         );
-
         await loadChannelPointsContext();
         await updateStreamersToWatch();
         listenForChannelPoints();
 
         setWatcherStatus(WatcherStatus.RUNNING);
-        this.logger.debug('Running');
+        this.log.debug('Watcher is running');
 
         while (isWatcherRunning()) {
             const streamersToWatch = getOnlineStreamers().slice(0, 2);
@@ -92,8 +93,8 @@ class Watcher {
                                     updateStreamer(streamer.id, {
                                         watching: true,
                                     });
-                                    this.logger.info(
-                                        `Started watching ${streamer.displayName}'s livestream!`
+                                    this.log.info(
+                                        `Started watching ${streamer.displayName}`
                                     );
 
                                     this.fixWatchingStatus();
@@ -119,13 +120,13 @@ class Watcher {
                                     incrementMinutesWatched();
                                 }
 
-                                this.logger.debug(
+                                this.log.debug(
                                     `Sent minute watched event for ${streamer.displayName}`
                                 );
                             }
                         } catch {
-                            console.error(
-                                'Error while trying to watch a minute'
+                            this.log.error(
+                                `Failed to send minute watched event for ${streamer.displayName}`
                             );
                         }
 
@@ -140,8 +141,7 @@ class Watcher {
     }
 
     public pause() {
-        this.logger.debug('Stopping');
-
+        this.log.debug('Watcher is stopping');
         setWatcherStatus(WatcherStatus.STOPPING);
 
         abortAllSleepingTasks();
@@ -150,8 +150,8 @@ class Watcher {
 
         setWatcherStatus(WatcherStatus.STOPPED);
 
-        this.logger.info(`Paused Watcher`);
-        this.logger.debug('Stopped');
+        this.log.info(`Watcher is paused`);
+        this.log.debug('Watcher is stopped');
     }
 
     public canPlay(): boolean {
@@ -176,9 +176,7 @@ class Watcher {
         for (const streamer of streamersToNotWatch) {
             if (streamer.watching) {
                 updateStreamer(streamer.id, { watching: false });
-                this.logger.info(
-                    `Stopped watching ${streamer.displayName}'s livestream!`
-                );
+                this.log.info(`Stopped watching ${streamer.displayName}`);
             }
         }
     }

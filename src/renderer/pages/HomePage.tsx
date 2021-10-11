@@ -8,8 +8,8 @@ import { watcher } from 'renderer/core';
 import { IconPlay, IconPause, Link, IconClock, IconStar } from 'renderer/ui';
 import { formatMinutesToString, px2em, px2rem } from 'renderer/utils';
 import styled, { useTheme } from 'styled-components';
-import { useLoggerStore } from 'renderer/stores/useLoggerStore';
 import { useAppVersion } from 'renderer/hooks';
+import { useLoggerStore } from 'renderer/core/logging';
 
 export function HomePage() {
     const version = useAppVersion();
@@ -151,9 +151,7 @@ export function HomePage() {
                                 logs.map((log) => {
                                     return (
                                         <LogText key={log.id}>
-                                            {log.timestamp.toLocaleDateString()}{' '}
-                                            {log.timestamp.toLocaleTimeString()}{' '}
-                                            - {log.text}
+                                            {log.asString()}
                                         </LogText>
                                     );
                                 })}

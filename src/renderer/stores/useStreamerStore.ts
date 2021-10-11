@@ -2,10 +2,10 @@ import vanillaCreate from 'zustand/vanilla';
 import create from 'zustand';
 
 import { rightNowInSecs } from 'renderer/utils/rightNowInSecs';
+import { logging } from 'renderer/core/logging';
 import { authStore } from './useAuthStore';
-import { Logger } from './useLoggerStore';
 
-const logger = new Logger({ prefix: 'STREAMER' });
+const logger = logging.getLogger('STREAMER');
 
 export type StreamerLogin = string;
 export type StreamerId = string;

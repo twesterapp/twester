@@ -8,10 +8,14 @@ contextBridge.exposeInMainWorld('electron', {
         sendVersion() {
             ipcRenderer.send('app_version');
         },
+        sendLog(log) {
+            ipcRenderer.send('logging', log);
+        },
         on(channel, func) {
             const validChannels = [
                 'ipc-example',
                 'app_version',
+                'logging',
                 'update_available',
                 'update_downloaded',
                 'update_failed',
@@ -25,6 +29,7 @@ contextBridge.exposeInMainWorld('electron', {
             const validChannels = [
                 'ipc-example',
                 'app_version',
+                'logging',
                 'update_available',
                 'update_downloaded',
                 'update_failed',
