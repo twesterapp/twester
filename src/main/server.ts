@@ -2,15 +2,13 @@ import axios from 'axios';
 import express, { Application, NextFunction, Request, Response } from 'express';
 import querystring from 'querystring';
 import { createServer } from 'http';
-import { isDev, print } from './util';
+import { print } from './util';
 
 const SERVER = 'SERVER   ';
 const SERVER_HEX = '#C266FC';
 
 function log(...args: any) {
-    if (isDev) {
-        print(new Date(), SERVER, SERVER_HEX, ...args);
-    }
+    print(new Date(), SERVER, SERVER_HEX, ...args);
 }
 
 const client = axios.create({

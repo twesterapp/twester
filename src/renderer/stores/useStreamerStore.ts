@@ -91,7 +91,7 @@ export function addStreamer(streamer: NewStreamer) {
     for (let i = 0; i < getState().streamers.length; i += 1) {
         if (getState().streamers[i].id === streamer.id) {
             log.warning(
-                `Skipping to add the streamer because ${streamer.displayName} is already added`
+                `Skipping to add ${streamer.displayName} because it's already added`
             );
 
             return setState({
