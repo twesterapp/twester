@@ -13,6 +13,8 @@ import { makeGraphqlRequest } from 'renderer/api';
 import { channelIdExistsInCache, checkOnline, getChannelId } from './data';
 import { claimChannelPointsBonus } from './bonus';
 
+const log = logging.getLogger('PUBSUB');
+
 /**
  * Some important notes about the Twitch PubSub
  *
@@ -38,10 +40,11 @@ import { claimChannelPointsBonus } from './bonus';
  *    listening to topics for the new streamer.
  */
 
-const logger = logging.getLogger('PUBSUB');
 let wsPool: WebSocketsPool | null = null;
 
-export function listenForChannelPoints() {
+export function startListeningForChannelPoints() {
+    log.debug('Starting to listen for channel points');
+
     const topics = getNeededTopics();
     wsPool = new WebSocketsPool();
 
@@ -52,8 +55,12 @@ export function listenForChannelPoints() {
 }
 
 export function stopListeningForChannelPoints() {
+    log.debug('Stopping to listen for channel points');
+
     if (!wsPool) {
-        console.error('wsPool is null, cannot close socket');
+        log.exception(
+            `WebSocketsPool instance "wsPool" is null. Cannot close PubSub connection and stop listening for channel points.`
+        );
     }
 
     if (wsPool) {
@@ -127,7 +134,7 @@ function updateRaid(streamer: Streamer, raid: Raid) {
         },
     };
     makeGraphqlRequest(data);
-    logger.info(
+    log.info(
         `Joining raid from ${streamer.displayName} to ${raid.loginToRaid}!`
     );
 }
@@ -192,31 +199,31 @@ class WebSocketsPool {
         this.closedOnPurpose = true;
 
         if (!this.isOpened) {
-            logger.debug(
-                'Skipped closing as no connection was established yet'
+            log.warning(
+                'Skipped closing PubSub as no connection was established yet'
             );
             return;
         }
 
         if (this.isClosed) {
-            logger.debug('Skipped closing as it is already closed');
+            log.warning('Skipped closing PubSub as it is already closed');
             return;
         }
 
         if (this.webSocket) {
-            logger.debug('Closing');
+            log.debug('PubSub is closing');
 
             this.clearPingHandle();
             this.webSocket.close();
             this.isClosed = true;
 
-            logger.debug('Closed');
+            log.debug('PubSub is closed');
         }
     }
 
     private createNewWebSocket() {
         const webSocket = new WebSocket('wss://pubsub-edge.twitch.tv/v1');
-        logger.debug('Connecting');
+        log.debug('PubSub is connecting');
 
         this.webSocket = webSocket;
         this.isOpened = false;
@@ -231,14 +238,17 @@ class WebSocketsPool {
     }
 
     private onOpen() {
-        logger.debug('Open');
+        log.debug('PubSub is open');
 
         this.isOpened = true;
         clearInterval(this.reconnectionHandle);
-        this.shouldTryReconnecting = false;
+        if (this.shouldTryReconnecting) {
+            log.info('PubSub reconnected');
+            this.shouldTryReconnecting = false;
+        }
 
         if (this.closedOnPurpose) {
-            logger.debug('Opened after it was closed on pupose');
+            log.warning('PubSub was opened after it was closed on pupose');
             this.stop();
             return;
         }
@@ -255,7 +265,7 @@ class WebSocketsPool {
     }
 
     ping() {
-        logger.debug('Sending PING');
+        log.debug('PubSub sending PING');
 
         this.send({
             type: 'PING',
@@ -281,7 +291,7 @@ class WebSocketsPool {
         const data = JSON.parse(event.data);
 
         if (data.type === 'PONG') {
-            logger.debug('Received PONG');
+            log.debug('PubSub received PONG');
         } else if (data.type === 'MESSAGE') {
             const [topic, streamerId] = data.data.topic.split('.');
             const message = JSON.parse(data.data.message);
@@ -316,28 +326,28 @@ class WebSocketsPool {
                         const reason = messageData.point_gain.reason_code;
 
                         if (!streamer) {
-                            console.error(
-                                `Ignoring points earned for streamer with id: ${channelId} - Reason: STREAMER_NOT_FOUND`
+                            log.error(
+                                `Ignoring ${pointsEarned} points earned for #${channelId}" because this streamer is not added for being watched`
                             );
                             return;
                         }
 
                         if (!streamer.watching) {
-                            logger.debug(
-                                `Ignoring ${pointsEarned} points earned for ${streamer.displayName} - Reason: NOT_WATCHING`
+                            log.warning(
+                                `Ignoring ${pointsEarned} points earned for ${streamer.displayName} because this streamer is not being watched`
                             );
                             return;
                         }
 
                         if (reason === 'PREDICTION') {
-                            logger.debug(
-                                `Ignoring ${pointsEarned} points earned for ${streamer.displayName} - Reason: PREDICTION_NOT_SUPPORTED`
+                            log.warning(
+                                `Ignoring ${pointsEarned} points earned for ${streamer.displayName} because the points were earned in a prediction and it was done on Twitch`
                             );
                             return;
                         }
 
-                        logger.info(
-                            `+${pointsEarned} ${streamer.displayName} (${newBalance}) - Reason: ${reason}`
+                        log.info(
+                            `+${pointsEarned} points for ${streamer.displayName} (${newBalance}) - Reason: ${reason}`
                         );
 
                         updateStreamer(streamer.id, {
@@ -354,15 +364,15 @@ class WebSocketsPool {
                         const streamer = getStreamerById(channelId);
 
                         if (!streamer) {
-                            console.error(
-                                `Cannot claim bonus for streamer with id: ${channelId} - Reason: STREAMER_NOT_FOUND`
+                            log.error(
+                                `Cannot claim bonus for #${channelId} because this streamer is not added for being watched`
                             );
                             return;
                         }
 
                         if (!streamer.watching) {
-                            logger.debug(
-                                `Not claiming bonus for ${streamer.displayName} - Reason: NOT_WATCHING`
+                            log.warning(
+                                `Not claiming bonus for ${streamer.displayName} because this streamer is not being watched`
                             );
                             return;
                         }
@@ -374,7 +384,7 @@ class WebSocketsPool {
                 const streamer = getStreamerById(streamerId);
 
                 if (!streamer) {
-                    console.error(`No streamer found with id: ${streamerId}`);
+                    log.error(`No streamer found with id: ${streamerId}`);
                     return;
                 }
 
@@ -390,7 +400,7 @@ class WebSocketsPool {
                 const streamer = getStreamerById(streamerId);
 
                 if (!streamer) {
-                    console.error(`No streamer found with id: ${streamerId}`);
+                    log.error(`No streamer found with id: ${streamerId}`);
                     return;
                 }
 
@@ -401,8 +411,8 @@ class WebSocketsPool {
                 }
             }
         } else if (data.type === 'RESPONSE' && data.error.length > 0) {
-            console.error(
-                `Error while trying to listen for a topic. Error ${data.error}`
+            log.error(
+                `Error while trying to listen for a topic:\n${data.error}`
             );
         } else if (data.type === 'RECONNECT') {
             this.handleWebSocketReconnection();
@@ -437,6 +447,7 @@ class WebSocketsPool {
         this.clearPingHandle();
         this.shouldTryReconnecting = true;
 
+        log.info('PubSub disconnected! Trying to reconnect...');
         this.reconnectionHandle = setInterval(
             () => this.tryReconnecting(),
             this.reconnectionInterval
@@ -445,7 +456,6 @@ class WebSocketsPool {
 
     private tryReconnecting() {
         if (this.shouldTryReconnecting) {
-            logger.debug('Trying to reconnect to Twitch PubSub server');
             this.webSocket = null;
 
             if (this.topics) {

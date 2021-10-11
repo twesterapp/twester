@@ -150,8 +150,8 @@ export function HomePage() {
                             {logs.length > 0 &&
                                 logs.map((log) => {
                                     return (
-                                        <LogText key={log.id}>
-                                            {log.asString()}
+                                        <LogText key={log.getId()}>
+                                            {log.formatForLogViewer()}
                                         </LogText>
                                     );
                                 })}

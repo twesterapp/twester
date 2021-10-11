@@ -36,7 +36,7 @@ function addLog(newLog: Log) {
 class Log {
     private loggerName: string;
 
-    private _id: string;
+    private id: string;
 
     private date: Date;
 
@@ -52,7 +52,7 @@ class Log {
         level: Level,
         ...args: any[]
     ) {
-        this._id = uuid();
+        this.id = uuid();
         this.date = new Date();
         this.loggerName = loggerName;
         this.level = level;
@@ -66,30 +66,63 @@ class Log {
         }
     }
 
-    get id() {
-        return this._id;
+    getId() {
+        return this.id;
     }
 
     print() {
-        // [11-10-2021 04:19:10:394] [INFO] Starting Watcher
-        const timestamp = this.formatDateForLogging(this.date);
-        console.log(`[${timestamp}] [${this.level}] ${this.content.join(' ')}`);
+        // Example - [11-10-2021 04:19:10:394] [INFO] Starting Watcher
+        const timestamp = this.formatDate(this.date);
+        const str = `[${timestamp}] [${this.level}] ${this.content.join(' ')}`;
+
+        // Trying to have better semantics
+        switch (this.level) {
+            case Level.EXCEPTION: {
+                console.error(str);
+                break;
+            }
+
+            case Level.ERROR: {
+                console.error(str);
+                break;
+            }
+
+            case Level.WARNING: {
+                console.warn(str);
+                break;
+            }
+
+            case Level.INFO: {
+                console.info(str);
+                break;
+            }
+
+            case Level.DEBUG: {
+                console.info(str);
+                break;
+            }
+
+            default: {
+                console.log(str);
+            }
+        }
     }
 
     // TODO: This should be formatted based on `Settings` set for `Logging`.
     // It could be about if and not they want `timestamp`, `level` etc.
-    asString(): string {
+    formatForLogViewer(): string {
         return `${this.date.toLocaleDateString()} ${this.date.toLocaleTimeString()} - ${this.content.join(
             ' '
         )}`;
     }
 
-    private formatDateForLogging(date: Date): string {
+    private formatDate(date: Date): string {
         return `${date.getDate()}-${
+            // `month` value starts from 0 -> Jan
             date.getMonth() + 1
         }-${date.getFullYear()} ${date.toLocaleTimeString('en-us', {
             hour12: false,
-        })}:${date.getMilliseconds().toString().padStart(3, '0')}`;
+        })},${date.getMilliseconds().toString().padStart(3, '0')}`;
     }
 
     private getHexBasedOnLevel(level: Level): Hex {
@@ -128,7 +161,7 @@ class Logger {
 
     private sendToMain: boolean;
 
-    constructor(name: string, sendToMain = true) {
+    constructor(name: string, sendToMain: boolean) {
         this.name = name;
         this.sendToMain = sendToMain;
     }
@@ -157,7 +190,9 @@ class Logger {
         const log = new Log(this.name, this.sendToMain, level, ...args);
         this.logs.add(log);
 
-        if (level !== Level.DEBUG) {
+        // TODO: This should be based on `Settings` for `Logging`.
+        // Right now we will show only `info` logs to the user in `Logs Viewer`.
+        if (level === Level.INFO) {
             addLog(log);
         }
     }
@@ -170,17 +205,18 @@ class Logging {
     private loggers = new Map<string, Logger>();
 
     constructor() {
-        const rootLogger = new Logger('root');
+        // `root` logger will only log to browser's console
+        const rootLogger = new Logger('root', false);
         this.loggers.set('root', rootLogger);
     }
 
-    getLogger(name?: string): Logger {
+    getLogger(name = '', sendToMain = true): Logger {
         if (!name) {
             return this.loggers.get('root')!;
         }
 
         if (!this.loggers.has(name)) {
-            this.loggers.set(name, new Logger(name));
+            this.loggers.set(name, new Logger(name, sendToMain));
         }
 
         return this.loggers.get(name)!;

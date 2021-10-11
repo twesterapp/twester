@@ -1,6 +1,9 @@
 import { signout } from 'renderer/utils/auth';
+import { logging } from 'renderer/core/logging';
 import { getChannelContextInfo, getUserProfilePicture } from './core/data';
 import { setToken, setUser, User } from './stores/useAuthStore';
+
+const log = logging.getLogger('UTILS');
 
 export async function login(token: string, username: string) {
     setToken(token);
@@ -9,6 +12,9 @@ export async function login(token: string, username: string) {
     // This should never happen but if somehow it did happen, we will logout
     // the user
     if (!result) {
+        log.exception(
+            'No channel context info found for the logged in user. This should have never happened.'
+        );
         return signout();
     }
 
@@ -73,7 +79,7 @@ function innerSleep(sec: number, signal: AbortSignal) {
 
 export function abortAllSleepingTasks() {
     if (abortController) {
-        console.log('Aborting all sleeping tasks currently in progress');
+        log.debug('Aborting all sleeping tasks currently in progress');
         abortController.abort();
     }
 }

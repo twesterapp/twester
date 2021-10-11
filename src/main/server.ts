@@ -2,15 +2,14 @@ import axios from 'axios';
 import express, { Application, NextFunction, Request, Response } from 'express';
 import querystring from 'querystring';
 import { createServer } from 'http';
-import chalk from 'chalk';
-import { isDev, print, Hex } from './util';
+import { isDev, print } from './util';
 
-export const INFO = 'INFO     ';
-export const DEBUG = 'DEBUG    ';
+const SERVER = 'SERVER   ';
+const SERVER_HEX = '#C266FC';
 
 function log(...args: any) {
     if (isDev) {
-        print(new Date(), DEBUG, Hex.DEBUG, ...args);
+        print(new Date(), SERVER, SERVER_HEX, ...args);
     }
 }
 
@@ -339,32 +338,9 @@ async function resendCode(req: Request, res: Response): Promise<Response> {
 function loggerMiddleware(req: Request, res: Response, next: NextFunction) {
     const startTime = new Date().getTime();
 
-    const colorStatusCode = (code: number) => {
-        const codeAsStr = code.toString();
-
-        if (codeAsStr.startsWith('3')) {
-            return chalk.hex(Hex.WARNING)(codeAsStr);
-        }
-
-        if (codeAsStr.startsWith('4')) {
-            return chalk.hex(Hex.ERROR)(codeAsStr);
-        }
-
-        if (codeAsStr.startsWith('5')) {
-            return chalk.hex(Hex.EXCEPTION)(codeAsStr);
-        }
-
-        return chalk.hex(Hex.INFO)(codeAsStr);
-    };
-
     res.on('finish', () => {
         const endTime = new Date().getTime() - startTime;
-
-        log(
-            `${colorStatusCode(res.statusCode)} ${req.method} ${
-                req.originalUrl
-            } ${endTime}ms`
-        );
+        log(`${res.statusCode} ${req.method} ${req.originalUrl} ${endTime}ms`);
     });
 
     next();
@@ -400,9 +376,11 @@ function isPortFree(port: string) {
         const server = createServer()
             .listen(port, () => {
                 server.close();
+                log(`Port ${port} is free`);
                 resolve(true);
             })
             .on('error', () => {
+                log(`Port ${port} is not free`);
                 resolve(false);
             });
     });
@@ -413,12 +391,7 @@ const PORT = '42069';
 export async function startServer() {
     if (await isPortFree(PORT)) {
         app.listen(PORT, () => {
-            print(
-                new Date(),
-                INFO,
-                Hex.INFO,
-                `Server started at http://127.0.0.1:${PORT} 🚀`
-            );
+            log(`Server started at http://127.0.0.1:${PORT} 🚀`);
         });
     }
 }

@@ -24,13 +24,14 @@ if (process.env.NODE_ENV === 'development') {
     };
 }
 
-export const Hex = {
-    EXCEPTION: '#FF5252',
-    ERROR: '#FF5C8A',
-    WARNING: '#FFB703',
-    INFO: '#0AD48B',
-    DEBUG: '#8ECAE6',
-};
+/**
+ * Hex, print() and formatDate() are copied here from `renderer/core/logging`.
+ * I can't seem to share code between `main` and `renderer`, hence the
+ * duplication. I am doing this because of the logging is done in `renderer`
+ * and a little bit logging is done by the server running in `main` process
+ * for Twitch auth and other stuff. This provides us a consitent logging
+ * behavior and look as the logging done in `renderer`.
+ */
 
 export function print(
     date: Date,
@@ -38,17 +39,17 @@ export function print(
     hex: string,
     ...content: any[]
 ) {
-    const timestamp = formatDateForLogging(date);
+    const timestamp = formatDate(date);
     // [11-10-2021 04:19:10:394] [INFO] Starting Watcher
     console.log(
         `[${timestamp}] [${chalk.hex(hex)(level)}] ${content.join(' ')}`
     );
 }
 
-function formatDateForLogging(date: Date): string {
+function formatDate(date: Date): string {
     return `${date.getDate()}-${
         date.getMonth() + 1
     }-${date.getFullYear()} ${date.toLocaleTimeString('en-us', {
         hour12: false,
-    })}:${date.getMilliseconds().toString().padStart(3, '0')}`;
+    })},${date.getMilliseconds().toString().padStart(3, '0')}`;
 }

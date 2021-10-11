@@ -21,19 +21,18 @@ import { v4 as uuid } from 'uuid';
 import { loadChannelPointsContext } from './bonus';
 import { getMinuteWatchedRequestInfo, updateStreamersToWatch } from './data';
 import {
-    listenForChannelPoints,
+    startListeningForChannelPoints,
     stopListeningForChannelPoints,
 } from './pubsub';
 
-import { logging, LoggerType } from './logging';
+import { logging } from './logging';
+
+const log = logging.getLogger('WATCHER');
 
 class Watcher {
     private id: string;
 
-    private log: LoggerType;
-
     constructor() {
-        this.log = logging.getLogger('WATCHER');
         this.id = '';
     }
 
@@ -42,29 +41,27 @@ class Watcher {
             !authStore.getState().accessToken ||
             !authStore.getState().user.id
         ) {
-            this.log.error('User is unauthorized. Skipping to start Watcher.');
+            log.error('User is unauthorized. Skipping to start Watcher.');
             return;
         }
 
-        this.log.debug('Watcher is booting');
+        log.debug('Watcher is booting');
         setWatcherStatus(WatcherStatus.BOOTING);
 
         if (!this.id) {
             this.id = uuid();
-            this.log.info(`Watcher is starting`);
+            log.info(`Watcher is starting`);
         } else {
-            this.log.info(`Watcher is resuming`);
+            log.info(`Watcher is resuming`);
         }
 
-        this.log.info(
-            `Loading data for ${getAllStreamers().length} streamers...`
-        );
+        log.info(`Loading data for ${getAllStreamers().length} streamers...`);
         await loadChannelPointsContext();
         await updateStreamersToWatch();
-        listenForChannelPoints();
+        startListeningForChannelPoints();
 
         setWatcherStatus(WatcherStatus.RUNNING);
-        this.log.debug('Watcher is running');
+        log.debug('Watcher is running');
 
         while (isWatcherRunning()) {
             const streamersToWatch = getOnlineStreamers().slice(0, 2);
@@ -93,7 +90,7 @@ class Watcher {
                                     updateStreamer(streamer.id, {
                                         watching: true,
                                     });
-                                    this.log.info(
+                                    log.info(
                                         `Started watching ${streamer.displayName}`
                                     );
 
@@ -120,13 +117,13 @@ class Watcher {
                                     incrementMinutesWatched();
                                 }
 
-                                this.log.debug(
-                                    `Sent minute watched event for ${streamer.displayName}`
+                                log.debug(
+                                    `Minute watched event sent for ${streamer.displayName}`
                                 );
                             }
                         } catch {
-                            this.log.error(
-                                `Failed to send minute watched event for ${streamer.displayName}`
+                            log.error(
+                                `Minute watched event failed for ${streamer.displayName}`
                             );
                         }
 
@@ -141,7 +138,7 @@ class Watcher {
     }
 
     public pause() {
-        this.log.debug('Watcher is stopping');
+        log.debug('Watcher is stopping');
         setWatcherStatus(WatcherStatus.STOPPING);
 
         abortAllSleepingTasks();
@@ -150,8 +147,8 @@ class Watcher {
 
         setWatcherStatus(WatcherStatus.STOPPED);
 
-        this.log.info(`Watcher is paused`);
-        this.log.debug('Watcher is stopped');
+        log.info(`Watcher is paused`);
+        log.debug('Watcher is stopped');
     }
 
     public canPlay(): boolean {
@@ -176,7 +173,7 @@ class Watcher {
         for (const streamer of streamersToNotWatch) {
             if (streamer.watching) {
                 updateStreamer(streamer.id, { watching: false });
-                this.log.info(`Stopped watching ${streamer.displayName}`);
+                log.info(`Stopped watching ${streamer.displayName}`);
             }
         }
     }

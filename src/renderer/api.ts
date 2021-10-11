@@ -1,8 +1,10 @@
 import axios from 'axios';
 import { signout } from 'renderer/utils/auth';
+import { logging } from 'renderer/core/logging';
+
+const log = logging.getLogger('API');
 
 const token = localStorage.getItem('access-token') || '';
-
 const PORT = '42069';
 
 export const nodeClient = axios.create({
@@ -92,6 +94,6 @@ export async function makeGraphqlRequest(
             return data;
         })
         .catch((e) => {
-            console.error('Twitch GraphQL request error: \n', e);
+            log.error('Error while making Twitch GraphQL request:\n', e);
         });
 }

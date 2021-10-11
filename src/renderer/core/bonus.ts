@@ -3,14 +3,20 @@ import {
     getAllStreamers,
     StreamerLogin,
     updateStreamer,
+    getStreamerByLogin,
 } from 'renderer/stores/useStreamerStore';
+import { logging } from 'renderer/core/logging';
 import { getChannelId } from './data';
+
+const log = logging.getLogger('BONUS');
 
 export async function claimChannelPointsBonus(
     login: StreamerLogin,
     claimId: string
 ) {
-    console.info(`Claming bonus for ${login}`);
+    const streamer = getStreamerByLogin(login);
+    const displayname = streamer ? streamer.displayName : login;
+    log.debug(`Claming bonus for ${displayname}`);
 
     const data = {
         operationName: 'ClaimCommunityPoints',
@@ -44,8 +50,11 @@ export async function loadChannelPointsContext() {
         };
 
         const response = await makeGraphqlRequest(data);
+
         if (!response.data.community) {
-            console.error('Streamer does not exist');
+            log.error(
+                `No streamer found with login: ${streamer.login}. This should only happen if the streamer changed their "login" since the last time you used Twester.`
+            );
         }
 
         const communityPoints =
