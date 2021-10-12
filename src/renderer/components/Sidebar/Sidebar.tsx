@@ -39,7 +39,12 @@ export function Sidebar({ currentPage }: SidebarOptions) {
     return (
         <Container>
             <Top>
-                <Tooltip title="Home" placement="right" enterDelay={1000}>
+                <Tooltip
+                    title="Home"
+                    placement="right"
+                    enterDelay={1000}
+                    disableHoverListener={onHomePage}
+                >
                     <i>
                         <SidebarIcon
                             icon={IconHome}
@@ -51,7 +56,12 @@ export function Sidebar({ currentPage }: SidebarOptions) {
 
                 <i style={{ height: '11px' }} />
 
-                <Tooltip title="Streamers" placement="right" enterDelay={1000}>
+                <Tooltip
+                    title="Streamers"
+                    placement="right"
+                    enterDelay={1000}
+                    disableHoverListener={onStreamersPage}
+                >
                     <i>
                         <SidebarIcon
                             icon={IconStreamers}
@@ -66,12 +76,14 @@ export function Sidebar({ currentPage }: SidebarOptions) {
                 <Tooltip
                     title="Sign out"
                     placement="right"
-                    enterDelay={1000}
+                    enterDelay={100}
                     background={theme.color.error}
                 >
                     <i>
                         <SidebarIcon
                             icon={IconSignOut}
+                            iconColor={theme.color.error}
+                            bgColorOnHover={theme.color.textPrimary}
                             onClick={() => {
                                 signout();
                             }}
