@@ -6,6 +6,7 @@ import {
     FaPause,
     FaUsers,
     FaEye,
+    FaEyeSlash,
     FaHome,
     FaClock,
     FaStar,
@@ -15,7 +16,8 @@ import { ImCross } from 'react-icons/im';
 import { IconBaseProps } from 'react-icons';
 
 export { FaUsers as IconStreamers };
-export { FaEye as IconEye };
+export { FaEye as IconEyeOpen };
+export { FaEyeSlash as IconEyeClose };
 export { FaSignOutAlt as IconSignOut };
 export { ImCross as IconCross };
 
