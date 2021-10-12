@@ -8,12 +8,12 @@ import {
     Tooltip,
     IconStreamers,
     IconHome,
+    IconButton,
 } from 'renderer/ui';
 import { useQuery } from 'react-query';
 import { authStore, useAuthStore } from 'renderer/stores/useAuthStore';
 import { useWatcherStore } from 'renderer/stores/useWatcherStore';
 import { signout } from 'renderer/utils/auth';
-import { SidebarIcon } from './SidebarIcon';
 
 interface SidebarOptions {
     // This helps us fix the issue of active icon in the sidebar not updating
@@ -46,7 +46,7 @@ export function Sidebar({ currentPage }: SidebarOptions) {
                     disableHoverListener={onHomePage}
                 >
                     <i>
-                        <SidebarIcon
+                        <IconButton
                             icon={IconHome}
                             active={onHomePage}
                             onClick={() => history.push('/')}
@@ -63,7 +63,7 @@ export function Sidebar({ currentPage }: SidebarOptions) {
                     disableHoverListener={onStreamersPage}
                 >
                     <i>
-                        <SidebarIcon
+                        <IconButton
                             icon={IconStreamers}
                             active={onStreamersPage}
                             onClick={() => history.push('/streamers')}
@@ -80,7 +80,7 @@ export function Sidebar({ currentPage }: SidebarOptions) {
                     background={theme.color.error}
                 >
                     <i>
-                        <SidebarIcon
+                        <IconButton
                             icon={IconSignOut}
                             iconColor={theme.color.error}
                             bgColorOnHover={theme.color.textPrimary}

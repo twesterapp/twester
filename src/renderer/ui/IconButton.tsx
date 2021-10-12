@@ -10,7 +10,7 @@ interface SidebarIconOptions extends React.HTMLAttributes<HTMLDivElement> {
     icon: IconType;
 }
 
-export function SidebarIcon({
+export function IconButton({
     active = false,
     bgColorOnHover = '',
     icon,
