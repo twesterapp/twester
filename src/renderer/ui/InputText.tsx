@@ -1,13 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { logging } from 'renderer/core/logging';
-import { px2em } from '../utils';
-
-const log = logging.getLogger();
 
 export interface InputTextOptions
     extends React.InputHTMLAttributes<HTMLInputElement> {
-    labelText?: string;
     variant?:
         | 'email'
         | 'number'
@@ -24,7 +19,6 @@ export interface InputTextOptions
 export const InputText = React.forwardRef(
     (
         {
-            labelText = '',
             width = '',
             variant = 'text',
             placeholder = '',
@@ -58,23 +52,6 @@ export const InputText = React.forwardRef(
                 onBlur={handleOnBlur}
             />
         );
-
-        if (labelText) {
-            const { id } = rest;
-
-            if (!id) {
-                log.warning(
-                    'Option "id" is missing in "InputText". This can cause unexpected behavior.'
-                );
-            }
-
-            return (
-                <>
-                    <StyledLabel htmlFor={id}>{labelText}</StyledLabel>
-                    {RenderInput}
-                </>
-            );
-        }
 
         return RenderInput;
     }
@@ -121,9 +98,4 @@ const StyledInput = styled.input<InputTextOptions & { ref: any }>`
         -webkit-appearance: none;
         margin: 0;
     }
-`;
-
-const StyledLabel = styled.label`
-    text-align: left;
-    margin-bottom: ${px2em(8)};
 `;
