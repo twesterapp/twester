@@ -3,6 +3,7 @@
 ## Unversioned
 
 -   Minor: Improved logging. ([#8](https://github.com/twesterapp/twester/pull/8))
+-   Minor: Removed menu bar. ([#11](https://github.com/twesterapp/twester/pull/11))
 
 ## 1.0.2 (08-10-2021)
 
