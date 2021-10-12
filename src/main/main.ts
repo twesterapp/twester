@@ -13,7 +13,6 @@ import 'regenerator-runtime/runtime';
 import path from 'path';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
-import MenuBuilder from './menu';
 import { resolveHtmlPath, print } from './util';
 import { startServer } from './server';
 
@@ -73,12 +72,14 @@ const createWindow = async () => {
         show: false,
         width: 1100,
         height: 700,
+        autoHideMenuBar: true,
         icon: getAssetPath('/icons/icon.png'),
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
         },
     });
 
+    mainWindow.removeMenu();
     mainWindow.loadURL(resolveHtmlPath('index.html'));
 
     // @TODO: Use 'ready-to-show' event
@@ -98,9 +99,6 @@ const createWindow = async () => {
     mainWindow.on('closed', () => {
         mainWindow = null;
     });
-
-    const menuBuilder = new MenuBuilder(mainWindow);
-    menuBuilder.buildMenu();
 
     // Open urls in the user's browser
     mainWindow.webContents.on('new-window', (event, url) => {
