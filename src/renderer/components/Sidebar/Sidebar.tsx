@@ -66,7 +66,7 @@ export function Sidebar({ currentPage }: SidebarOptions) {
                 <Tooltip
                     title="Sign out"
                     placement="right"
-                    enterDelay={1000}
+                    enterDelay={100}
                     background={theme.color.error}
                 >
                     <i>
