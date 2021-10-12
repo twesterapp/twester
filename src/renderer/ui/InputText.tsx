@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { logging } from 'renderer/core/logging';
-import { px2em } from '../utils';
-
-const log = logging.getLogger();
+import { IconButton } from 'renderer/ui/IconButton';
+import { IconEyeOpen, IconEyeClose } from 'renderer/ui/Icons';
 
 export interface InputTextOptions
     extends React.InputHTMLAttributes<HTMLInputElement> {
-    labelText?: string;
     variant?:
         | 'email'
         | 'number'
@@ -24,7 +21,6 @@ export interface InputTextOptions
 export const InputText = React.forwardRef(
     (
         {
-            labelText = '',
             width = '',
             variant = 'text',
             placeholder = '',
@@ -47,40 +43,48 @@ export const InputText = React.forwardRef(
             if (onBlur) onBlur(event);
         }
 
-        const RenderInput = (
-            <StyledInput
-                {...rest}
-                placeholder={placeholderText}
-                ref={ref}
-                type={variant}
-                width={width}
-                onFocus={handleOnFocus}
-                onBlur={handleOnBlur}
-            />
+        const isPasswordVariant = variant === 'password';
+        const [showingPassword, setShowingPassword] = useState(false);
+
+        return (
+            <Container>
+                <StyledInput
+                    {...rest}
+                    placeholder={placeholderText}
+                    ref={ref}
+                    type={showingPassword ? 'text' : variant}
+                    width={width}
+                    onFocus={handleOnFocus}
+                    onBlur={handleOnBlur}
+                />
+                {isPasswordVariant && (
+                    <IconButton
+                        style={{
+                            position: 'absolute',
+                            right: '10px',
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '8px',
+                        }}
+                        icon={showingPassword ? IconEyeClose : IconEyeOpen}
+                        iconSize={18}
+                        onClick={() => setShowingPassword((prev) => !prev)}
+                    />
+                )}
+            </Container>
         );
-
-        if (labelText) {
-            const { id } = rest;
-
-            if (!id) {
-                log.warning(
-                    'Option "id" is missing in "InputText". This can cause unexpected behavior.'
-                );
-            }
-
-            return (
-                <>
-                    <StyledLabel htmlFor={id}>{labelText}</StyledLabel>
-                    {RenderInput}
-                </>
-            );
-        }
-
-        return RenderInput;
     }
 );
 
 InputText.displayName = 'InputText';
+
+const Container = styled.div`
+    display: flex;
+    align-items: center;
+    max-width: fit-content;
+    box-sizing: border-box;
+    position: relative;
+`;
 
 const StyledInput = styled.input<InputTextOptions & { ref: any }>`
     font-size: 0.875rem;
@@ -121,9 +125,4 @@ const StyledInput = styled.input<InputTextOptions & { ref: any }>`
         -webkit-appearance: none;
         margin: 0;
     }
-`;
-
-const StyledLabel = styled.label`
-    text-align: left;
-    margin-bottom: ${px2em(8)};
 `;

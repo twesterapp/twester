@@ -6,13 +6,15 @@ interface SidebarIconOptions extends React.HTMLAttributes<HTMLDivElement> {
     active?: boolean;
     bgColorOnHover?: string;
     iconColor?: string;
+    iconSize?: number;
     icon: IconType;
 }
 
-export function SidebarIcon({
+export function IconButton({
     active = false,
     bgColorOnHover = '',
     icon,
+    iconSize = 32,
     ...rest
 }: SidebarIconOptions) {
     const theme = useTheme();
@@ -31,7 +33,7 @@ export function SidebarIcon({
             bgColorOnHover={bgColorOnHover}
             {...rest}
         >
-            <Icon size={32} color={getColor()} />
+            <Icon size={iconSize} color={getColor()} />
         </IconContainer>
     );
 }

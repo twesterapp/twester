@@ -7,7 +7,13 @@ import {
     findStreamerCard,
     StreamerId,
 } from 'renderer/stores/useStreamerStore';
-import { Avatar, IconClock, IconCross, IconEye, IconStar } from 'renderer/ui';
+import {
+    Avatar,
+    IconClock,
+    IconCross,
+    IconEyeOpen,
+    IconStar,
+} from 'renderer/ui';
 import { formatMinutesToString, px2em, px2rem } from 'renderer/utils';
 import styled, { useTheme } from 'styled-components';
 import { canStartWatcher } from 'renderer/stores/useWatcherStore';
@@ -116,7 +122,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
                     ) : (
                         <>
                             {streamer.watching && (
-                                <IconEye
+                                <IconEyeOpen
                                     size={24}
                                     color={theme.color.secondary}
                                 />
