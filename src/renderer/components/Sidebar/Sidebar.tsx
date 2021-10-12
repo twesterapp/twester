@@ -72,6 +72,8 @@ export function Sidebar({ currentPage }: SidebarOptions) {
                     <i>
                         <SidebarIcon
                             icon={IconSignOut}
+                            iconColor={theme.color.error}
+                            bgColorOnHover={theme.color.textPrimary}
                             onClick={() => {
                                 signout();
                             }}
