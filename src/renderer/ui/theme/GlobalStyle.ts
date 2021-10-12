@@ -37,15 +37,15 @@ body {
 
 /**Scrollbar customization */
 body::-webkit-scrollbar {
-  width: 0.25rem;
+  width: 0.5rem;
 }
 
 body::-webkit-scrollbar-track {
-  background: ${(props) => props.theme.color.background2} 
+  background: ${(props) => props.theme.color.background2}
 }
 
 body::-webkit-scrollbar-thumb {
-  background: ${(props) => props.theme.color.primary};
+  background: ${(props) => props.theme.color.borderOnDisabled};
 }
 
 /**
