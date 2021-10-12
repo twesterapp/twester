@@ -13,10 +13,13 @@ import 'regenerator-runtime/runtime';
 import path from 'path';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
+import electronDebug from 'electron-debug';
 import { resolveHtmlPath, print } from './util';
 import { startServer } from './server';
 
 startServer();
+
+electronDebug({ isEnabled: true, showDevTools: false });
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -37,10 +40,6 @@ if (process.env.NODE_ENV === 'production') {
 
 const isDevelopment =
     process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
-
-if (isDevelopment) {
-    require('electron-debug')();
-}
 
 const installExtensions = async () => {
     const installer = require('electron-devtools-installer');
