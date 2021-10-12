@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { IconButton } from 'renderer/ui/IconButton';
+import { IconEyeOpen, IconEyeClose } from 'renderer/ui/Icons';
 
 export interface InputTextOptions
     extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -41,23 +43,48 @@ export const InputText = React.forwardRef(
             if (onBlur) onBlur(event);
         }
 
-        const RenderInput = (
-            <StyledInput
-                {...rest}
-                placeholder={placeholderText}
-                ref={ref}
-                type={variant}
-                width={width}
-                onFocus={handleOnFocus}
-                onBlur={handleOnBlur}
-            />
-        );
+        const isPasswordVariant = variant === 'password';
+        const [showingPassword, setShowingPassword] = useState(false);
 
-        return RenderInput;
+        return (
+            <Container>
+                <StyledInput
+                    {...rest}
+                    placeholder={placeholderText}
+                    ref={ref}
+                    type={showingPassword ? 'text' : variant}
+                    width={width}
+                    onFocus={handleOnFocus}
+                    onBlur={handleOnBlur}
+                />
+                {isPasswordVariant && (
+                    <IconButton
+                        style={{
+                            position: 'absolute',
+                            right: '10px',
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '8px',
+                        }}
+                        icon={showingPassword ? IconEyeClose : IconEyeOpen}
+                        iconSize={18}
+                        onClick={() => setShowingPassword((prev) => !prev)}
+                    />
+                )}
+            </Container>
+        );
     }
 );
 
 InputText.displayName = 'InputText';
+
+const Container = styled.div`
+    display: flex;
+    align-items: center;
+    max-width: fit-content;
+    box-sizing: border-box;
+    position: relative;
+`;
 
 const StyledInput = styled.input<InputTextOptions & { ref: any }>`
     font-size: 0.875rem;
