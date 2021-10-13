@@ -1,10 +1,6 @@
 import React from 'react';
-import { useStreamerStore } from 'renderer/stores/useStreamerStore';
-import {
-    canStartWatcher,
-    useWatcherStore,
-} from 'renderer/stores/useWatcherStore';
-import { watcher } from 'renderer/core';
+import { streamers } from 'renderer/core/streamers';
+import { watcher } from 'renderer/core/watcher';
 import { IconPlay, IconPause, Link, IconClock, IconStar } from 'renderer/ui';
 import { formatMinutesToString, px2em, px2rem } from 'renderer/utils';
 import styled, { useTheme } from 'styled-components';
@@ -16,12 +12,12 @@ export function HomePage() {
     const logsEndRef = React.useRef<HTMLDivElement>(null);
     const [isScrollAtBottom, setScrollAtBottom] = React.useState(true);
 
-    const { streamers } = useStreamerStore();
-    const { minutesWatched, pointsEarned } = useWatcherStore();
+    const { streamers: allStreamers } = streamers.useStore();
+    const { minutesWatched, pointsEarned } = watcher.useStore();
     const { logs } = useLoggerStore();
     const theme = useTheme();
 
-    const hasStreamersToWatch = streamers.length > 0;
+    const hasStreamersToWatch = allStreamers.length > 0;
 
     const isPlayButtonActive = (): boolean => {
         if (watcher.canPlay() && hasStreamersToWatch) {
@@ -130,7 +126,7 @@ export function HomePage() {
                         <p>{pointsEarned}</p>
                     </StatInfo>
 
-                    {!canStartWatcher()
+                    {!watcher.canPlay()
                         ? RenderPauseButton()
                         : RenderPlayButton()}
                 </StatsContainer>

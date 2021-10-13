@@ -11,9 +11,8 @@ import {
     IconButton,
 } from 'renderer/ui';
 import { useQuery } from 'react-query';
-import { authStore, useAuthStore } from 'renderer/stores/useAuthStore';
-import { useWatcherStore } from 'renderer/stores/useWatcherStore';
-import { signout } from 'renderer/utils/auth';
+import { watcher } from 'renderer/core/watcher';
+import { auth } from 'renderer/core/auth';
 
 interface SidebarOptions {
     // This helps us fix the issue of active icon in the sidebar not updating
@@ -24,9 +23,9 @@ interface SidebarOptions {
 export function Sidebar({ currentPage }: SidebarOptions) {
     const history = useHistory();
     const theme = useTheme();
-    const { user } = useAuthStore();
+    const { user } = auth.useStore();
     // So that we can conditionally re-render `IconPause` or `IconPlay`.
-    useWatcherStore();
+    watcher.useStore();
 
     const { data: profileImageUrl } = useQuery('ME_INFO', async () => {
         const id = await fetchChannelId(user.login);
@@ -85,7 +84,7 @@ export function Sidebar({ currentPage }: SidebarOptions) {
                             iconColor={theme.color.error}
                             bgColorOnHover={theme.color.textPrimary}
                             onClick={() => {
-                                signout();
+                                auth.signout();
                             }}
                         />
                     </i>
@@ -94,14 +93,14 @@ export function Sidebar({ currentPage }: SidebarOptions) {
                 <i style={{ height: '11px' }} />
 
                 <Tooltip
-                    title={authStore.getState().user.login || ''}
+                    title={auth.store.getState().user.login || ''}
                     placement="right"
                     enterDelay={1000}
                 >
                     <i>
                         <a
                             href={`https://www.twitch.tv/${
-                                authStore.getState().user.login
+                                auth.store.getState().user.login
                             }`}
                             target="_blank"
                             rel="noreferrer"

@@ -1,12 +1,14 @@
-import { signout } from 'renderer/utils/auth';
 import { logging } from 'renderer/core/logging';
-import { getChannelContextInfo, getUserProfilePicture } from './core/data';
-import { setToken, setUser, User } from './stores/useAuthStore';
+import {
+    getChannelContextInfo,
+    getUserProfilePicture,
+} from 'renderer/core/data';
+import { auth, User } from 'renderer/core/auth';
 
 const log = logging.getLogger('UTILS');
 
 export async function login(token: string, username: string) {
-    setToken(token);
+    auth.setToken(token);
     const result = await getChannelContextInfo(username);
 
     // This should never happen but if somehow it did happen, we will logout
@@ -15,7 +17,8 @@ export async function login(token: string, username: string) {
         log.exception(
             'No channel context info found for the logged in user. This should have never happened.'
         );
-        return signout();
+        auth.signout();
+        return;
     }
 
     const profileImageUrl = await getUserProfilePicture(result.id);
@@ -26,7 +29,7 @@ export async function login(token: string, username: string) {
         login: result.login,
         profileImageUrl,
     };
-    setUser(user);
+    auth.setUser(user);
     window.location.reload();
 }
 

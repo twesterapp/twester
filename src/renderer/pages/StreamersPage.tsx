@@ -6,21 +6,18 @@ import {
     getChannelContextInfo,
     getUserProfilePicture,
 } from 'renderer/core/data';
-import {
-    useStreamerStore,
-    addStreamer,
-} from 'renderer/stores/useStreamerStore';
-import { canStartWatcher } from 'renderer/stores/useWatcherStore';
+import { streamers } from 'renderer/core/streamers';
 import { Button, IconPlus, InputText, Link } from 'renderer/ui';
 import { px2em } from 'renderer/utils';
 import { logging } from 'renderer/core/logging';
+import { watcher } from 'renderer/core/watcher';
 
 const log = logging.getLogger('STREAMERS_PAGE');
 
 export function StreamersPage() {
     const [searchText, setSearchText] = React.useState('');
     const [fetchingStreamer, setFetchingStreamer] = React.useState(false);
-    const { streamers } = useStreamerStore();
+    const { streamers: allStreamers } = streamers.useStore();
 
     async function handleAddStreamer(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -35,7 +32,7 @@ export function StreamersPage() {
             }
             const profileImageUrl = await getUserProfilePicture(result.id);
 
-            addStreamer({
+            streamers.addStreamer({
                 id: result.id,
                 login: result.login,
                 displayName: result.displayName,
@@ -54,7 +51,7 @@ export function StreamersPage() {
 
     return (
         <PageWrapper>
-            {!canStartWatcher() && (
+            {!watcher.canPlay() && (
                 <HelpMessage>
                     Go to <Link to="/">Home</Link> tab and{' '}
                     <em>
@@ -68,7 +65,7 @@ export function StreamersPage() {
                     style={{ marginRight: `${px2em(12)}`, width: '300px' }}
                     placeholder="Streamer to add"
                     value={searchText}
-                    disabled={!canStartWatcher() || fetchingStreamer}
+                    disabled={!watcher.canPlay() || fetchingStreamer}
                     onChange={(e) => setSearchText(e.target.value)}
                     hidePlaceholderOnFocus={false}
                 />
@@ -76,7 +73,7 @@ export function StreamersPage() {
                     width="46px"
                     variant="submit"
                     loading={fetchingStreamer}
-                    disabled={!canStartWatcher() ?? !searchText.trim()}
+                    disabled={!watcher.canPlay() ?? !searchText.trim()}
                 >
                     <IconPlus />
                 </Button>
@@ -88,8 +85,8 @@ export function StreamersPage() {
             </Info>
 
             <Streamers ref={drop}>
-                {streamers.length > 0 &&
-                    streamers.map((streamer) => {
+                {allStreamers.length > 0 &&
+                    allStreamers.map((streamer) => {
                         return (
                             <StreamerCard
                                 key={streamer.id}

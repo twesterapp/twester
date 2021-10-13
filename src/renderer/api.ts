@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { signout } from 'renderer/utils/auth';
+import { auth } from 'renderer/core/auth';
 import { logging } from 'renderer/core/logging';
 
 const log = logging.getLogger('API');
@@ -45,7 +45,7 @@ oauthClient.interceptors.response.use(
             error.response.status === 401 ||
             error.response.data.error === 'Unauthorized'
         ) {
-            signout();
+            auth.signout();
         }
 
         return error;
@@ -74,7 +74,7 @@ bearerClient.interceptors.response.use(
             error.response.status === 401 ||
             error.response.data.error === 'Unauthorized'
         ) {
-            signout();
+            auth.signout();
         }
 
         return error;

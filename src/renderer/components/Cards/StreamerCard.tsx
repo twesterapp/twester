@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-    Streamer,
-    removeStreamer,
-    updateStreamer,
-    moveStreamerCard,
-    findStreamerCard,
-    StreamerId,
-} from 'renderer/stores/useStreamerStore';
+import { streamers, Streamer, StreamerId } from 'renderer/core/streamers';
 import {
     Avatar,
     IconClock,
@@ -16,7 +9,6 @@ import {
 } from 'renderer/ui';
 import { formatMinutesToString, px2em, px2rem } from 'renderer/utils';
 import styled, { useTheme } from 'styled-components';
-import { canStartWatcher } from 'renderer/stores/useWatcherStore';
 import { useQuery } from 'react-query';
 import { useDrag, useDrop } from 'react-dnd';
 import {
@@ -24,6 +16,7 @@ import {
     getChannelContextInfo,
     getUserProfilePicture,
 } from 'renderer/core/data';
+import { watcher } from 'renderer/core/watcher';
 
 // Blatantly copied from React DnD's example, check
 // https://react-dnd.github.io/react-dnd/examples/sortable/cancel-on-drop-outside
@@ -48,7 +41,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
         getChannelContextInfo(streamer.login)
     );
 
-    const originalIndex = findStreamerCard(streamer.id).index;
+    const originalIndex = streamers.findStreamerCard(streamer.id).index;
 
     const [{ isDragging }, drag] = useDrag(
         () => ({
@@ -57,16 +50,16 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
             collect: (monitor) => ({
                 isDragging: monitor.isDragging(),
             }),
-            canDrag: () => !!canStartWatcher(),
+            canDrag: () => !!watcher.canPlay(),
             end: (item, monitor) => {
                 const { streamerId: droppedId, originalIndex } = item;
                 const didDrop = monitor.didDrop();
                 if (!didDrop) {
-                    moveStreamerCard(droppedId, originalIndex);
+                    streamers.moveStreamerCard(droppedId, originalIndex);
                 }
             },
         }),
-        [streamer.id, originalIndex, moveStreamerCard]
+        [streamer.id, originalIndex, streamers.moveStreamerCard]
     );
 
     const [, drop] = useDrop(
@@ -75,12 +68,14 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
             canDrop: () => false,
             hover({ streamerId: draggedId }: Item) {
                 if (draggedId !== streamer.id) {
-                    const { index: overIndex } = findStreamerCard(streamer.id);
-                    moveStreamerCard(draggedId, overIndex);
+                    const { index: overIndex } = streamers.findStreamerCard(
+                        streamer.id
+                    );
+                    streamers.moveStreamerCard(draggedId, overIndex);
                 }
             },
         }),
-        [findStreamerCard, moveStreamerCard]
+        [streamers.findStreamerCard, streamers.moveStreamerCard]
     );
 
     React.useEffect(() => {
@@ -88,7 +83,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
             const result = await getChannelContextInfo(data.login);
             const profileImageUrl = await getUserProfilePicture(data.id);
 
-            updateStreamer(streamer.id, {
+            streamers.updateStreamer(streamer.id, {
                 displayName: result?.displayName || data.displayName,
                 profileImageUrl,
             });
@@ -108,10 +103,12 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
         >
             <Content>
                 <TopRight>
-                    {canStartWatcher() ? (
+                    {watcher.canPlay() ? (
                         <button
                             id="remove-button"
-                            onClick={() => removeStreamer(streamer.id)}
+                            onClick={() =>
+                                streamers.removeStreamer(streamer.id)
+                            }
                             type="button"
                         >
                             <IconCross

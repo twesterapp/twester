@@ -16,10 +16,10 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { toast, ToastContainer } from 'react-toastify';
 import { injectStyle } from 'react-toastify/dist/inject-style';
+import { auth } from 'renderer/core/auth';
 import { GlobalStyle } from './ui';
 import { AuthPage, StreamersPage, HomePage } from './pages';
 import { Sidebar } from './components';
-import { useAuthStore } from './stores/useAuthStore';
 
 injectStyle();
 
@@ -60,7 +60,7 @@ const onUpdateFailedToast = () => {
 };
 
 export function App() {
-    const { user } = useAuthStore();
+    const { user } = auth.useStore();
     const availableToastId = useRef<React.ReactText | null>(null);
 
     // @ts-ignore

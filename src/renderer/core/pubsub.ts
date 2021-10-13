@@ -1,17 +1,15 @@
-import { authStore } from 'renderer/stores/useAuthStore';
-import {
-    getAllStreamers,
-    getStreamerById,
-    setOnlineStatus,
-    Streamer,
-    StreamerLogin,
-    updateStreamer,
-} from 'renderer/stores/useStreamerStore';
+import { auth } from 'renderer/core/auth';
+import { streamers, StreamerLogin, Streamer } from 'renderer/core/streamers';
 import { logging } from 'renderer/core/logging';
-import { addPointsEarned } from 'renderer/stores/useWatcherStore';
 import { makeGraphqlRequest } from 'renderer/api';
-import { channelIdExistsInCache, checkOnline, getChannelId } from './data';
-import { claimChannelPointsBonus } from './bonus';
+// eslint-disable-next-line import/no-cycle
+import { watcher } from 'renderer/core/watcher';
+import {
+    channelIdExistsInCache,
+    checkOnline,
+    getChannelId,
+} from 'renderer/core/data';
+import { claimChannelPointsBonus } from 'renderer/core/bonus';
 
 const log = logging.getLogger('PUBSUB');
 
@@ -72,7 +70,7 @@ export function stopListeningForChannelPoints() {
 function getNeededTopics(): PubSubTopic[] {
     const topics = [new PubSubTopic('community-points-user-v1')];
 
-    for (const streamer of getAllStreamers()) {
+    for (const streamer of streamers.getAllStreamers()) {
         topics.push(new PubSubTopic('video-playback-by-id', streamer.login));
         topics.push(new PubSubTopic('raid', streamer.login));
     }
@@ -96,7 +94,7 @@ class PubSubTopic {
 
     async value(): Promise<string> {
         if (this.isUserTopic()) {
-            return `${this.topic}.${authStore.getState().user.id}`;
+            return `${this.topic}.${auth.store.getState().user.id}`;
         }
 
         return `${this.topic}.${await getChannelId(this.channelLogin!)}`;
@@ -322,7 +320,7 @@ class WebSocketsPool {
                         const pointsEarned =
                             messageData.point_gain.total_points;
                         const newBalance = messageData.balance.balance;
-                        const streamer = getStreamerById(channelId);
+                        const streamer = streamers.getStreamerById(channelId);
                         const reason = messageData.point_gain.reason_code;
 
                         if (!streamer) {
@@ -350,18 +348,18 @@ class WebSocketsPool {
                             `+${pointsEarned} points for ${streamer.displayName} (${newBalance}) - Reason: ${reason}`
                         );
 
-                        updateStreamer(streamer.id, {
+                        streamers.updateStreamer(streamer.id, {
                             currentBalance: newBalance,
                             pointsEarned: streamer.pointsEarned + pointsEarned,
                         });
-                        addPointsEarned(pointsEarned);
+                        watcher.addPointsEarned(pointsEarned);
                     }
                 } else if (messageType === 'claim-available') {
                     const channelId = messageData.claim.channel_id;
 
                     if (channelIdExistsInCache(channelId)) {
                         const claimId = messageData.claim.id;
-                        const streamer = getStreamerById(channelId);
+                        const streamer = streamers.getStreamerById(channelId);
 
                         if (!streamer) {
                             log.error(
@@ -381,7 +379,7 @@ class WebSocketsPool {
                     }
                 }
             } else if (topic === 'video-playback-by-id') {
-                const streamer = getStreamerById(streamerId);
+                const streamer = streamers.getStreamerById(streamerId);
 
                 if (!streamer) {
                     log.error(`No streamer found with id: ${streamerId}`);
@@ -392,12 +390,12 @@ class WebSocketsPool {
                 // the API updates. Therefore making it useless to check for it
                 //  here, as `checkOnline` will return `isOffline` status.
                 if (messageType === 'stream-down') {
-                    setOnlineStatus(streamer.login, false);
+                    streamers.setOnlineStatus(streamer.login, false);
                 } else if (messageType === 'viewcount') {
                     checkOnline(streamer.login);
                 }
             } else if (topic === 'raid') {
-                const streamer = getStreamerById(streamerId);
+                const streamer = streamers.getStreamerById(streamerId);
 
                 if (!streamer) {
                     log.error(`No streamer found with id: ${streamerId}`);
@@ -426,7 +424,7 @@ class WebSocketsPool {
         };
 
         if (topic.isUserTopic()) {
-            data.auth_token = authStore.getState().accessToken;
+            data.auth_token = auth.store.getState().accessToken;
         }
 
         const nonce = createNonce(15);

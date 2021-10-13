@@ -1,10 +1,5 @@
 import { makeGraphqlRequest } from 'renderer/api';
-import {
-    getAllStreamers,
-    StreamerLogin,
-    updateStreamer,
-    getStreamerByLogin,
-} from 'renderer/stores/useStreamerStore';
+import { streamers, StreamerLogin } from 'renderer/core/streamers';
 import { logging } from 'renderer/core/logging';
 import { getChannelId } from './data';
 
@@ -14,7 +9,7 @@ export async function claimChannelPointsBonus(
     login: StreamerLogin,
     claimId: string
 ) {
-    const streamer = getStreamerByLogin(login);
+    const streamer = streamers.getStreamerByLogin(login);
     const displayname = streamer ? streamer.displayName : login;
     log.debug(`Claming bonus for ${displayname}`);
 
@@ -36,7 +31,7 @@ export async function claimChannelPointsBonus(
 }
 
 export async function loadChannelPointsContext() {
-    getAllStreamers().forEach(async (streamer) => {
+    streamers.getAllStreamers().forEach(async (streamer) => {
         const data = {
             operationName: 'ChannelPointsContext',
             variables: { channelLogin: streamer.login },
@@ -60,7 +55,7 @@ export async function loadChannelPointsContext() {
         const communityPoints =
             response.data.community.channel.self.communityPoints;
         const initialBalance = communityPoints.balance;
-        updateStreamer(streamer.id, {
+        streamers.updateStreamer(streamer.id, {
             currentBalance: initialBalance,
         });
 

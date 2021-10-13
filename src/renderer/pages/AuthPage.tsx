@@ -3,7 +3,7 @@ import styled, { useTheme } from 'styled-components';
 
 import { LoadingScreen, CaptchaSolvingErrorModal } from 'renderer/components';
 import { nodeClient } from 'renderer/api';
-import { useAuthStore } from 'renderer/stores/useAuthStore';
+import { auth } from 'renderer/core/auth';
 import { Button, IconGithub, InputText } from 'renderer/ui';
 
 import { useAppVersion } from 'renderer/hooks';
@@ -25,7 +25,7 @@ interface VerifyOptions {
 // TODO: Clean this mess.
 export function AuthPage() {
     const version = useAppVersion();
-    const { user } = useAuthStore();
+    const { user } = auth.useStore();
     const theme = useTheme();
     const [flowStep, setFlowStep] = useState<FlowStep>(FlowStep.CREDENTIALS);
     const [verifyOptions, setVerifyOptions] = useState<VerifyOptions>({
