@@ -12,7 +12,6 @@ import {
 } from 'renderer/ui';
 import { useQuery } from 'react-query';
 import { watcher } from 'renderer/core/watcher';
-import { signout } from 'renderer/utils/auth';
 import { auth } from 'renderer/core/auth';
 
 interface SidebarOptions {
@@ -85,7 +84,7 @@ export function Sidebar({ currentPage }: SidebarOptions) {
                             iconColor={theme.color.error}
                             bgColorOnHover={theme.color.textPrimary}
                             onClick={() => {
-                                signout();
+                                auth.signout();
                             }}
                         />
                     </i>

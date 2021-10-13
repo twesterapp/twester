@@ -24,6 +24,12 @@ class Auth extends Store<State> {
         this.initStore(() => this.getInitialState());
     }
 
+    public signout() {
+        this.delToken();
+        this.delUser();
+        window.location.reload();
+    }
+
     public setUser(user: User) {
         log.debug('Setting user');
         Storage.set('user', JSON.stringify(user));

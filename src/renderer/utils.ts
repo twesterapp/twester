@@ -1,4 +1,3 @@
-import { signout } from 'renderer/utils/auth';
 import { logging } from 'renderer/core/logging';
 import {
     getChannelContextInfo,
@@ -18,7 +17,8 @@ export async function login(token: string, username: string) {
         log.exception(
             'No channel context info found for the logged in user. This should have never happened.'
         );
-        return signout();
+        auth.signout();
+        return;
     }
 
     const profileImageUrl = await getUserProfilePicture(result.id);
