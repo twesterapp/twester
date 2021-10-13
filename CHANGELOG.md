@@ -6,6 +6,7 @@
 -   Minor: Removed menu bar. ([#11](https://github.com/twesterapp/twester/pull/11))
 -   Minor: Show `IconButton` with `IconEye` for password variant of `InputText`. ([#12](https://github.com/twesterapp/twester/pull/12))
 -   Dev: Enable [`electron-debug`](https://github.com/sindresorhus/electron-debug) for production build. ([#13](https://github.com/twesterapp/twester/pull/13))
+-   Minor: Create classes `Store`, `Storage`, `Watcher`, `Streamers` and `Auth`. ([#14](https://github.com/twesterapp/twester/pull/14))
 
 ## 1.0.2 (08-10-2021)
 
