@@ -1,6 +1,6 @@
 import { logging } from 'renderer/core/logging';
-import { Store } from 'renderer/core/store';
-import { Storage } from 'renderer/core/storage';
+import { Store } from 'renderer/utils/store';
+import { Storage } from 'renderer/utils/storage';
 
 const NAME = 'AUTH';
 
