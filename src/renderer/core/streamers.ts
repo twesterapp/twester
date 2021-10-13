@@ -99,11 +99,8 @@ class Streamers extends Store<State> {
 
         const updated = [...getState().streamers, streamerToAdd];
 
-        Storage.set(this.getStorageKey(), JSON.stringify(updated));
-
-        return setState({
-            streamers: updated,
-        });
+        setState({ streamers: updated });
+        this.syncStateWithStorage();
     }
 
     public removeStreamer(id: StreamerId) {
@@ -115,11 +112,8 @@ class Streamers extends Store<State> {
                 return { ...streamer };
             });
 
-        Storage.set(this.getStorageKey(), JSON.stringify(updated));
-
-        return setState({
-            streamers: updated,
-        });
+        setState({ streamers: updated });
+        this.syncStateWithStorage();
     }
 
     public updateStreamer(id: StreamerId, newValue: UpdateStreamer) {
@@ -134,21 +128,8 @@ class Streamers extends Store<State> {
             return { ...streamer };
         });
 
-        const updatedForPersisting = this.store
-            .getState()
-            .streamers.map((streamer) => ({
-                ...streamer,
-                online: undefined,
-                lastOfflineTime: undefined,
-                currentBalance: undefined,
-                watching: undefined,
-            }));
-
-        Storage.set(this.getStorageKey(), JSON.stringify(updatedForPersisting));
-
-        this.store.setState({
-            streamers: updated,
-        });
+        this.store.setState({ streamers: updated });
+        this.syncStateWithStorage();
     }
 
     public getStreamerById(id: StreamerId): Streamer | void {
@@ -247,19 +228,8 @@ class Streamers extends Store<State> {
         updated[dragIndex] = hover;
         updated[hoverIndex] = drag.streamer;
 
-        // We don't want to store these keys to storage. The `updated` array is for
-        // app state. This one is for persisting to localStorage.
-        const updatedForPersisting = updated.map((streamer) => ({
-            ...streamer,
-            online: undefined,
-            lastOfflineTime: undefined,
-            currentBalance: undefined,
-            watching: undefined,
-        }));
-
-        Storage.set(this.getStorageKey(), JSON.stringify(updatedForPersisting));
-
-        return this.store.setState({ streamers: updated });
+        this.store.setState({ streamers: updated });
+        this.syncStateWithStorage();
     }
 
     private getStorageKey() {
