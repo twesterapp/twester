@@ -10,10 +10,10 @@ import {
     useStreamerStore,
     addStreamer,
 } from 'renderer/stores/useStreamerStore';
-import { canStartWatcher } from 'renderer/stores/useWatcherStore';
 import { Button, IconPlus, InputText, Link } from 'renderer/ui';
 import { px2em } from 'renderer/utils';
 import { logging } from 'renderer/core/logging';
+import { watcher } from 'renderer/core/watcher';
 
 const log = logging.getLogger('STREAMERS_PAGE');
 
@@ -54,7 +54,7 @@ export function StreamersPage() {
 
     return (
         <PageWrapper>
-            {!canStartWatcher() && (
+            {!watcher.canPlay() && (
                 <HelpMessage>
                     Go to <Link to="/">Home</Link> tab and{' '}
                     <em>
@@ -68,7 +68,7 @@ export function StreamersPage() {
                     style={{ marginRight: `${px2em(12)}`, width: '300px' }}
                     placeholder="Streamer to add"
                     value={searchText}
-                    disabled={!canStartWatcher() || fetchingStreamer}
+                    disabled={!watcher.canPlay() || fetchingStreamer}
                     onChange={(e) => setSearchText(e.target.value)}
                     hidePlaceholderOnFocus={false}
                 />
@@ -76,7 +76,7 @@ export function StreamersPage() {
                     width="46px"
                     variant="submit"
                     loading={fetchingStreamer}
-                    disabled={!canStartWatcher() ?? !searchText.trim()}
+                    disabled={!watcher.canPlay() ?? !searchText.trim()}
                 >
                     <IconPlus />
                 </Button>

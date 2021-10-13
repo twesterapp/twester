@@ -7,33 +7,48 @@ import {
     resetOnlineStatusOfStreamers,
     updateStreamer,
 } from 'renderer/stores/useStreamerStore';
-import {
-    setWatcherStatus,
-    isWatcherRunning,
-    WatcherStatus,
-    canStopWatcher,
-    canStartWatcher,
-    incrementMinutesWatched,
-} from 'renderer/stores/useWatcherStore';
 import { abortAllSleepingTasks, sleep } from 'renderer/utils';
 import { rightNowInSecs } from 'renderer/utils/rightNowInSecs';
-import { v4 as uuid } from 'uuid';
-import { loadChannelPointsContext } from './bonus';
-import { getMinuteWatchedRequestInfo, updateStreamersToWatch } from './data';
+import { loadChannelPointsContext } from 'renderer/core/bonus';
+import {
+    getMinuteWatchedRequestInfo,
+    updateStreamersToWatch,
+} from 'renderer/core/data';
+// eslint-disable-next-line import/no-cycle
 import {
     startListeningForChannelPoints,
     stopListeningForChannelPoints,
-} from './pubsub';
+} from 'renderer/core/pubsub';
+import { logging } from 'renderer/core/logging';
+import { Store } from 'renderer/core/store';
 
-import { logging } from './logging';
+const NAME = 'WATCHER';
 
-const log = logging.getLogger('WATCHER');
+const log = logging.getLogger(NAME);
 
-class Watcher {
-    private id: string;
+export enum WatcherStatus {
+    // Watcher has not booted even once.
+    INIT = 'INIT',
+    BOOTING = 'BOOTING',
+    RUNNING = 'RUNNING',
+    STOPPING = 'STOPPING',
+    STOPPED = 'STOPPED',
+}
+
+interface State {
+    status: WatcherStatus;
+    minutesWatched: number;
+    pointsEarned: number;
+}
+
+type SavedState = Omit<State, 'status'>;
+
+class Watcher extends Store<State> {
+    private firstBoot = true;
 
     constructor() {
-        this.id = '';
+        super(NAME);
+        this.initStore(() => this.getInitialState());
     }
 
     public async play() {
@@ -41,16 +56,16 @@ class Watcher {
             !authStore.getState().accessToken ||
             !authStore.getState().user.id
         ) {
-            log.error('User is unauthorized. Skipping to start Watcher.');
+            log.exception('User is unauthorized. Skipping to start Watcher.');
             return;
         }
 
         log.debug('Watcher is booting');
-        setWatcherStatus(WatcherStatus.BOOTING);
+        this.setWatcherStatus(WatcherStatus.BOOTING);
 
-        if (!this.id) {
-            this.id = uuid();
+        if (this.firstBoot) {
             log.info(`Watcher is starting`);
+            this.firstBoot = false;
         } else {
             log.info(`Watcher is resuming`);
         }
@@ -60,10 +75,10 @@ class Watcher {
         await updateStreamersToWatch();
         startListeningForChannelPoints();
 
-        setWatcherStatus(WatcherStatus.RUNNING);
+        this.setWatcherStatus(WatcherStatus.RUNNING);
         log.debug('Watcher is running');
 
-        while (isWatcherRunning()) {
+        while (this.isWatcherRunning()) {
             const streamersToWatch = getOnlineStreamers().slice(0, 2);
             const numOfStreamersToWatch = streamersToWatch.length;
 
@@ -103,7 +118,7 @@ class Watcher {
                                 });
 
                                 if (
-                                    minutePassedSince(
+                                    this.minutePassedSince(
                                         streamer.lastMinuteWatchedEventTime
                                     ) ||
                                     !streamer.lastMinuteWatchedEventTime
@@ -114,7 +129,7 @@ class Watcher {
                                         lastMinuteWatchedEventTime:
                                             rightNowInSecs(),
                                     });
-                                    incrementMinutesWatched();
+                                    this.incrementMinutesWatched();
                                 }
 
                                 log.debug(
@@ -139,24 +154,43 @@ class Watcher {
 
     public pause() {
         log.debug('Watcher is stopping');
-        setWatcherStatus(WatcherStatus.STOPPING);
+        this.setWatcherStatus(WatcherStatus.STOPPING);
 
         abortAllSleepingTasks();
         stopListeningForChannelPoints();
         resetOnlineStatusOfStreamers();
 
-        setWatcherStatus(WatcherStatus.STOPPED);
+        this.setWatcherStatus(WatcherStatus.STOPPED);
 
         log.info(`Watcher is paused`);
         log.debug('Watcher is stopped');
     }
 
+    // This is NOT same as `!canPause()`
     public canPlay(): boolean {
-        return canStartWatcher();
+        if (
+            this.store.getState().status === WatcherStatus.INIT ||
+            this.store.getState().status === WatcherStatus.STOPPED
+        ) {
+            return true;
+        }
+
+        return false;
     }
 
+    // This is NOT same as `!canStart()`
     public canPause(): boolean {
-        return canStopWatcher();
+        if (this.store.getState().status === WatcherStatus.RUNNING) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public addPointsEarned(points: number) {
+        const { getState, setState } = this.store;
+        setState({ pointsEarned: getState().pointsEarned + points });
+        this.syncStateWithStorage();
     }
 
     // This updates `watching` to `false` for streamers that are no longer being
@@ -177,12 +211,69 @@ class Watcher {
             }
         }
     }
+
+    // IDK if I should compare with 60. This function exists to stop us from doing
+    // things that should have happened only once per minute.
+    private minutePassedSince(time: number): boolean {
+        return rightNowInSecs() - time > 59;
+    }
+
+    private getStorageKey() {
+        return `${authStore.getState().user.id}.watcher`;
+    }
+
+    private getInitialState(): State {
+        try {
+            const savedState: SavedState = JSON.parse(
+                localStorage.getItem(this.getStorageKey()) || ''
+            );
+
+            log.debug(`Loaded ${this.storeName} state from storage`);
+
+            return {
+                ...savedState,
+                status: WatcherStatus.INIT,
+            };
+        } catch (err) {
+            log.error(
+                `Failed to load ${this.storeName} state from storage:`,
+                err.message
+            );
+            log.warning(`${this.storeName} state set to default`);
+
+            return {
+                status: WatcherStatus.INIT,
+                minutesWatched: 0,
+                pointsEarned: 0,
+            };
+        }
+    }
+
+    private setWatcherStatus(status: WatcherStatus) {
+        this.store.setState({ status });
+    }
+
+    private isWatcherRunning(): boolean {
+        if (this.store.getState().status === WatcherStatus.RUNNING) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private incrementMinutesWatched() {
+        const { getState, setState } = this.store;
+        setState({ minutesWatched: (getState().minutesWatched += 1) });
+        this.syncStateWithStorage();
+    }
+
+    private syncStateWithStorage() {
+        const state: SavedState = {
+            minutesWatched: this.store.getState().minutesWatched,
+            pointsEarned: this.store.getState().pointsEarned,
+        };
+        localStorage.setItem(this.getStorageKey(), JSON.stringify(state));
+    }
 }
 
 export const watcher = new Watcher();
-
-// IDK if I should compare with 60. This function exists to stop us from doing
-// things that should have happened only once per minute.
-function minutePassedSince(time: number): boolean {
-    return rightNowInSecs() - time > 59;
-}

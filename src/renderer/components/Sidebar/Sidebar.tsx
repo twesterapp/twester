@@ -12,7 +12,7 @@ import {
 } from 'renderer/ui';
 import { useQuery } from 'react-query';
 import { authStore, useAuthStore } from 'renderer/stores/useAuthStore';
-import { useWatcherStore } from 'renderer/stores/useWatcherStore';
+import { watcher } from 'renderer/core/watcher';
 import { signout } from 'renderer/utils/auth';
 
 interface SidebarOptions {
@@ -26,7 +26,7 @@ export function Sidebar({ currentPage }: SidebarOptions) {
     const theme = useTheme();
     const { user } = useAuthStore();
     // So that we can conditionally re-render `IconPause` or `IconPlay`.
-    useWatcherStore();
+    watcher.useStore();
 
     const { data: profileImageUrl } = useQuery('ME_INFO', async () => {
         const id = await fetchChannelId(user.login);

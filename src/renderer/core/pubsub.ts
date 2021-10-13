@@ -8,10 +8,15 @@ import {
     updateStreamer,
 } from 'renderer/stores/useStreamerStore';
 import { logging } from 'renderer/core/logging';
-import { addPointsEarned } from 'renderer/stores/useWatcherStore';
 import { makeGraphqlRequest } from 'renderer/api';
-import { channelIdExistsInCache, checkOnline, getChannelId } from './data';
-import { claimChannelPointsBonus } from './bonus';
+// eslint-disable-next-line import/no-cycle
+import { watcher } from 'renderer/core/watcher';
+import {
+    channelIdExistsInCache,
+    checkOnline,
+    getChannelId,
+} from 'renderer/core/data';
+import { claimChannelPointsBonus } from 'renderer/core/bonus';
 
 const log = logging.getLogger('PUBSUB');
 
@@ -354,7 +359,7 @@ class WebSocketsPool {
                             currentBalance: newBalance,
                             pointsEarned: streamer.pointsEarned + pointsEarned,
                         });
-                        addPointsEarned(pointsEarned);
+                        watcher.addPointsEarned(pointsEarned);
                     }
                 } else if (messageType === 'claim-available') {
                     const channelId = messageData.claim.channel_id;

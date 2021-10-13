@@ -11,8 +11,8 @@ enum Level {
 }
 
 enum Hex {
-    EXCEPTION = '#FF5252',
-    ERROR = '#FF5C8A',
+    EXCEPTION = '#FF5C8A',
+    ERROR = '#FF5252',
     WARNING = '#FFB703',
     INFO = '#8CD3FF',
     DEBUG = '#26ABFF',
@@ -60,7 +60,7 @@ class Log {
         this.content = [...args];
         this.print();
 
-        if (sendToMain) {
+        if (sendToMain && process.env.NODE_ENV !== 'test') {
             // @ts-ignore
             window.electron.ipcRenderer.sendLog(this);
         }
