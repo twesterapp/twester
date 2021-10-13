@@ -21,6 +21,7 @@ import {
 } from 'renderer/core/pubsub';
 import { logging } from 'renderer/core/logging';
 import { Store } from 'renderer/core/store';
+import { Storage } from 'renderer/core/storage';
 
 const NAME = 'WATCHER';
 
@@ -225,7 +226,7 @@ class Watcher extends Store<State> {
     private getInitialState(): State {
         try {
             const savedState: SavedState = JSON.parse(
-                localStorage.getItem(this.getStorageKey()) || ''
+                Storage.get(this.getStorageKey()) || ''
             );
 
             log.debug(`Loaded ${this.storeName} state from storage`);
@@ -272,7 +273,7 @@ class Watcher extends Store<State> {
             minutesWatched: this.store.getState().minutesWatched,
             pointsEarned: this.store.getState().pointsEarned,
         };
-        localStorage.setItem(this.getStorageKey(), JSON.stringify(state));
+        Storage.set(this.getStorageKey(), JSON.stringify(state));
     }
 }
 
