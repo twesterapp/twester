@@ -1,5 +1,5 @@
 import { nodeClient } from 'renderer/api';
-import { authStore } from 'renderer/stores/useAuthStore';
+import { auth } from 'renderer/core/auth';
 import {
     getAllStreamers,
     getOnlineStreamers,
@@ -53,8 +53,8 @@ class Watcher extends Store<State> {
 
     public async play() {
         if (
-            !authStore.getState().accessToken ||
-            !authStore.getState().user.id
+            !auth.store.getState().accessToken ||
+            !auth.store.getState().user.id
         ) {
             log.exception('User is unauthorized. Skipping to start Watcher.');
             return;
@@ -219,7 +219,7 @@ class Watcher extends Store<State> {
     }
 
     private getStorageKey() {
-        return `${authStore.getState().user.id}.watcher`;
+        return `${auth.store.getState().user.id}.watcher`;
     }
 
     private getInitialState(): State {
@@ -239,7 +239,7 @@ class Watcher extends Store<State> {
                 `Failed to load ${this.storeName} state from storage:`,
                 err.message
             );
-            log.warning(`${this.storeName} state set to default`);
+            log.warning(`Setting ${this.storeName} state to default`);
 
             return {
                 status: WatcherStatus.INIT,

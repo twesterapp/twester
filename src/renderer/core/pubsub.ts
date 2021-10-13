@@ -1,4 +1,4 @@
-import { authStore } from 'renderer/stores/useAuthStore';
+import { auth } from 'renderer/core/auth';
 import {
     getAllStreamers,
     getStreamerById,
@@ -101,7 +101,7 @@ class PubSubTopic {
 
     async value(): Promise<string> {
         if (this.isUserTopic()) {
-            return `${this.topic}.${authStore.getState().user.id}`;
+            return `${this.topic}.${auth.store.getState().user.id}`;
         }
 
         return `${this.topic}.${await getChannelId(this.channelLogin!)}`;
@@ -431,7 +431,7 @@ class WebSocketsPool {
         };
 
         if (topic.isUserTopic()) {
-            data.auth_token = authStore.getState().accessToken;
+            data.auth_token = auth.store.getState().accessToken;
         }
 
         const nonce = createNonce(15);

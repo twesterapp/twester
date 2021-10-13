@@ -1,5 +1,5 @@
 import { makeGraphqlRequest, nodeClient } from 'renderer/api';
-import { authStore } from 'renderer/stores/useAuthStore';
+import { auth } from 'renderer/core/auth';
 import {
     getAllStreamers,
     isOnline,
@@ -58,7 +58,7 @@ export async function updateMinuteWatchedEventRequestInfo(
         channel_id: await getChannelId(streamerLogin),
         broadcast_id: await getBroadcastId(streamerLogin),
         player: 'site',
-        user_id: parseInt(authStore.getState().user.id, 10),
+        user_id: parseInt(auth.store.getState().user.id, 10),
     };
 
     const minuteWatched = {

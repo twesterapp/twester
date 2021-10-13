@@ -3,7 +3,7 @@ import create from 'zustand';
 
 import { rightNowInSecs } from 'renderer/utils/rightNowInSecs';
 import { logging } from 'renderer/core/logging';
-import { authStore } from './useAuthStore';
+import { auth } from 'renderer/core/auth';
 
 const log = logging.getLogger('STREAMER');
 
@@ -56,7 +56,7 @@ interface UpdateStreamer {
     lastMinuteWatchedEventTime?: number;
 }
 
-const getStorageKey = () => `${authStore.getState().user.id}.streamers`;
+const getStorageKey = () => `${auth.store.getState().user.id}.streamers`;
 
 function getInitialState(): State {
     try {

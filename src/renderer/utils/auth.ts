@@ -1,7 +1,7 @@
-import { delToken, delUser } from 'renderer/stores/useAuthStore';
+import { auth } from 'renderer/core/auth';
 
 export function signout() {
-    delToken();
-    delUser();
+    auth.delToken();
+    auth.delUser();
     window.location.reload();
 }

@@ -11,9 +11,9 @@ import {
     IconButton,
 } from 'renderer/ui';
 import { useQuery } from 'react-query';
-import { authStore, useAuthStore } from 'renderer/stores/useAuthStore';
 import { watcher } from 'renderer/core/watcher';
 import { signout } from 'renderer/utils/auth';
+import { auth } from 'renderer/core/auth';
 
 interface SidebarOptions {
     // This helps us fix the issue of active icon in the sidebar not updating
@@ -24,7 +24,7 @@ interface SidebarOptions {
 export function Sidebar({ currentPage }: SidebarOptions) {
     const history = useHistory();
     const theme = useTheme();
-    const { user } = useAuthStore();
+    const { user } = auth.useStore();
     // So that we can conditionally re-render `IconPause` or `IconPlay`.
     watcher.useStore();
 
@@ -94,14 +94,14 @@ export function Sidebar({ currentPage }: SidebarOptions) {
                 <i style={{ height: '11px' }} />
 
                 <Tooltip
-                    title={authStore.getState().user.login || ''}
+                    title={auth.store.getState().user.login || ''}
                     placement="right"
                     enterDelay={1000}
                 >
                     <i>
                         <a
                             href={`https://www.twitch.tv/${
-                                authStore.getState().user.login
+                                auth.store.getState().user.login
                             }`}
                             target="_blank"
                             rel="noreferrer"
