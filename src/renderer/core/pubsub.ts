@@ -1,12 +1,5 @@
 import { auth } from 'renderer/core/auth';
-import {
-    getAllStreamers,
-    getStreamerById,
-    setOnlineStatus,
-    Streamer,
-    StreamerLogin,
-    updateStreamer,
-} from 'renderer/stores/useStreamerStore';
+import { streamers, StreamerLogin, Streamer } from 'renderer/core/streamers';
 import { logging } from 'renderer/core/logging';
 import { makeGraphqlRequest } from 'renderer/api';
 // eslint-disable-next-line import/no-cycle
@@ -77,7 +70,7 @@ export function stopListeningForChannelPoints() {
 function getNeededTopics(): PubSubTopic[] {
     const topics = [new PubSubTopic('community-points-user-v1')];
 
-    for (const streamer of getAllStreamers()) {
+    for (const streamer of streamers.getAllStreamers()) {
         topics.push(new PubSubTopic('video-playback-by-id', streamer.login));
         topics.push(new PubSubTopic('raid', streamer.login));
     }
@@ -327,7 +320,7 @@ class WebSocketsPool {
                         const pointsEarned =
                             messageData.point_gain.total_points;
                         const newBalance = messageData.balance.balance;
-                        const streamer = getStreamerById(channelId);
+                        const streamer = streamers.getStreamerById(channelId);
                         const reason = messageData.point_gain.reason_code;
 
                         if (!streamer) {
@@ -355,7 +348,7 @@ class WebSocketsPool {
                             `+${pointsEarned} points for ${streamer.displayName} (${newBalance}) - Reason: ${reason}`
                         );
 
-                        updateStreamer(streamer.id, {
+                        streamers.updateStreamer(streamer.id, {
                             currentBalance: newBalance,
                             pointsEarned: streamer.pointsEarned + pointsEarned,
                         });
@@ -366,7 +359,7 @@ class WebSocketsPool {
 
                     if (channelIdExistsInCache(channelId)) {
                         const claimId = messageData.claim.id;
-                        const streamer = getStreamerById(channelId);
+                        const streamer = streamers.getStreamerById(channelId);
 
                         if (!streamer) {
                             log.error(
@@ -386,7 +379,7 @@ class WebSocketsPool {
                     }
                 }
             } else if (topic === 'video-playback-by-id') {
-                const streamer = getStreamerById(streamerId);
+                const streamer = streamers.getStreamerById(streamerId);
 
                 if (!streamer) {
                     log.error(`No streamer found with id: ${streamerId}`);
@@ -397,12 +390,12 @@ class WebSocketsPool {
                 // the API updates. Therefore making it useless to check for it
                 //  here, as `checkOnline` will return `isOffline` status.
                 if (messageType === 'stream-down') {
-                    setOnlineStatus(streamer.login, false);
+                    streamers.setOnlineStatus(streamer.login, false);
                 } else if (messageType === 'viewcount') {
                     checkOnline(streamer.login);
                 }
             } else if (topic === 'raid') {
-                const streamer = getStreamerById(streamerId);
+                const streamer = streamers.getStreamerById(streamerId);
 
                 if (!streamer) {
                     log.error(`No streamer found with id: ${streamerId}`);

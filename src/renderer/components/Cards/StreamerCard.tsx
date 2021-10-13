@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-    Streamer,
-    removeStreamer,
-    updateStreamer,
-    moveStreamerCard,
-    findStreamerCard,
-    StreamerId,
-} from 'renderer/stores/useStreamerStore';
+import { streamers, Streamer, StreamerId } from 'renderer/core/streamers';
 import {
     Avatar,
     IconClock,
@@ -48,7 +41,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
         getChannelContextInfo(streamer.login)
     );
 
-    const originalIndex = findStreamerCard(streamer.id).index;
+    const originalIndex = streamers.findStreamerCard(streamer.id).index;
 
     const [{ isDragging }, drag] = useDrag(
         () => ({
@@ -62,11 +55,11 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
                 const { streamerId: droppedId, originalIndex } = item;
                 const didDrop = monitor.didDrop();
                 if (!didDrop) {
-                    moveStreamerCard(droppedId, originalIndex);
+                    streamers.moveStreamerCard(droppedId, originalIndex);
                 }
             },
         }),
-        [streamer.id, originalIndex, moveStreamerCard]
+        [streamer.id, originalIndex, streamers.moveStreamerCard]
     );
 
     const [, drop] = useDrop(
@@ -75,12 +68,14 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
             canDrop: () => false,
             hover({ streamerId: draggedId }: Item) {
                 if (draggedId !== streamer.id) {
-                    const { index: overIndex } = findStreamerCard(streamer.id);
-                    moveStreamerCard(draggedId, overIndex);
+                    const { index: overIndex } = streamers.findStreamerCard(
+                        streamer.id
+                    );
+                    streamers.moveStreamerCard(draggedId, overIndex);
                 }
             },
         }),
-        [findStreamerCard, moveStreamerCard]
+        [streamers.findStreamerCard, streamers.moveStreamerCard]
     );
 
     React.useEffect(() => {
@@ -88,7 +83,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
             const result = await getChannelContextInfo(data.login);
             const profileImageUrl = await getUserProfilePicture(data.id);
 
-            updateStreamer(streamer.id, {
+            streamers.updateStreamer(streamer.id, {
                 displayName: result?.displayName || data.displayName,
                 profileImageUrl,
             });
@@ -111,7 +106,9 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
                     {watcher.canPlay() ? (
                         <button
                             id="remove-button"
-                            onClick={() => removeStreamer(streamer.id)}
+                            onClick={() =>
+                                streamers.removeStreamer(streamer.id)
+                            }
                             type="button"
                         >
                             <IconCross

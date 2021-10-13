@@ -1,12 +1,6 @@
 import { makeGraphqlRequest, nodeClient } from 'renderer/api';
 import { auth } from 'renderer/core/auth';
-import {
-    getAllStreamers,
-    isOnline,
-    setOnlineStatus,
-    StreamerId,
-    StreamerLogin,
-} from 'renderer/stores/useStreamerStore';
+import { streamers, StreamerLogin, StreamerId } from 'renderer/core/streamers';
 import { logging } from 'renderer/core/logging';
 import { rightNowInSecs } from 'renderer/utils/rightNowInSecs';
 import { StreamerIsOfflineError } from './errors';
@@ -139,7 +133,7 @@ export async function getBroadcastId(streamerLogin: string): Promise<string> {
 }
 
 export async function updateStreamersToWatch() {
-    for (const streamer of getAllStreamers()) {
+    for (const streamer of streamers.getAllStreamers()) {
         await checkOnline(streamer.login);
     }
 }
@@ -152,13 +146,13 @@ export async function checkOnline(login: StreamerLogin) {
         return;
     }
 
-    if (!isOnline(login)) {
+    if (!streamers.isOnline(login)) {
         try {
             await updateMinuteWatchedEventRequestInfo(login);
-            setOnlineStatus(login, true);
+            streamers.setOnlineStatus(login, true);
         } catch (err) {
             if (err instanceof StreamerIsOfflineError) {
-                setOnlineStatus(login, false);
+                streamers.setOnlineStatus(login, false);
             }
         }
     }

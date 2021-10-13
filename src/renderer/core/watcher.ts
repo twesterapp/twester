@@ -1,12 +1,6 @@
 import { nodeClient } from 'renderer/api';
 import { auth } from 'renderer/core/auth';
-import {
-    getAllStreamers,
-    getOnlineStreamers,
-    isOnline,
-    resetOnlineStatusOfStreamers,
-    updateStreamer,
-} from 'renderer/stores/useStreamerStore';
+import { streamers } from 'renderer/core/streamers';
 import { abortAllSleepingTasks, sleep } from 'renderer/utils';
 import { rightNowInSecs } from 'renderer/utils/rightNowInSecs';
 import { loadChannelPointsContext } from 'renderer/core/bonus';
@@ -71,7 +65,11 @@ class Watcher extends Store<State> {
             log.info(`Watcher is resuming`);
         }
 
-        log.info(`Loading data for ${getAllStreamers().length} streamers...`);
+        log.info(
+            `Loading data for ${
+                streamers.getAllStreamers().length
+            } streamers...`
+        );
         await loadChannelPointsContext();
         await updateStreamersToWatch();
         startListeningForChannelPoints();
@@ -80,7 +78,7 @@ class Watcher extends Store<State> {
         log.debug('Watcher is running');
 
         while (this.isWatcherRunning()) {
-            const streamersToWatch = getOnlineStreamers().slice(0, 2);
+            const streamersToWatch = streamers.getOnlineStreamers().slice(0, 2);
             const numOfStreamersToWatch = streamersToWatch.length;
 
             if (numOfStreamersToWatch) {
@@ -95,7 +93,7 @@ class Watcher extends Store<State> {
                     // will still keep watching that streamer because this
                     // `isOnline` check is made with cached value instead of
                     // actual recently fetched data from the Twitch server.
-                    if (isOnline(streamer.login)) {
+                    if (streamers.isOnline(streamer.login)) {
                         try {
                             const info = getMinuteWatchedRequestInfo(
                                 streamer.login
@@ -103,7 +101,7 @@ class Watcher extends Store<State> {
 
                             if (info) {
                                 if (!streamer.watching) {
-                                    updateStreamer(streamer.id, {
+                                    streamers.updateStreamer(streamer.id, {
                                         watching: true,
                                     });
                                     log.info(
@@ -124,7 +122,7 @@ class Watcher extends Store<State> {
                                     ) ||
                                     !streamer.lastMinuteWatchedEventTime
                                 ) {
-                                    updateStreamer(streamer.id, {
+                                    streamers.updateStreamer(streamer.id, {
                                         minutesWatched:
                                             (streamer.minutesWatched += 1),
                                         lastMinuteWatchedEventTime:
@@ -159,7 +157,7 @@ class Watcher extends Store<State> {
 
         abortAllSleepingTasks();
         stopListeningForChannelPoints();
-        resetOnlineStatusOfStreamers();
+        streamers.resetOnlineStatusOfStreamers();
 
         this.setWatcherStatus(WatcherStatus.STOPPED);
 
@@ -199,7 +197,7 @@ class Watcher extends Store<State> {
     private fixWatchingStatus(): void {
         // We can only watch the first 2 online streamers. So these are the
         // streamers we should NOT be watching.
-        const streamersToNotWatch = getOnlineStreamers().slice(2);
+        const streamersToNotWatch = streamers.getOnlineStreamers().slice(2);
 
         if (!streamersToNotWatch.length) {
             return;
@@ -207,7 +205,7 @@ class Watcher extends Store<State> {
 
         for (const streamer of streamersToNotWatch) {
             if (streamer.watching) {
-                updateStreamer(streamer.id, { watching: false });
+                streamers.updateStreamer(streamer.id, { watching: false });
                 log.info(`Stopped watching ${streamer.displayName}`);
             }
         }

@@ -6,10 +6,7 @@ import {
     getChannelContextInfo,
     getUserProfilePicture,
 } from 'renderer/core/data';
-import {
-    useStreamerStore,
-    addStreamer,
-} from 'renderer/stores/useStreamerStore';
+import { streamers } from 'renderer/core/streamers';
 import { Button, IconPlus, InputText, Link } from 'renderer/ui';
 import { px2em } from 'renderer/utils';
 import { logging } from 'renderer/core/logging';
@@ -20,7 +17,7 @@ const log = logging.getLogger('STREAMERS_PAGE');
 export function StreamersPage() {
     const [searchText, setSearchText] = React.useState('');
     const [fetchingStreamer, setFetchingStreamer] = React.useState(false);
-    const { streamers } = useStreamerStore();
+    const { streamers: allStreamers } = streamers.useStore();
 
     async function handleAddStreamer(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -35,7 +32,7 @@ export function StreamersPage() {
             }
             const profileImageUrl = await getUserProfilePicture(result.id);
 
-            addStreamer({
+            streamers.addStreamer({
                 id: result.id,
                 login: result.login,
                 displayName: result.displayName,
@@ -88,8 +85,8 @@ export function StreamersPage() {
             </Info>
 
             <Streamers ref={drop}>
-                {streamers.length > 0 &&
-                    streamers.map((streamer) => {
+                {allStreamers.length > 0 &&
+                    allStreamers.map((streamer) => {
                         return (
                             <StreamerCard
                                 key={streamer.id}

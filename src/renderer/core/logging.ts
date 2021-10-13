@@ -224,4 +224,3 @@ class Logging {
 }
 
 export const logging = new Logging();
-export type LoggerType = InstanceType<typeof Logger>;
