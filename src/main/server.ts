@@ -413,7 +413,7 @@ const PORT = '42069';
 export async function startServer() {
     if (await isPortFree(PORT)) {
         app.listen(PORT, () => {
-            log(`Server started at http://127.0.0.1:${PORT} 🚀`);
+            log(`🚀 Server started at http://localhost:${PORT}`);
         });
     }
 }
