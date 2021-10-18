@@ -2,6 +2,8 @@
 
 ## Unversioned
 
+## 1.0.3 (18-10-2021)
+
 -   Minor: Improved logging. ([#8](https://github.com/twesterapp/twester/pull/8))
 -   Minor: Removed menu bar. ([#11](https://github.com/twesterapp/twester/pull/11))
 -   Minor: Show `IconButton` with `IconEye` for password variant of `InputText`. ([#12](https://github.com/twesterapp/twester/pull/12))
