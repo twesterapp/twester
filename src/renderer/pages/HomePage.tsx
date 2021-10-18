@@ -214,7 +214,6 @@ const LogContainer = styled.div`
 
     &::-webkit-scrollbar {
         width: 0.69rem;
-        height: 0.69em;
     }
 
     &::-webkit-scrollbar-track {
@@ -223,6 +222,7 @@ const LogContainer = styled.div`
 
     &::-webkit-scrollbar-thumb {
         background: ${(props) => props.theme.color.background3};
+        min-height: 20%;
     }
 `;
 
