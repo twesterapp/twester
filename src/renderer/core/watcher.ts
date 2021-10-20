@@ -26,8 +26,8 @@ export enum WatcherStatus {
     INIT = 'INIT',
     BOOTING = 'BOOTING',
     RUNNING = 'RUNNING',
-    STOPPING = 'STOPPING',
-    STOPPED = 'STOPPED',
+    PAUSING = 'PAUSING',
+    PAUSED = 'PAUSED',
 }
 
 interface State {
@@ -39,8 +39,6 @@ interface State {
 type SavedState = Omit<State, 'status'>;
 
 class Watcher extends Store<State> {
-    private firstBoot = true;
-
     constructor() {
         super(NAME);
         this.initStore(() => this.getInitialState());
@@ -55,15 +53,8 @@ class Watcher extends Store<State> {
             return;
         }
 
-        log.debug('Watcher is booting');
+        log.info('Watcher is booting...');
         this.setWatcherStatus(WatcherStatus.BOOTING);
-
-        if (this.firstBoot) {
-            log.info(`Watcher is starting`);
-            this.firstBoot = false;
-        } else {
-            log.info(`Watcher is resuming`);
-        }
 
         log.info(
             `Loading data for ${
@@ -75,9 +66,9 @@ class Watcher extends Store<State> {
         startListeningForChannelPoints();
 
         this.setWatcherStatus(WatcherStatus.RUNNING);
-        log.debug('Watcher is running');
+        log.info('Watcher is running!');
 
-        while (this.isWatcherRunning()) {
+        while (this.isRunning()) {
             const streamersToWatch = streamers.getOnlineStreamers().slice(0, 2);
             const numOfStreamersToWatch = streamersToWatch.length;
 
@@ -152,24 +143,23 @@ class Watcher extends Store<State> {
     }
 
     public pause() {
-        log.debug('Watcher is stopping');
-        this.setWatcherStatus(WatcherStatus.STOPPING);
+        log.info('Watcher is pausing...');
+        this.setWatcherStatus(WatcherStatus.PAUSING);
 
         abortAllSleepingTasks();
         stopListeningForChannelPoints();
         streamers.resetOnlineStatusOfStreamers();
 
-        this.setWatcherStatus(WatcherStatus.STOPPED);
+        this.setWatcherStatus(WatcherStatus.PAUSED);
 
-        log.info(`Watcher is paused`);
-        log.debug('Watcher is stopped');
+        log.info(`Watcher is paused!`);
     }
 
     // This is NOT same as `!canPause()`
     public canPlay(): boolean {
         if (
             this.store.getState().status === WatcherStatus.INIT ||
-            this.store.getState().status === WatcherStatus.STOPPED
+            this.store.getState().status === WatcherStatus.PAUSED
         ) {
             return true;
         }
@@ -252,7 +242,7 @@ class Watcher extends Store<State> {
         this.store.setState({ status });
     }
 
-    private isWatcherRunning(): boolean {
+    private isRunning(): boolean {
         if (this.store.getState().status === WatcherStatus.RUNNING) {
             return true;
         }
