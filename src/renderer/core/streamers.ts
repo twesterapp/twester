@@ -96,7 +96,7 @@ class Streamers extends Store<State> {
         const updated = [...this.store.getState().streamers, streamerToAdd];
 
         this.store.setState({ streamers: updated });
-        this.syncStateWithStorage();
+        this.syncStorageWithStore();
     }
 
     public removeStreamer(id: StreamerId) {
@@ -108,7 +108,7 @@ class Streamers extends Store<State> {
             });
 
         this.store.setState({ streamers: updated });
-        this.syncStateWithStorage();
+        this.syncStorageWithStore();
     }
 
     public updateStreamer(id: StreamerId, newValue: UpdateStreamer) {
@@ -124,7 +124,7 @@ class Streamers extends Store<State> {
         });
 
         this.store.setState({ streamers: updated });
-        this.syncStateWithStorage();
+        this.syncStorageWithStore();
     }
 
     public getStreamerById(id: StreamerId): Streamer | void {
@@ -222,7 +222,7 @@ class Streamers extends Store<State> {
         updated[hoverIndex] = drag.streamer;
 
         this.store.setState({ streamers: updated });
-        this.syncStateWithStorage();
+        this.syncStorageWithStore();
     }
 
     private getStorageKey() {
@@ -248,7 +248,7 @@ class Streamers extends Store<State> {
         }
     }
 
-    private syncStateWithStorage() {
+    private syncStorageWithStore() {
         // We don't want to store these properties of streamer to Storage.
         // for app state. This one is for persisting to Storage.
         const updatedForPersisting = this.store

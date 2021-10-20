@@ -182,7 +182,7 @@ class Watcher extends Store<State> {
         this.store.setState({
             pointsEarned: this.store.getState().pointsEarned + points,
         });
-        this.syncStateWithStorage();
+        this.syncStorageWithStore();
     }
 
     // This updates `watching` to `false` for streamers that are no longer being
@@ -257,10 +257,10 @@ class Watcher extends Store<State> {
         this.store.setState({
             minutesWatched: (this.store.getState().minutesWatched += 1),
         });
-        this.syncStateWithStorage();
+        this.syncStorageWithStore();
     }
 
-    private syncStateWithStorage() {
+    private syncStorageWithStore() {
         const state: SavedState = {
             minutesWatched: this.store.getState().minutesWatched,
             pointsEarned: this.store.getState().pointsEarned,
