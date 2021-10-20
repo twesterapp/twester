@@ -1,6 +1,5 @@
-import vanillaCreate from 'zustand/vanilla';
-import create from 'zustand';
 import { v4 as uuid } from 'uuid';
+import { Store } from 'renderer/utils/store';
 
 enum Level {
     EXCEPTION = 'EXCEPTION',
@@ -18,19 +17,8 @@ enum Hex {
     DEBUG = '#26ABFF',
 }
 
-interface Store {
+interface State {
     logs: Log[];
-}
-
-const loggerStore = vanillaCreate<Store>(() => ({
-    logs: [],
-}));
-
-export const useLoggerStore = create(loggerStore);
-
-function addLog(newLog: Log) {
-    const { getState, setState } = loggerStore;
-    setState({ logs: [...getState().logs, newLog] });
 }
 
 class Log {
@@ -159,11 +147,18 @@ class Logger {
 
     private logs = new Set<Log>();
 
-    private sendToMain: boolean;
+    private shouldSendToMain: boolean;
 
-    constructor(name: string, sendToMain: boolean) {
+    private loggerManager: LoggerManager;
+
+    constructor(
+        loggerManger: LoggerManager,
+        name: string,
+        shouldSendToMain: boolean
+    ) {
+        this.loggerManager = loggerManger;
         this.name = name;
-        this.sendToMain = sendToMain;
+        this.shouldSendToMain = shouldSendToMain;
     }
 
     public exception(...args: any[]) {
@@ -187,13 +182,13 @@ class Logger {
     }
 
     private newLog(level: Level, ...args: any[]) {
-        const log = new Log(this.name, this.sendToMain, level, ...args);
+        const log = new Log(this.name, this.shouldSendToMain, level, ...args);
         this.logs.add(log);
 
         // TODO: This should be based on `Settings` for `Logging`.
         // Right now we will show only `info` logs to the user in `Logs Viewer`.
         if (level === Level.INFO) {
-            addLog(log);
+            this.loggerManager.addLogToStore(log);
         }
     }
 }
@@ -201,12 +196,15 @@ class Logger {
 /**
  * Manages all the `Logger` instances.
  */
-class Logging {
+class LoggerManager extends Store<State> {
     private loggers = new Map<string, Logger>();
 
     constructor() {
+        super('LOGGING');
+        this.initStore(() => this.getInitialState());
+
         // `root` logger will only log to browser's console
-        const rootLogger = new Logger('root', false);
+        const rootLogger = new Logger(this, 'root', false);
         this.loggers.set('root', rootLogger);
     }
 
@@ -216,11 +214,19 @@ class Logging {
         }
 
         if (!this.loggers.has(name)) {
-            this.loggers.set(name, new Logger(name, sendToMain));
+            this.loggers.set(name, new Logger(this, name, sendToMain));
         }
 
         return this.loggers.get(name)!;
     }
+
+    public addLogToStore(newLog: Log): void {
+        this.store.setState({ logs: [...this.store.getState().logs, newLog] });
+    }
+
+    private getInitialState(): State {
+        return { logs: [] };
+    }
 }
 
-export const logging = new Logging();
+export const logging = new LoggerManager();

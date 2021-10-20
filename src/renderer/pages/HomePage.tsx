@@ -5,7 +5,7 @@ import { IconPlay, IconPause, Link, IconClock, IconStar } from 'renderer/ui';
 import { formatMinutesToString, px2em, px2rem } from 'renderer/utils';
 import styled, { useTheme } from 'styled-components';
 import { useAppVersion } from 'renderer/hooks';
-import { useLoggerStore } from 'renderer/core/logging';
+import { logging } from 'renderer/core/logging';
 
 export function HomePage() {
     const version = useAppVersion();
@@ -14,7 +14,7 @@ export function HomePage() {
 
     const { streamers: allStreamers } = streamers.useStore();
     const { minutesWatched, pointsEarned } = watcher.useStore();
-    const { logs } = useLoggerStore();
+    const { logs } = logging.useStore();
     const theme = useTheme();
 
     const hasStreamersToWatch = allStreamers.length > 0;
