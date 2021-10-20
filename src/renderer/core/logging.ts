@@ -66,11 +66,11 @@ class Log {
         }
     }
 
-    getId() {
+    public getId() {
         return this.id;
     }
 
-    print() {
+    public print() {
         // Example - [11-10-2021 04:19:10:394] [INFO] Starting Watcher
         const timestamp = this.formatDate(this.date);
         const str = `[${timestamp}] [${this.level}] ${this.content.join(' ')}`;
@@ -110,7 +110,7 @@ class Log {
 
     // TODO: This should be formatted based on `Settings` set for `Logging`.
     // It could be about if and not they want `timestamp`, `level` etc.
-    formatForLogViewer(): string {
+    public formatForLogViewer(): string {
         return `${this.date.toLocaleDateString()} ${this.date.toLocaleTimeString()} - ${this.content.join(
             ' '
         )}`;
@@ -166,23 +166,23 @@ class Logger {
         this.sendToMain = sendToMain;
     }
 
-    exception(...args: any[]) {
+    public exception(...args: any[]) {
         return this.newLog(Level.EXCEPTION, ...args);
     }
 
-    error(...args: any[]) {
+    public error(...args: any[]) {
         return this.newLog(Level.ERROR, ...args);
     }
 
-    warning(...args: any[]) {
+    public warning(...args: any[]) {
         return this.newLog(Level.WARNING, ...args);
     }
 
-    info(...args: any[]) {
+    public info(...args: any[]) {
         return this.newLog(Level.INFO, ...args);
     }
 
-    debug(...args: any[]) {
+    public debug(...args: any[]) {
         return this.newLog(Level.DEBUG, ...args);
     }
 
@@ -210,7 +210,7 @@ class Logging {
         this.loggers.set('root', rootLogger);
     }
 
-    getLogger(name = '', sendToMain = true): Logger {
+    public getLogger(name = '', sendToMain = true): Logger {
         if (!name) {
             return this.loggers.get('root')!;
         }
