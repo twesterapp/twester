@@ -11,7 +11,9 @@ import {
 } from 'renderer/core/data';
 import { claimChannelPointsBonus } from 'renderer/core/bonus';
 
-const log = logging.getLogger('PUBSUB');
+const NAME = 'PUBSUB';
+
+const log = logging.getLogger(NAME);
 
 /**
  * Some important notes about the Twitch PubSub
@@ -171,9 +173,9 @@ class WebSocketsPool {
 
     private reconnectionInterval = 30 * 1000;
 
-    private _lastMessageTime = 0;
+    private lastMessageTime = 0;
 
-    private _lastMessageType = '';
+    private lastMessageType = '';
 
     constructor() {
         this.webSocket = null;
@@ -302,15 +304,15 @@ class WebSocketsPool {
 
             // If we have more than one connection, messages may be duplicated
             if (
-                Date.now() - this._lastMessageTime < 0.1 &&
-                this._lastMessageType === messageType
+                Date.now() - this.lastMessageTime < 0.1 &&
+                this.lastMessageType === messageType
             ) {
-                this._lastMessageTime = Date.now();
+                this.lastMessageTime = Date.now();
                 return;
             }
 
-            this._lastMessageTime = Date.now();
-            this._lastMessageType = messageType;
+            this.lastMessageTime = Date.now();
+            this.lastMessageType = messageType;
 
             if (topic === 'community-points-user-v1') {
                 if (messageType === 'points-earned') {

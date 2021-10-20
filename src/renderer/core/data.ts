@@ -47,7 +47,7 @@ async function getMinuteWatchedRequestUrl(
 
 export async function updateMinuteWatchedEventRequestInfo(
     streamerLogin: string
-): Promise<undefined> {
+): Promise<void> {
     const eventProperties = {
         channel_id: await getChannelId(streamerLogin),
         broadcast_id: await getBroadcastId(streamerLogin),
@@ -68,7 +68,7 @@ export async function updateMinuteWatchedEventRequestInfo(
             'Failed to perform Base64 encoding for minute watched event request info. \nError:',
             err
         );
-        return undefined;
+        return;
     }
 
     const url = await getMinuteWatchedRequestUrl(streamerLogin);
@@ -78,8 +78,6 @@ export async function updateMinuteWatchedEventRequestInfo(
 
     // Caching
     minuteWatchedRequests.set(streamerLogin, { url, payload });
-
-    return undefined;
 }
 
 export async function getChannelId(streamerLogin: string): Promise<string> {

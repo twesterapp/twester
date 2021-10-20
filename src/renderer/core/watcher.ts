@@ -177,7 +177,7 @@ class Watcher extends Store<State> {
         return false;
     }
 
-    // This is NOT same as `!canStart()`
+    // This is NOT same as `!canPlay()`
     public canPause(): boolean {
         if (this.store.getState().status === WatcherStatus.RUNNING) {
             return true;
