@@ -1,7 +1,7 @@
 import create, { StoreApi, UseStore } from 'zustand';
 import vanillaCreate from 'zustand/vanilla';
 
-export class Store<T extends Record<string, any>> {
+export class Store<T extends Record<string, any> = Record<string, any>> {
     readonly _name: string;
 
     private _store: StoreApi<T> | null = null;
