@@ -392,7 +392,7 @@ class WebSocketsPool {
                 // the API updates. Therefore making it useless to check for it
                 //  here, as `checkOnline` will return `isOffline` status.
                 if (messageType === 'stream-down') {
-                    streamers.setOnlineStatus(streamer.login, false);
+                    streamers.setStreamerOnlineStatus(streamer.login, false);
                 } else if (messageType === 'viewcount') {
                     checkOnline(streamer.login);
                 }

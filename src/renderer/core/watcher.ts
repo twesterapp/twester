@@ -69,7 +69,9 @@ class Watcher extends Store<State> {
         log.info('Watcher is running!');
 
         while (this.isRunning()) {
-            const streamersToWatch = streamers.getOnlineStreamers().slice(0, 2);
+            const streamersToWatch = streamers
+                .getAllStreamersOnline()
+                .slice(0, 2);
             const numOfStreamersToWatch = streamersToWatch.length;
 
             if (numOfStreamersToWatch) {
@@ -84,7 +86,7 @@ class Watcher extends Store<State> {
                     // will still keep watching that streamer because this
                     // `isOnline` check is made with cached value instead of
                     // actual recently fetched data from the Twitch server.
-                    if (streamers.isOnline(streamer.login)) {
+                    if (streamers.isStreamerOnline(streamer.login)) {
                         try {
                             const info = getMinuteWatchedRequestInfo(
                                 streamer.login
@@ -148,7 +150,7 @@ class Watcher extends Store<State> {
 
         abortAllSleepingTasks();
         stopListeningForChannelPoints();
-        streamers.resetOnlineStatusOfStreamers();
+        streamers.resetOnlineStatusOfAllStreamers();
 
         this.setWatcherStatus(WatcherStatus.PAUSED);
 
@@ -177,8 +179,9 @@ class Watcher extends Store<State> {
     }
 
     public addPointsEarned(points: number) {
-        const { getState, setState } = this.store;
-        setState({ pointsEarned: getState().pointsEarned + points });
+        this.store.setState({
+            pointsEarned: this.store.getState().pointsEarned + points,
+        });
         this.syncStateWithStorage();
     }
 
@@ -187,7 +190,7 @@ class Watcher extends Store<State> {
     private fixWatchingStatus(): void {
         // We can only watch the first 2 online streamers. So these are the
         // streamers we should NOT be watching.
-        const streamersToNotWatch = streamers.getOnlineStreamers().slice(2);
+        const streamersToNotWatch = streamers.getAllStreamersOnline().slice(2);
 
         if (!streamersToNotWatch.length) {
             return;
@@ -251,8 +254,9 @@ class Watcher extends Store<State> {
     }
 
     private incrementMinutesWatched() {
-        const { getState, setState } = this.store;
-        setState({ minutesWatched: (getState().minutesWatched += 1) });
+        this.store.setState({
+            minutesWatched: (this.store.getState().minutesWatched += 1),
+        });
         this.syncStateWithStorage();
     }
 

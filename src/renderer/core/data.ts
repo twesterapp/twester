@@ -144,13 +144,13 @@ export async function checkOnline(login: StreamerLogin) {
         return;
     }
 
-    if (!streamers.isOnline(login)) {
+    if (!streamers.isStreamerOnline(login)) {
         try {
             await updateMinuteWatchedEventRequestInfo(login);
-            streamers.setOnlineStatus(login, true);
+            streamers.setStreamerOnlineStatus(login, true);
         } catch (err) {
             if (err instanceof StreamerIsOfflineError) {
-                streamers.setOnlineStatus(login, false);
+                streamers.setStreamerOnlineStatus(login, false);
             }
         }
     }
