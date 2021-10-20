@@ -32,25 +32,25 @@ export function getMinuteWatchedRequestInfo(
 }
 
 async function getMinuteWatchedRequestUrl(
-    streamerLogin: string
+    login: StreamerLogin
 ): Promise<string> {
     return nodeClient
-        .get(`/minute-watched-request-url?streamerLogin=${streamerLogin}`)
+        .get(`/minute-watched-request-url?streamerLogin=${login}`)
         .then((res) => res.data.data.minute_watched_url)
         .catch((err) =>
             log.error(
-                'Error while trying to fetch minute watched request URL. \nError:',
+                `Failed to fetch minute watched request URL for login '${login}':`,
                 err
             )
         );
 }
 
 export async function updateMinuteWatchedEventRequestInfo(
-    streamerLogin: string
+    login: StreamerLogin
 ): Promise<void> {
     const eventProperties = {
-        channel_id: await getChannelId(streamerLogin),
-        broadcast_id: await getBroadcastId(streamerLogin),
+        channel_id: await getChannelId(login),
+        broadcast_id: await getBroadcastId(login),
         player: 'site',
         user_id: parseInt(auth.store.getState().user.id, 10),
     };
@@ -65,19 +65,19 @@ export async function updateMinuteWatchedEventRequestInfo(
         afterBase64 = btoa(JSON.stringify([minuteWatched]));
     } catch (err) {
         log.error(
-            'Failed to perform Base64 encoding for minute watched event request info. \nError:',
+            `Failed to perform Base64 encoding for minute watched event request info for login '${login}':`,
             err
         );
         return;
     }
 
-    const url = await getMinuteWatchedRequestUrl(streamerLogin);
+    const url = await getMinuteWatchedRequestUrl(login);
     const payload = {
         data: afterBase64,
     };
 
     // Caching
-    minuteWatchedRequests.set(streamerLogin, { url, payload });
+    minuteWatchedRequests.set(login, { url, payload });
 }
 
 export async function getChannelId(streamerLogin: string): Promise<string> {
@@ -180,7 +180,7 @@ export async function fetchChannelId(login: StreamerLogin) {
     // crash in production. If a valid `login` is provided, a valid `channelId`
     // will be returned.
     if (!id) {
-        log.error('Failed to fetch channel ID');
+        log.error(`Failed to fetch channel ID for login '${login}'`);
         return '';
     }
 
@@ -199,7 +199,7 @@ export async function getUserProfilePicture(id: StreamerId) {
     const profilePictureUrl = response?.data?.user?.profileImageURL;
 
     if (!profilePictureUrl) {
-        log.error(`No user profile picture found for #${id}`);
+        log.error(`No user profile picture found for streamerId '${id}'`);
         return '';
     }
 
@@ -244,7 +244,7 @@ export async function getChannelContextInfo(
     const contextUser: ContextUser = response?.data?.contextUser;
 
     if (!contextUser) {
-        log.error(`No channel context info found for ${login}`);
+        log.error(`No channel context info found for login '${login}'`);
         return null;
     }
 
