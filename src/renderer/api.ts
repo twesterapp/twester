@@ -13,7 +13,7 @@ export const nodeClient = axios.create({
 
 export async function makeGraphqlRequest(
     data: Record<string, unknown>
-): Promise<Record<string, any>> {
+): Promise<Record<string, unknown>> {
     return axios({
         method: 'POST',
         url: 'https://gql.twitch.tv/gql',
@@ -33,8 +33,8 @@ export async function makeGraphqlRequest(
             );
 
             if (
-                error.response.status === 401 ||
-                error.response.data.error === 'Unauthorized'
+                error?.response?.status === 401 ||
+                error?.response?.data?.error === 'Unauthorized'
             ) {
                 // The token has probably expired and there is no way to refresh
                 // the token, that's why we signout the user.
