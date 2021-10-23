@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export function useAppVersion() {
     const [version, setVersion] = useState('');
@@ -9,9 +9,11 @@ export function useAppVersion() {
         ipc.sendVersion();
     }
 
-    ipc.once('app_version', (event: { version: string }) => {
-        setVersion(event.version);
-    });
+    useEffect(() => {
+        ipc.once('app_version', (event: { version: string }) => {
+            setVersion(event.version);
+        });
+    }, [ipc]);
 
     return version;
 }
