@@ -1,9 +1,9 @@
 import { useState } from 'react';
+import { getIpc } from 'renderer/utils/ipc';
 
 export function useAppVersion() {
     const [version, setVersion] = useState('');
-    // @ts-ignore
-    const ipc = window.electron.ipcRenderer;
+    const ipc = getIpc();
 
     if (!version) {
         ipc.sendVersion();
