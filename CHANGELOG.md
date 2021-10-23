@@ -2,6 +2,8 @@
 
 ## Unversioned
 
+-   Minor: Fixed React's _"Can't perform a React state update on an unmounted component"_ warning in `useAppVersion` hook. ([#31](https://github.com/twesterapp/twester/pull/31))
+
 ## 1.0.3 (18-10-2021)
 
 -   Minor: Improved logging. ([#8](https://github.com/twesterapp/twester/pull/8))
