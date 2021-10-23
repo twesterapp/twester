@@ -20,6 +20,7 @@ import { auth } from 'renderer/core/auth';
 import { GlobalStyle } from './ui';
 import { AuthPage, StreamersPage, HomePage } from './pages';
 import { Sidebar } from './components';
+import { getIpc } from './utils/ipc';
 
 injectStyle();
 
@@ -63,8 +64,7 @@ export function App() {
     const { user } = auth.useStore();
     const availableToastId = useRef<React.ReactText | null>(null);
 
-    // @ts-ignore
-    const ipc = window.electron.ipcRenderer;
+    const ipc = getIpc();
 
     ipc.once('update_available', handleUpdateAvailable);
     ipc.once('update_downloaded', handleUpdateDownloaded);

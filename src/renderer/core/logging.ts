@@ -1,5 +1,6 @@
 import { v4 as uuid } from 'uuid';
 import { Store } from 'renderer/utils/store';
+import { getIpc } from 'renderer/utils/ipc';
 
 enum Level {
     EXCEPTION = 'EXCEPTION',
@@ -49,8 +50,7 @@ class Log {
         this.print();
 
         if (sendToMain && process.env.NODE_ENV !== 'test') {
-            // @ts-ignore
-            window.electron.ipcRenderer.sendLog(this);
+            getIpc().sendLog(this);
         }
     }
 
