@@ -10,9 +10,6 @@ export function useAppVersion() {
     }
 
     useEffect(() => {
-        // We should listen for the `ipc` event after mounting, otherwise we
-        // will get "Can't perform a React state update on an unmounted
-        // component" error on unmount.
         ipc.once('app_version', (event: { version: string }) => {
             setVersion(event.version);
         });
