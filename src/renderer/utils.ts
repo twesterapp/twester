@@ -32,8 +32,3 @@ export async function login(token: string, username: string) {
     auth.setUser(user);
     window.location.reload();
 }
-
-export function px2rem(valInPx: number): string {
-    const valInEm = valInPx / 16;
-    return `${valInEm}rem`;
-}

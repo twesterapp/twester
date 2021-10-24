@@ -2,7 +2,7 @@ import React from 'react';
 import { streamers } from 'renderer/core/streamers';
 import { watcher } from 'renderer/core/watcher';
 import { IconPlay, IconPause, Link, IconClock, IconStar } from 'renderer/ui';
-import { px2rem } from 'renderer/utils';
+import { px2rem } from 'renderer/utils/px2rem';
 import { formatMinutes } from 'renderer/utils/formatMinutes';
 import styled, { useTheme } from 'styled-components';
 import { useAppVersion } from 'renderer/hooks';

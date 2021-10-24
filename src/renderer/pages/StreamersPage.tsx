@@ -8,7 +8,7 @@ import {
 } from 'renderer/core/data';
 import { streamers } from 'renderer/core/streamers';
 import { Button, IconPlus, InputText, Link } from 'renderer/ui';
-import { px2rem } from 'renderer/utils';
+import { px2rem } from 'renderer/utils/px2rem';
 import { logging } from 'renderer/core/logging';
 import { watcher } from 'renderer/core/watcher';
 

@@ -7,7 +7,8 @@ import { auth } from 'renderer/core/auth';
 import { Button, IconGithub, InputText } from 'renderer/ui';
 
 import { useAppVersion } from 'renderer/hooks';
-import { login, px2rem } from '../utils';
+import { px2rem } from 'renderer/utils/px2rem';
+import { login } from '../utils';
 
 enum FlowStep {
     CREDENTIALS = 'credentials',
