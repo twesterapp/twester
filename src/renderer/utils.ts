@@ -43,8 +43,6 @@ export function px2rem(valInPx: number): string {
     return `${valInEm}rem`;
 }
 
-export function noop() {}
-
 // Converts minutes to `Ad Bh Cm` format where A = days, B = hours, C = mins
 export function formatMinutesToString(mins: number): string {
     const days = Math.floor(mins / 24 / 60);
