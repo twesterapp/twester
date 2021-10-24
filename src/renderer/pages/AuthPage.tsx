@@ -7,7 +7,7 @@ import { auth } from 'renderer/core/auth';
 import { Button, IconGithub, InputText } from 'renderer/ui';
 
 import { useAppVersion } from 'renderer/hooks';
-import { login, px2em } from '../utils';
+import { login, px2rem } from '../utils';
 
 enum FlowStep {
     CREDENTIALS = 'credentials',
@@ -259,7 +259,7 @@ function AskForLoginCredentials({
                 <h1
                     style={{
                         margin: 0,
-                        marginBottom: loginFailedOnce ? px2em(8) : px2em(42),
+                        marginBottom: loginFailedOnce ? px2rem(8) : px2rem(42),
                     }}
                 >
                     Login to your Twitch account to start
@@ -269,7 +269,7 @@ function AskForLoginCredentials({
                     <p
                         style={{
                             margin: 0,
-                            marginBottom: px2em(42),
+                            marginBottom: px2rem(42),
                             color: theme.color.secondary,
                         }}
                     >
@@ -285,7 +285,7 @@ function AskForLoginCredentials({
                     <InputText
                         width="300px"
                         placeholder="Username"
-                        style={{ marginBottom: px2em(23) }}
+                        style={{ marginBottom: px2rem(23) }}
                         value={username}
                         onChange={handleUsernameOnChange}
                     />
@@ -298,7 +298,7 @@ function AskForLoginCredentials({
                     />
                     {err && <ErrMsg>{err}</ErrMsg>}
                     <Button
-                        style={{ marginTop: px2em(52) }}
+                        style={{ marginTop: px2rem(52) }}
                         variant="submit"
                         text="Login"
                         width="300px"
@@ -374,10 +374,10 @@ function VerifyWithCode({
     return (
         <FormContainer>
             <h1 style={{ margin: 0 }}>Enter the verification code sent to</h1>
-            <p style={{ marginBottom: px2em(43) }}>{email}</p>
+            <p style={{ marginBottom: px2rem(43) }}>{email}</p>
             <Form onSubmit={handleSubmit}>
                 {err && (
-                    <ErrMsg style={{ marginBottom: px2em(8) }}>{err}</ErrMsg>
+                    <ErrMsg style={{ marginBottom: px2rem(8) }}>{err}</ErrMsg>
                 )}
                 <InputText
                     placeholder="Code"
@@ -399,7 +399,7 @@ function VerifyWithCode({
                     Resend Code
                 </Anchor>
                 <Button
-                    style={{ marginTop: px2em(52) }}
+                    style={{ marginTop: px2rem(52) }}
                     text="Verify"
                     variant="submit"
                     width="300px"
@@ -448,12 +448,12 @@ function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
 
     return (
         <FormContainer>
-            <h1 style={{ marginTop: 0, marginBottom: px2em(43) }}>
+            <h1 style={{ marginTop: 0, marginBottom: px2rem(43) }}>
                 Enter the token from your authenticator app
             </h1>
             <Form onSubmit={handleSubmit}>
                 {err && (
-                    <ErrMsg style={{ marginBottom: px2em(8) }}>{err}</ErrMsg>
+                    <ErrMsg style={{ marginBottom: px2rem(8) }}>{err}</ErrMsg>
                 )}
                 <InputText
                     ref={inputRef}
@@ -462,7 +462,7 @@ function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
                     variant="number"
                     value={twoFa}
                     onChange={handleTwoFaInput}
-                    style={{ marginBottom: px2em(52) }}
+                    style={{ marginBottom: px2rem(52) }}
                 />
                 <Button
                     width="300px"
