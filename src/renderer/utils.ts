@@ -45,48 +45,6 @@ export function px2rem(valInPx: number): string {
 
 export function noop() {}
 
-let abortController: AbortController | null = null;
-
-export async function sleep(sec: number) {
-    if (!abortController) {
-        abortController = new AbortController();
-    }
-
-    try {
-        await innerSleep(sec, abortController.signal);
-    } catch (e) {
-        if (abortController) {
-            abortController = null;
-        }
-    }
-}
-
-function innerSleep(sec: number, signal: AbortSignal) {
-    return new Promise((resolve, reject) => {
-        const error = new DOMException('Sleeping aborted', 'AbortError');
-
-        if (signal.aborted) {
-            return reject(error);
-        }
-
-        const timeout = setTimeout(() => {
-            return resolve(1);
-        }, sec * 1000);
-
-        signal.addEventListener('abort', () => {
-            clearTimeout(timeout);
-            reject(error);
-        });
-    });
-}
-
-export function abortAllSleepingTasks() {
-    if (abortController) {
-        log.debug('Aborting all sleeping tasks currently in progress');
-        abortController.abort();
-    }
-}
-
 // Converts minutes to `Ad Bh Cm` format where A = days, B = hours, C = mins
 export function formatMinutesToString(mins: number): string {
     const days = Math.floor(mins / 24 / 60);
