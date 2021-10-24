@@ -135,11 +135,11 @@ class Watcher extends Store<State> {
                         }
 
                         const sleepDuration = nextIteration - rightNowInSecs();
-                        await sleep.now(sleepDuration);
+                        await sleep.forSecs(sleepDuration);
                     }
                 }
             } else {
-                await sleep.now(60);
+                await sleep.forSecs(60);
             }
         }
     }

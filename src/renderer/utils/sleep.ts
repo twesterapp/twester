@@ -9,7 +9,7 @@ class Sleep {
         this.abortController = null;
     }
 
-    public async now(durationInSecs: number): Promise<void> {
+    public async forSecs(durationInSecs: number): Promise<void> {
         if (!this.abortController) {
             this.abortController = new AbortController();
         }
