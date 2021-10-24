@@ -11,9 +11,9 @@ export const nodeClient = axios.create({
     baseURL: `http://localhost:${NODE_PORT}`,
 });
 
-export async function makeGraphqlRequest(
+export async function makeGraphqlRequest<T extends Record<string, any>>(
     data: Record<string, unknown>
-): Promise<Record<string, unknown>> {
+): Promise<T> {
     return axios({
         method: 'POST',
         url: 'https://gql.twitch.tv/gql',
