@@ -8,7 +8,7 @@ import {
     IconStar,
 } from 'renderer/ui';
 import { formatMinutes } from 'renderer/utils/formatMinutes';
-import { px2rem } from 'renderer/utils';
+import { px2rem } from 'renderer/utils/px2rem';
 import styled, { useTheme } from 'styled-components';
 import { useQuery } from 'react-query';
 import { useDrag, useDrop } from 'react-dnd';

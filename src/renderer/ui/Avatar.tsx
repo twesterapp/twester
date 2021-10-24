@@ -1,5 +1,5 @@
 import React from 'react';
-import { px2rem } from 'renderer/utils';
+import { px2rem } from 'renderer/utils/px2rem';
 import styled from 'styled-components';
 import defaultAvatar from '../assets/default-avatar.png';
 

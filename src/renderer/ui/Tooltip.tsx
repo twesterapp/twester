@@ -4,7 +4,7 @@ import {
     withStyles,
     TooltipProps,
 } from '@material-ui/core';
-import { px2rem } from 'renderer/utils';
+import { px2rem } from 'renderer/utils/px2rem';
 import { useTheme } from 'styled-components';
 
 interface TooltipOptions extends TooltipProps {
