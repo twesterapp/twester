@@ -2,7 +2,8 @@ import React from 'react';
 import { streamers } from 'renderer/core/streamers';
 import { watcher } from 'renderer/core/watcher';
 import { IconPlay, IconPause, Link, IconClock, IconStar } from 'renderer/ui';
-import { formatMinutesToString, px2em, px2rem } from 'renderer/utils';
+import { px2em, px2rem } from 'renderer/utils';
+import { formatMinutes } from 'renderer/utils/formatMinutes';
 import styled, { useTheme } from 'styled-components';
 import { useAppVersion } from 'renderer/hooks';
 import { logging } from 'renderer/core/logging';
@@ -118,7 +119,7 @@ export function HomePage() {
                 <StatsContainer>
                     <StatInfo>
                         <IconClock size={32} color={theme.color.brightBlue} />
-                        <p>{formatMinutesToString(minutesWatched)}</p>
+                        <p>{formatMinutes(minutesWatched)}</p>
                     </StatInfo>
 
                     <StatInfo>

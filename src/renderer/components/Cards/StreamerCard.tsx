@@ -7,7 +7,8 @@ import {
     IconEyeOpen,
     IconStar,
 } from 'renderer/ui';
-import { formatMinutesToString, px2em, px2rem } from 'renderer/utils';
+import { formatMinutes } from 'renderer/utils/formatMinutes';
+import { px2em, px2rem } from 'renderer/utils';
 import styled, { useTheme } from 'styled-components';
 import { useQuery } from 'react-query';
 import { useDrag, useDrop } from 'react-dnd';
@@ -150,9 +151,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
                                 size={16}
                                 color={theme.color.brightBlue}
                             />
-                            <p>
-                                {formatMinutesToString(streamer.minutesWatched)}
-                            </p>
+                            <p>{formatMinutes(streamer.minutesWatched)}</p>
                         </StatInfo>
                         <StatInfo>
                             <IconStar
