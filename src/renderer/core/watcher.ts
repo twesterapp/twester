@@ -1,7 +1,7 @@
 import { nodeClient } from 'renderer/api';
 import { auth } from 'renderer/core/auth';
 import { streamers } from 'renderer/core/streamers';
-import { abortAllSleepingTasks, sleep } from 'renderer/utils';
+import { sleep } from 'renderer/utils/sleep';
 import { rightNowInSecs } from 'renderer/utils/rightNowInSecs';
 import { loadChannelPointsContext } from 'renderer/core/bonus';
 import {
@@ -134,12 +134,12 @@ class Watcher extends Store<State> {
                             );
                         }
 
-                        const duration = nextIteration - rightNowInSecs();
-                        await sleep(duration);
+                        const sleepDuration = nextIteration - rightNowInSecs();
+                        await sleep.forSecs(sleepDuration);
                     }
                 }
             } else {
-                await sleep(60);
+                await sleep.forSecs(60);
             }
         }
     }
@@ -148,7 +148,7 @@ class Watcher extends Store<State> {
         log.info('Watcher is pausing...');
         this.setWatcherStatus(WatcherStatus.PAUSING);
 
-        abortAllSleepingTasks();
+        sleep.abort();
         stopListeningForChannelPoints();
         streamers.resetOnlineStatusOfAllStreamers();
 

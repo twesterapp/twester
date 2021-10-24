@@ -2,8 +2,9 @@
 
 ## Unversioned
 
--   Minor: Added `getIpc` utility function to make our life better. ([#32](https://github.com/twesterapp/twester/pull/32))
 -   Minor: Fixed React's _"Can't perform a React state update on an unmounted component"_ warning in `useAppVersion` hook. ([#31](https://github.com/twesterapp/twester/pull/31))
+-   Minor: Added `getIpc` utility function to make our life better. ([#32](https://github.com/twesterapp/twester/pull/32))
+-   Minor: Added `Sleep` class. ([#33](https://github.com/twesterapp/twester/pull/33))
 
 ## 1.0.3 (18-10-2021)
 
