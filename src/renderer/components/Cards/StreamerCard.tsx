@@ -8,7 +8,7 @@ import {
     IconStar,
 } from 'renderer/ui';
 import { formatMinutes } from 'renderer/utils/formatMinutes';
-import { px2em, px2rem } from 'renderer/utils';
+import { px2rem } from 'renderer/utils';
 import styled, { useTheme } from 'styled-components';
 import { useQuery } from 'react-query';
 import { useDrag, useDrop } from 'react-dnd';
@@ -146,7 +146,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
                 <div>
                     <h1>{streamer.displayName}</h1>
                     <StatsContainer>
-                        <StatInfo style={{ marginRight: px2em(16) }}>
+                        <StatInfo style={{ marginRight: px2rem(16) }}>
                             <IconClock
                                 size={16}
                                 color={theme.color.brightBlue}
@@ -172,7 +172,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
 const StatsContainer = styled.div`
     display: flex;
     align-items: center;
-    margin-top: ${px2em(8)};
+    margin-top: ${px2rem(8)};
 `;
 
 const StatInfo = styled.div`
@@ -182,7 +182,7 @@ const StatInfo = styled.div`
         font-family: Poppins;
         font-size: ${px2rem(16)};
         margin: 0 !important;
-        margin-left: ${px2em(4)} !important;
+        margin-left: ${px2rem(4)} !important;
     }
 `;
 

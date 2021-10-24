@@ -33,11 +33,6 @@ export async function login(token: string, username: string) {
     window.location.reload();
 }
 
-export function px2em(valInPx: number): string {
-    const valInEm = valInPx / 16;
-    return `${valInEm}em`;
-}
-
 export function px2rem(valInPx: number): string {
     const valInEm = valInPx / 16;
     return `${valInEm}rem`;
