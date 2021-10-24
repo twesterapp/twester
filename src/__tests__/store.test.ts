@@ -1,4 +1,4 @@
-import { Store } from '../renderer/core/store';
+import { Store } from '../renderer/utils/store';
 
 interface StoreState {
     count: number;
