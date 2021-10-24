@@ -2,7 +2,7 @@ import React from 'react';
 import { streamers } from 'renderer/core/streamers';
 import { watcher } from 'renderer/core/watcher';
 import { IconPlay, IconPause, Link, IconClock, IconStar } from 'renderer/ui';
-import { px2em, px2rem } from 'renderer/utils';
+import { px2rem } from 'renderer/utils';
 import { formatMinutes } from 'renderer/utils/formatMinutes';
 import styled, { useTheme } from 'styled-components';
 import { useAppVersion } from 'renderer/hooks';
@@ -169,7 +169,7 @@ const StatsContainer = styled.div`
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    padding: ${px2em(16)} ${px2em(32)};
+    padding: ${px2rem(16)} ${px2rem(32)};
 `;
 
 const StatInfo = styled.div`
@@ -190,14 +190,14 @@ const Content = styled.div`
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: ${px2em(30)} 0;
+    gap: ${px2rem(30)} 0;
     width: 100%;
     height: 100%;
-    padding: ${px2em(16)} ${px2em(24)};
+    padding: ${px2rem(16)} ${px2rem(24)};
     box-sizing: border-box;
 
     @media screen and (min-width: 1080px) {
-        padding: ${px2em(24)} ${px2em(56)};
+        padding: ${px2rem(24)} ${px2rem(56)};
     }
 `;
 
@@ -206,7 +206,7 @@ const LogContainer = styled.div`
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     box-sizing: border-box;
     width: 100%;
-    padding: ${() => `${px2em(6)} ${px2em(12)}`};
+    padding: ${() => `${px2rem(6)} ${px2rem(12)}`};
     height: 70%;
     max-height: 70vh;
     display: flex;
@@ -252,7 +252,7 @@ const InfoText = styled.p`
 
 const InfoBox = styled.div`
     background: ${(props) => props.theme.color.brightBlue};
-    padding: ${px2em(24)};
+    padding: ${px2rem(24)};
     box-sizing: border-box;
     max-width: 535px;
     margin: auto auto;

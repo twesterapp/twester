@@ -8,7 +8,7 @@ import {
 } from 'renderer/core/data';
 import { streamers } from 'renderer/core/streamers';
 import { Button, IconPlus, InputText, Link } from 'renderer/ui';
-import { px2em } from 'renderer/utils';
+import { px2rem } from 'renderer/utils';
 import { logging } from 'renderer/core/logging';
 import { watcher } from 'renderer/core/watcher';
 
@@ -62,7 +62,7 @@ export function StreamersPage() {
             )}
             <Search onSubmit={handleAddStreamer}>
                 <InputText
-                    style={{ marginRight: `${px2em(12)}`, width: '300px' }}
+                    style={{ marginRight: `${px2rem(12)}`, width: '300px' }}
                     placeholder="Streamer to add"
                     value={searchText}
                     disabled={!watcher.canPlay() || fetchingStreamer}
@@ -102,7 +102,7 @@ export function StreamersPage() {
 const Streamers = styled.div`
     display: flex;
     flex-direction: column;
-    row-gap: ${px2em(14)};
+    row-gap: ${px2rem(14)};
     margin: 0 24px 24px 24px;
 `;
 
@@ -113,7 +113,7 @@ const HelpMessage = styled.p`
     color: ${(props) => props.theme.color.textAlter};
     margin: 0;
     margin-bottom: 32px;
-    padding: ${() => `${px2em(10)} ${px2em(24)}`};
+    padding: ${() => `${px2rem(10)} ${px2rem(24)}`};
     border-radius: 0px 0px 50px 50px;
 
     a {
@@ -131,15 +131,15 @@ const Search = styled.form`
     margin-top: 44px;
     height: 46px;
     display: flex;
-    margin-bottom: ${px2em(22)};
+    margin-bottom: ${px2rem(22)};
 `;
 
 const Info = styled.p`
     font-family: Karla;
     color: ${(props) => props.theme.color.textFaded};
-    line-height: ${px2em(18)};
+    line-height: ${px2rem(18)};
     margin: 0;
-    margin-bottom: ${px2em(44)};
+    margin-bottom: ${px2rem(44)};
     max-width: 430px;
     text-align: center;
 `;
