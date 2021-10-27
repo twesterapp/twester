@@ -2,18 +2,19 @@
 
 ## Unversioned
 
--   Minor: Fixed React's _"Can't perform a React state update on an unmounted component"_ warning in `useAppVersion` hook. ([#31](https://github.com/twesterapp/twester/pull/31))
+-   Minor: Logs viewer scrollbar to have a min height of 20% of the viewer container. ([#20](https://github.com/twesterapp/twester/pull/20))
 -   Minor: Added `getIpc` utility function to make our life better. ([#32](https://github.com/twesterapp/twester/pull/32))
 -   Minor: Added `Sleep` class. ([#33](https://github.com/twesterapp/twester/pull/33))
 -   Minor: Removed `px2em` and replaced it's usage with `px2rem`. ([#34](https://github.com/twesterapp/twester/pull/34))
+-   Bugfix: Fixed React's _"Can't perform a React state update on an unmounted component"_ warning in `useAppVersion` hook. ([#31](https://github.com/twesterapp/twester/pull/31))
 
 ## 1.0.3 (18-10-2021)
 
 -   Minor: Improved logging. ([#8](https://github.com/twesterapp/twester/pull/8))
 -   Minor: Removed menu bar. ([#11](https://github.com/twesterapp/twester/pull/11))
 -   Minor: Show `IconButton` with `IconEye` for password variant of `InputText`. ([#12](https://github.com/twesterapp/twester/pull/12))
--   Dev: Enable [`electron-debug`](https://github.com/sindresorhus/electron-debug) for production build. ([#13](https://github.com/twesterapp/twester/pull/13))
 -   Minor: Create classes `Store`, `Storage`, `Watcher`, `Streamers` and `Auth`. ([#14](https://github.com/twesterapp/twester/pull/14))
+-   Dev: Enable [`electron-debug`](https://github.com/sindresorhus/electron-debug) for production build. ([#13](https://github.com/twesterapp/twester/pull/13))
 
 ## 1.0.2 (08-10-2021)
 
