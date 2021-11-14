@@ -42,7 +42,7 @@ export class StreamerManager extends Store<State> {
         );
     }
 
-    public add(payload: NewStreamerPayload) {
+    public add(payload: NewStreamerPayload): void {
         for (const streamer of this.streamers) {
             if (streamer.id === payload.id) {
                 log.warning(
@@ -64,58 +64,55 @@ export class StreamerManager extends Store<State> {
         this.onStreamersUpdate();
     }
 
-    public remove(id: StreamerId) {
+    public remove(id: StreamerId): void {
         this.streamers = this.streamers.filter(
             (streamer) => streamer.id !== id
         );
         this.onStreamersUpdate();
     }
 
-    public update(id: StreamerId, payload: UpdateStreamerPayload) {
-        const streamer = this.getById(id);
-
-        if (streamer) {
-            streamer.update(payload);
-            this.onStreamersUpdate();
-        }
+    public update(id: StreamerId, payload: UpdateStreamerPayload): void {
+        this.getById(id).update(payload);
+        this.onStreamersUpdate();
     }
 
-    public getById(id: StreamerId): Streamer | void {
+    public getById(id: StreamerId): Streamer {
         for (const streamer of this.streamers) {
             if (streamer.id === id) {
                 return streamer;
             }
         }
+
+        throw new Error(
+            `StreamerManager: No streamer found wih streamer id ${id}`
+        );
     }
 
-    public getByLogin(login: StreamerLogin): Streamer | void {
+    public getByLogin(login: StreamerLogin): Streamer {
         for (const streamer of this.streamers) {
             if (streamer.login === login) {
                 return streamer;
             }
         }
+
+        throw new Error(
+            `StreamerManager: No streamer found wih login ${login}`
+        );
     }
 
-    public setStreamerOnlineStatus(login: StreamerLogin, status: OnlineStatus) {
-        const streamer = this.getByLogin(login);
-
-        if (streamer) {
-            streamer.setOnlineStatus(status);
-            this.onStreamersUpdate();
-        }
+    public setStreamerOnlineStatus(
+        login: StreamerLogin,
+        status: OnlineStatus
+    ): void {
+        this.getByLogin(login).setOnlineStatus(status);
+        this.onStreamersUpdate();
     }
 
     public isStreamerOnline(login: StreamerLogin): boolean {
-        const streamer = this.getByLogin(login);
-
-        if (streamer) {
-            return streamer.isOnline();
-        }
-
-        throw new Error(`No streamer found wih login: ${login}`);
+        return this.getByLogin(login).isOnline();
     }
 
-    public resetOnlineStatusOfAllStreamers() {
+    public resetOnlineStatusOfAllStreamers(): void {
         this.streamers.forEach((streamer) => {
             streamer.setOnlineStatus(OnlineStatus.OFFLINE);
         });
@@ -123,22 +120,19 @@ export class StreamerManager extends Store<State> {
         this.onStreamersUpdate();
     }
 
-    public findStreamerCard(
-        id: StreamerId
-    ): { streamer: Streamer; index: number } | void {
+    public findStreamerCard(id: StreamerId): {
+        streamer: Streamer;
+        index: number;
+    } {
         const streamer = this.getById(id);
 
-        if (streamer) {
-            return {
-                streamer,
-                index: this.streamers.indexOf(streamer),
-            };
-        }
-
-        log.exception(`No streamer card found with streamer id: ${id}.`);
+        return {
+            streamer,
+            index: this.streamers.indexOf(streamer),
+        };
     }
 
-    public moveStreamerCard(id: StreamerId, hoverIndex: number) {
+    public moveStreamerCard(id: StreamerId, hoverIndex: number): void {
         const drag = this.findStreamerCard(id);
 
         if (drag) {
@@ -152,7 +146,7 @@ export class StreamerManager extends Store<State> {
         }
     }
 
-    private getStorageKey() {
+    private getStorageKey(): string {
         return `${auth.store.getState().user.id}.streamers`;
     }
 
@@ -175,7 +169,7 @@ export class StreamerManager extends Store<State> {
         }
     }
 
-    private syncStorageWithStore() {
+    private syncStorageWithStore(): void {
         // We don't want to store these properties of streamer to Storage.
         // for app state. This one is for persisting to Storage.
         const updatedForPersisting = this.store
@@ -191,12 +185,12 @@ export class StreamerManager extends Store<State> {
         Storage.set(this.getStorageKey(), JSON.stringify(updatedForPersisting));
     }
 
-    private syncStoreWithStreamers() {
+    private syncStoreWithStreamers(): void {
         const streamers: IStreamer[] = this.streamers;
         this.store.setState({ streamers });
     }
 
-    private onStreamersUpdate() {
+    private onStreamersUpdate(): void {
         this.syncStoreWithStreamers();
         this.syncStorageWithStore();
     }

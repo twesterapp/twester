@@ -5,7 +5,7 @@ import { StreamerManager } from './streamer-manager';
  *
  * This class is the entry point to everything that Twester is and can do.
  *
- * You should use the singleton of this class to interact with Twester instead
+ * You should use `twester` (singleton) to interact with Twester instead
  * of directly interacting with other modules like `pubsub`, `watcher` and etc.
  *
  * @class Twester

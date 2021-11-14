@@ -44,13 +44,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
         getChannelContextInfo(streamer.login)
     );
 
-    let originalIndex = -1;
-
-    const streamerCard = twester.streamers.findStreamerCard(streamer.id);
-
-    if (streamerCard) {
-        originalIndex = streamerCard.index;
-    }
+    const originalIndex = twester.streamers.findStreamerCard(streamer.id).index;
 
     const [{ isDragging }, drag] = useDrag(
         () => ({
@@ -80,16 +74,11 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
             canDrop: () => false,
             hover({ streamerId: draggedId }: Item) {
                 if (draggedId !== streamer.id) {
-                    const streamerCard = twester.streamers.findStreamerCard(
+                    const index = twester.streamers.findStreamerCard(
                         streamer.id
-                    );
+                    ).index;
 
-                    if (streamerCard) {
-                        twester.streamers.moveStreamerCard(
-                            draggedId,
-                            streamerCard.index
-                        );
-                    }
+                    twester.streamers.moveStreamerCard(draggedId, index);
                 }
             },
         }),
