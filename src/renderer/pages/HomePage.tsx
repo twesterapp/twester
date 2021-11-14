@@ -1,24 +1,25 @@
-import React from 'react';
-import { streamers } from 'renderer/core/streamers';
-import { watcher } from 'renderer/core/watcher';
-import { IconPlay, IconPause, Link, IconClock, IconStar } from 'renderer/ui';
-import { px2rem } from 'renderer/utils/px2rem';
-import { formatMinutes } from 'renderer/utils/formatMinutes';
+import { IconClock, IconPause, IconPlay, IconStar, Link } from 'renderer/ui';
 import styled, { useTheme } from 'styled-components';
-import { useAppVersion } from 'renderer/hooks';
+
+import React from 'react';
+import { formatMinutes } from 'renderer/utils/formatMinutes';
 import { logging } from 'renderer/core/logging';
+import { px2rem } from 'renderer/utils/px2rem';
+import { twester } from 'renderer/core';
+import { useAppVersion } from 'renderer/hooks';
+import { watcher } from 'renderer/core/watcher';
 
 export function HomePage() {
     const version = useAppVersion();
     const logsEndRef = React.useRef<HTMLDivElement>(null);
     const [isScrollAtBottom, setScrollAtBottom] = React.useState(true);
 
-    const { streamers: allStreamers } = streamers.useStore();
+    const { streamers } = twester.streamers.useStore();
     const { minutesWatched, pointsEarned } = watcher.useStore();
     const { logs } = logging.useStore();
     const theme = useTheme();
 
-    const hasStreamersToWatch = allStreamers.length > 0;
+    const hasStreamersToWatch = streamers.length > 0;
 
     const isPlayButtonActive = (): boolean => {
         if (watcher.canPlay() && hasStreamersToWatch) {

@@ -1,15 +1,16 @@
-import React from 'react';
-import { useDrop } from 'react-dnd';
-import styled from 'styled-components';
+import { Button, IconPlus, InputText, Link } from 'renderer/ui';
 import { ItemTypes, StreamerCard } from 'renderer/components';
 import {
     getChannelContextInfo,
     getUserProfilePicture,
 } from 'renderer/core/data';
-import { streamers } from 'renderer/core/streamers';
-import { Button, IconPlus, InputText, Link } from 'renderer/ui';
-import { px2rem } from 'renderer/utils/px2rem';
+
+import React from 'react';
 import { logging } from 'renderer/core/logging';
+import { px2rem } from 'renderer/utils/px2rem';
+import styled from 'styled-components';
+import { twester } from 'renderer/core';
+import { useDrop } from 'react-dnd';
 import { watcher } from 'renderer/core/watcher';
 
 const log = logging.getLogger('STREAMERS_PAGE');
@@ -17,7 +18,8 @@ const log = logging.getLogger('STREAMERS_PAGE');
 export function StreamersPage() {
     const [searchText, setSearchText] = React.useState('');
     const [fetchingStreamer, setFetchingStreamer] = React.useState(false);
-    const { streamers: allStreamers } = streamers.useStore();
+    twester.streamers.useStore();
+    const streamers = twester.streamers.getAllStreamers();
 
     async function handleAddStreamer(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -32,7 +34,7 @@ export function StreamersPage() {
             }
             const profileImageUrl = await getUserProfilePicture(result.id);
 
-            streamers.addStreamer({
+            twester.streamers.addStreamer({
                 id: result.id,
                 login: result.login,
                 displayName: result.displayName,
@@ -85,8 +87,8 @@ export function StreamersPage() {
             </Info>
 
             <Streamers ref={drop}>
-                {allStreamers.length > 0 &&
-                    allStreamers.map((streamer) => {
+                {streamers.length > 0 &&
+                    streamers.map((streamer) => {
                         return (
                             <StreamerCard
                                 key={streamer.id}

@@ -1,228 +1,155 @@
-import { Store } from 'renderer/utils/store';
-import { Storage } from 'renderer/utils/storage';
-import { logging } from 'renderer/core/logging';
-import { rightNowInSecs } from 'renderer/utils/rightNowInSecs';
-import { auth } from 'renderer/core/auth';
+import {
+    NewStreamerPayload,
+    OnlineStatus,
+    StreamerClass,
+    StreamerData,
+    StreamerId,
+    StreamerLogin,
+    UpdateStreamerPayload,
+} from './streamer';
+
+import { Storage } from '../utils/storage';
+import { Store } from '../utils/store';
+import { auth } from './auth';
+import { logging } from './logging';
 
 const NAME = 'STREAMERS';
 
 const log = logging.getLogger(NAME);
 
-export type StreamerLogin = string;
-export type StreamerId = string;
-
-// TODO: Clean these messy interfaces/type regarding Streamer
-export interface Streamer {
-    login: StreamerLogin;
-    id: StreamerId;
-    displayName: string;
-    profileImageUrl: string;
-    online?: boolean;
-    lastOfflineTime?: number;
-    // Channel points for the streamer at the current time of the watcher session.
-    currentBalance?: number;
-    // Is this streamer being watched by the `watcher`.
-    watching?: boolean;
-    // This helps us from incrementing `minutesWatched` if the user keeps
-    // pausing and playing the Watcher. This can lead to minuteWatched value to
-    // be wrong. Check it's usage in `watcher.ts`.
-    lastMinuteWatchedEventTime: number; // epoch in secs
-    minutesWatched: number;
-    pointsEarned: number;
-}
-
 interface State {
-    streamers: Streamer[];
+    streamers: StreamerData[];
 }
 
-type NewStreamer = Omit<
-    Streamer,
-    | 'online'
-    | 'lastOfflineTime'
-    | 'currentBalance'
-    | 'minutesWatched'
-    | 'pointsEarned'
-    | 'lastMinuteWatchedEventTime'
->;
+export class Streamers extends Store<State> {
+    private streamers: StreamerClass[];
 
-interface UpdateStreamer {
-    displayName?: string;
-    profileImageUrl?: string;
-    online?: boolean;
-    lastOfflineTime?: number;
-    currentBalance?: number;
-    minutesWatched?: number;
-    pointsEarned?: number;
-    watching?: boolean;
-    lastMinuteWatchedEventTime?: number;
-}
-
-class Streamers extends Store<State> {
     constructor() {
         super(NAME);
         this.initStore(() => this.getInitialState());
+        this.streamers = this.store
+            .getState()
+            .streamers.map((streamer) => new StreamerClass(streamer));
     }
 
-    public getAllStreamers(): Streamer[] {
-        return this.store.getState().streamers;
+    public getAllStreamers(): StreamerClass[] {
+        return this.streamers;
     }
 
-    public getAllStreamersOnline(): Streamer[] {
+    public getAllStreamersOnline(): StreamerClass[] {
         return this.getAllStreamers().filter(
-            (streamer) => streamer.online === true
+            (streamer) => streamer.onlineStatus === OnlineStatus.ONLINE
         );
     }
 
-    public addStreamer(streamer: NewStreamer) {
-        for (let i = 0; i < this.store.getState().streamers.length; i += 1) {
-            if (this.store.getState().streamers[i].id === streamer.id) {
+    public addStreamer(payload: NewStreamerPayload) {
+        for (const streamer of this.streamers) {
+            if (streamer.id === payload.id) {
                 log.warning(
-                    `Skipping to add ${streamer.displayName} because it's already added`
+                    `Skipping to add ${payload.displayName} because this streamer is already added.`
                 );
 
-                return this.store.setState({
-                    streamers: this.store.getState().streamers,
-                });
+                return;
             }
         }
 
-        const streamerToAdd: Streamer = {
-            ...streamer,
+        const streamerToAdd: StreamerData = {
+            ...payload,
             minutesWatched: 0,
             pointsEarned: 0,
             lastMinuteWatchedEventTime: 0,
         };
 
-        const updated = [...this.store.getState().streamers, streamerToAdd];
-
-        this.store.setState({ streamers: updated });
-        this.syncStorageWithStore();
+        this.streamers.push(new StreamerClass(streamerToAdd));
+        this.onStreamersUpdate();
     }
 
     public removeStreamer(id: StreamerId) {
-        const updated = this.store
-            .getState()
-            .streamers.filter((streamer) => streamer.id !== id)
-            .map((streamer) => {
-                return { ...streamer };
-            });
-
-        this.store.setState({ streamers: updated });
-        this.syncStorageWithStore();
+        this.streamers = this.streamers.filter(
+            (streamer) => streamer.id !== id
+        );
+        this.onStreamersUpdate();
     }
 
-    public updateStreamer(id: StreamerId, newValue: UpdateStreamer) {
-        const updated = this.store.getState().streamers.map((streamer) => {
-            if (streamer.id === id) {
-                return {
-                    ...streamer,
-                    ...newValue,
-                };
-            }
+    public updateStreamer(id: StreamerId, payload: UpdateStreamerPayload) {
+        const streamer = this.getStreamerById(id);
 
-            return { ...streamer };
-        });
-
-        this.store.setState({ streamers: updated });
-        this.syncStorageWithStore();
+        if (streamer) {
+            streamer.update(payload);
+            this.onStreamersUpdate();
+        }
     }
 
-    public getStreamerById(id: StreamerId): Streamer | void {
-        for (const streamer of this.store.getState().streamers) {
+    public getStreamerById(id: StreamerId): StreamerClass | void {
+        for (const streamer of this.streamers) {
             if (streamer.id === id) {
                 return streamer;
             }
         }
     }
 
-    public getStreamerByLogin(login: StreamerLogin): Streamer | void {
-        for (const streamer of this.store.getState().streamers) {
+    public getStreamerByLogin(login: StreamerLogin): StreamerClass | void {
+        for (const streamer of this.streamers) {
             if (streamer.login === login) {
                 return streamer;
             }
         }
     }
 
-    public setStreamerOnlineStatus(login: StreamerLogin, online: boolean) {
-        const updated: Streamer[] = this.store
-            .getState()
-            .streamers.map((streamer): Streamer => {
-                if (streamer.login === login) {
-                    log.info(
-                        `${streamer.displayName} (${
-                            streamer.currentBalance
-                        }) is ${online ? 'Online' : 'Offline'}`
-                    );
+    public setStreamerOnlineStatus(login: StreamerLogin, status: OnlineStatus) {
+        const streamer = this.getStreamerByLogin(login);
 
-                    // Setting streamer to `Offline`
-                    if (!online) {
-                        return {
-                            ...streamer,
-                            online,
-                            lastOfflineTime: rightNowInSecs(),
-                            watching: false,
-                        };
-                    }
-
-                    // Setting streamer to `Online`
-                    return {
-                        ...streamer,
-                        online,
-                    };
-                }
-
-                return streamer;
-            });
-
-        return this.store.setState({
-            streamers: updated,
-        });
+        if (streamer) {
+            streamer.setOnlineStatus(status);
+            this.onStreamersUpdate();
+        }
     }
 
     public isStreamerOnline(login: StreamerLogin): boolean {
-        for (const streamer of this.getAllStreamers()) {
-            if (streamer.login === login) {
-                if (streamer.online) {
-                    return true;
-                }
-            }
+        const streamer = this.getStreamerByLogin(login);
+
+        if (streamer) {
+            return streamer.isOnline();
         }
 
-        return false;
+        throw new Error(`No streamer found wih login: ${login}`);
     }
 
     public resetOnlineStatusOfAllStreamers() {
-        const updated = this.store.getState().streamers.map((streamer) => ({
-            ...streamer,
-            online: undefined,
-            watching: undefined,
-        }));
+        this.streamers.forEach((streamer) => {
+            streamer.setOnlineStatus(OnlineStatus.OFFLINE);
+        });
 
-        this.store.setState({ streamers: updated });
+        this.onStreamersUpdate();
     }
 
-    public findStreamerCard(id: StreamerId) {
-        const streamer = this.store
-            .getState()
-            .streamers.filter((streamer) => streamer.id === id)[0];
+    public findStreamerCard(
+        id: StreamerId
+    ): { streamer: StreamerClass; index: number } | void {
+        const streamer = this.getStreamerById(id);
 
-        return {
-            streamer,
-            index: this.store.getState().streamers.indexOf(streamer),
-        };
+        if (streamer) {
+            return {
+                streamer,
+                index: this.streamers.indexOf(streamer),
+            };
+        }
+
+        log.exception(`No streamer card found with streamer id: ${id}.`);
     }
 
     public moveStreamerCard(id: StreamerId, hoverIndex: number) {
         const drag = this.findStreamerCard(id);
-        const dragIndex = drag.index;
-        const hover = this.store.getState().streamers[hoverIndex];
 
-        const updated = [...this.store.getState().streamers];
-        updated[dragIndex] = hover;
-        updated[hoverIndex] = drag.streamer;
+        if (drag) {
+            const dragIndex = drag.index;
+            const hover = this.streamers[hoverIndex];
 
-        this.store.setState({ streamers: updated });
-        this.syncStorageWithStore();
+            this.streamers[dragIndex] = hover;
+            this.streamers[hoverIndex] = drag.streamer;
+
+            this.onStreamersUpdate();
+        }
     }
 
     private getStorageKey() {
@@ -231,7 +158,7 @@ class Streamers extends Store<State> {
 
     private getInitialState(): State {
         try {
-            const streamers: Streamer[] = JSON.parse(
+            const streamers: StreamerData[] = JSON.parse(
                 Storage.get(this.getStorageKey()) || ''
             );
 
@@ -255,14 +182,22 @@ class Streamers extends Store<State> {
             .getState()
             .streamers.map((streamer) => ({
                 ...streamer,
-                online: undefined,
-                lastOfflineTime: undefined,
-                currentBalance: undefined,
-                watching: undefined,
+                onlineStatus: OnlineStatus.OFFLINE,
+                lastOfflineTime: 0,
+                currentBalance: 0,
+                watching: false,
             }));
 
         Storage.set(this.getStorageKey(), JSON.stringify(updatedForPersisting));
     }
-}
 
-export const streamers = new Streamers();
+    private syncStoreWithStreamers() {
+        const streamers: StreamerData[] = this.streamers;
+        this.store.setState({ streamers });
+    }
+
+    private onStreamersUpdate() {
+        this.syncStoreWithStreamers();
+        this.syncStorageWithStore();
+    }
+}

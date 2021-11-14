@@ -1,15 +1,17 @@
-import { auth } from 'renderer/core/auth';
-import { streamers, StreamerLogin, Streamer } from 'renderer/core/streamers';
-import { logging } from 'renderer/core/logging';
-import { makeGraphqlRequest } from 'renderer/api';
-// eslint-disable-next-line import/no-cycle
-import { watcher } from 'renderer/core/watcher';
+import { OnlineStatus, StreamerData, StreamerLogin } from './streamer';
 import {
     channelIdExistsInCache,
     checkOnline,
     getChannelId,
 } from 'renderer/core/data';
+
+import { auth } from 'renderer/core/auth';
 import { claimChannelPointsBonus } from 'renderer/core/bonus';
+import { logging } from 'renderer/core/logging';
+import { makeGraphqlRequest } from 'renderer/api';
+import { twester } from 'renderer/core';
+// eslint-disable-next-line import/no-cycle
+import { watcher } from 'renderer/core/watcher';
 
 const NAME = 'PUBSUB';
 
@@ -72,7 +74,7 @@ export function stopListeningForChannelPoints() {
 function getNeededTopics(): PubSubTopic[] {
     const topics = [new PubSubTopic('community-points-user-v1')];
 
-    for (const streamer of streamers.getAllStreamers()) {
+    for (const streamer of twester.streamers.getAllStreamers()) {
         topics.push(new PubSubTopic('video-playback-by-id', streamer.login));
         topics.push(new PubSubTopic('raid', streamer.login));
     }
@@ -116,7 +118,7 @@ class Raid {
 
 const raidCache: Map<StreamerLogin, Raid> = new Map();
 
-function updateRaid(streamer: Streamer, raid: Raid) {
+function updateRaid(streamer: StreamerData, raid: Raid) {
     if (raidCache.get(streamer.login)) {
         return;
     }
@@ -322,7 +324,8 @@ class WebSocketsPool {
                         const pointsEarned =
                             messageData.point_gain.total_points;
                         const newBalance = messageData.balance.balance;
-                        const streamer = streamers.getStreamerById(channelId);
+                        const streamer =
+                            twester.streamers.getStreamerById(channelId);
                         const reason = messageData.point_gain.reason_code;
 
                         if (!streamer) {
@@ -350,7 +353,7 @@ class WebSocketsPool {
                             `+${pointsEarned} points for ${streamer.displayName} (${newBalance}) - Reason: ${reason}`
                         );
 
-                        streamers.updateStreamer(streamer.id, {
+                        twester.streamers.updateStreamer(streamer.id, {
                             currentBalance: newBalance,
                             pointsEarned: streamer.pointsEarned + pointsEarned,
                         });
@@ -361,7 +364,8 @@ class WebSocketsPool {
 
                     if (channelIdExistsInCache(channelId)) {
                         const claimId = messageData.claim.id;
-                        const streamer = streamers.getStreamerById(channelId);
+                        const streamer =
+                            twester.streamers.getStreamerById(channelId);
 
                         if (!streamer) {
                             log.error(
@@ -381,7 +385,7 @@ class WebSocketsPool {
                     }
                 }
             } else if (topic === 'video-playback-by-id') {
-                const streamer = streamers.getStreamerById(streamerId);
+                const streamer = twester.streamers.getStreamerById(streamerId);
 
                 if (!streamer) {
                     log.error(`No streamer found with id: ${streamerId}`);
@@ -392,12 +396,15 @@ class WebSocketsPool {
                 // the API updates. Therefore making it useless to check for it
                 //  here, as `checkOnline` will return `isOffline` status.
                 if (messageType === 'stream-down') {
-                    streamers.setStreamerOnlineStatus(streamer.login, false);
+                    twester.streamers.setStreamerOnlineStatus(
+                        streamer.login,
+                        OnlineStatus.OFFLINE
+                    );
                 } else if (messageType === 'viewcount') {
                     checkOnline(streamer.login);
                 }
             } else if (topic === 'raid') {
-                const streamer = streamers.getStreamerById(streamerId);
+                const streamer = twester.streamers.getStreamerById(streamerId);
 
                 if (!streamer) {
                     log.error(`No streamer found with id: ${streamerId}`);

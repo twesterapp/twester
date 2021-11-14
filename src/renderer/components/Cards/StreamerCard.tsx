@@ -1,5 +1,3 @@
-import React from 'react';
-import { streamers, Streamer, StreamerId } from 'renderer/core/streamers';
 import {
     Avatar,
     IconClock,
@@ -7,23 +5,27 @@ import {
     IconEyeOpen,
     IconStar,
 } from 'renderer/ui';
-import { formatMinutes } from 'renderer/utils/formatMinutes';
-import { px2rem } from 'renderer/utils/px2rem';
-import styled, { useTheme } from 'styled-components';
-import { useQuery } from 'react-query';
-import { useDrag, useDrop } from 'react-dnd';
 import {
     ContextUser,
     getChannelContextInfo,
     getUserProfilePicture,
 } from 'renderer/core/data';
+import { StreamerClass, StreamerId } from 'renderer/core/streamer';
+import styled, { useTheme } from 'styled-components';
+import { useDrag, useDrop } from 'react-dnd';
+
+import React from 'react';
+import { formatMinutes } from 'renderer/utils/formatMinutes';
+import { px2rem } from 'renderer/utils/px2rem';
+import { twester } from 'renderer/core';
+import { useQuery } from 'react-query';
 import { watcher } from 'renderer/core/watcher';
 
 // Blatantly copied from React DnD's example, check
 // https://react-dnd.github.io/react-dnd/examples/sortable/cancel-on-drop-outside
 
 interface StreamerCardProps {
-    streamer: Streamer;
+    streamer: StreamerClass;
 }
 
 interface Item {
@@ -42,7 +44,13 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
         getChannelContextInfo(streamer.login)
     );
 
-    const originalIndex = streamers.findStreamerCard(streamer.id).index;
+    let originalIndex = -1;
+
+    const streamerCard = twester.streamers.findStreamerCard(streamer.id);
+
+    if (streamerCard) {
+        originalIndex = streamerCard.index;
+    }
 
     const [{ isDragging }, drag] = useDrag(
         () => ({
@@ -56,11 +64,14 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
                 const { streamerId: droppedId, originalIndex } = item;
                 const didDrop = monitor.didDrop();
                 if (!didDrop) {
-                    streamers.moveStreamerCard(droppedId, originalIndex);
+                    twester.streamers.moveStreamerCard(
+                        droppedId,
+                        originalIndex
+                    );
                 }
             },
         }),
-        [streamer.id, originalIndex, streamers.moveStreamerCard]
+        [streamer.id, originalIndex, twester.streamers.moveStreamerCard]
     );
 
     const [, drop] = useDrop(
@@ -69,14 +80,20 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
             canDrop: () => false,
             hover({ streamerId: draggedId }: Item) {
                 if (draggedId !== streamer.id) {
-                    const { index: overIndex } = streamers.findStreamerCard(
+                    const streamerCard = twester.streamers.findStreamerCard(
                         streamer.id
                     );
-                    streamers.moveStreamerCard(draggedId, overIndex);
+
+                    if (streamerCard) {
+                        twester.streamers.moveStreamerCard(
+                            draggedId,
+                            streamerCard.index
+                        );
+                    }
                 }
             },
         }),
-        [streamers.findStreamerCard, streamers.moveStreamerCard]
+        [twester.streamers.findStreamerCard, twester.streamers.moveStreamerCard]
     );
 
     React.useEffect(() => {
@@ -84,7 +101,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
             const result = await getChannelContextInfo(data.login);
             const profileImageUrl = await getUserProfilePicture(data.id);
 
-            streamers.updateStreamer(streamer.id, {
+            twester.streamers.updateStreamer(streamer.id, {
                 displayName: result?.displayName || data.displayName,
                 profileImageUrl,
             });
@@ -108,7 +125,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
                         <button
                             id="remove-button"
                             onClick={() =>
-                                streamers.removeStreamer(streamer.id)
+                                twester.streamers.removeStreamer(streamer.id)
                             }
                             type="button"
                         >
@@ -134,12 +151,12 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
                     size={64}
                     alt={`${streamer.displayName} profile`}
                     borderColor={
-                        streamer.online
+                        streamer.isOnline()
                             ? theme.color.secondary
                             : theme.color.borderOnDisabled
                     }
                     margin="14px"
-                    showLiveStatus={streamer.online}
+                    showLiveStatus={streamer.isOnline()}
                     liveStatusBgColor={theme.color.secondary}
                 />
 
