@@ -64,7 +64,7 @@ export class StreamerManager extends Store<State> {
         this.onStreamersUpdate();
     }
 
-    public removeStreamer(id: StreamerId) {
+    public remove(id: StreamerId) {
         this.streamers = this.streamers.filter(
             (streamer) => streamer.id !== id
         );

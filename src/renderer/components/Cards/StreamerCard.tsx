@@ -125,7 +125,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
                         <button
                             id="remove-button"
                             onClick={() =>
-                                twester.streamers.removeStreamer(streamer.id)
+                                twester.streamers.remove(streamer.id)
                             }
                             type="button"
                         >
