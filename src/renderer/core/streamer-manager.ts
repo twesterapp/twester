@@ -10,7 +10,7 @@ import {
 
 import { Storage } from '../utils/storage';
 import { Store } from '../utils/store';
-import { auth } from './auth';
+import { Twester } from './twester';
 import { logging } from './logging';
 
 const NAME = 'STREAMERS';
@@ -24,8 +24,11 @@ interface State {
 export class StreamerManager extends Store<State> {
     private streamers: Streamer[];
 
-    constructor() {
+    private twester: Twester;
+
+    constructor(twester: Twester) {
         super(NAME);
+        this.twester = twester;
         this.initStore(() => this.getInitialState());
         this.streamers = this.store
             .getState()
@@ -145,7 +148,7 @@ export class StreamerManager extends Store<State> {
     }
 
     private getStorageKey(): string {
-        return `${auth.store.getState().user.id}.streamers`;
+        return `${this.twester.auth.store.getState().user.id}.streamers`;
     }
 
     private getInitialState(): State {

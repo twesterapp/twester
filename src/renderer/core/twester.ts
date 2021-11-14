@@ -1,3 +1,4 @@
+import { Auth } from './auth';
 import { StreamerManager } from './streamer-manager';
 
 /**
@@ -10,11 +11,14 @@ import { StreamerManager } from './streamer-manager';
  *
  * @class Twester
  */
-class Twester {
+export class Twester {
+    public auth: Auth;
+
     public streamers: StreamerManager;
 
     constructor() {
-        this.streamers = new StreamerManager();
+        this.auth = new Auth();
+        this.streamers = new StreamerManager(this);
     }
 }
 

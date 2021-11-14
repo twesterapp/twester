@@ -1,26 +1,27 @@
-import React, { useRef } from 'react';
-import styled from 'styled-components';
-import {
-    MemoryRouter as Router,
-    Switch,
-    Route,
-    useHistory,
-} from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import { ReactQueryDevtools } from 'react-query/devtools';
 import 'typeface-poppins';
 import 'typeface-karla';
 import 'typeface-roboto-mono';
 
+import { AuthPage, HomePage, StreamersPage } from './pages';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import React, { useRef } from 'react';
+import {
+    Route,
+    MemoryRouter as Router,
+    Switch,
+    useHistory,
+} from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+
 import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
-import { toast, ToastContainer } from 'react-toastify';
-import { injectStyle } from 'react-toastify/dist/inject-style';
-import { auth } from 'renderer/core/auth';
 import { GlobalStyle } from './ui';
-import { AuthPage, StreamersPage, HomePage } from './pages';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import { ReactQueryDevtools } from 'react-query/devtools';
 import { Sidebar } from './components';
 import { getIpc } from './utils/ipc';
+import { injectStyle } from 'react-toastify/dist/inject-style';
+import styled from 'styled-components';
+import { twester } from 'renderer/core';
 
 injectStyle();
 
@@ -61,7 +62,7 @@ const onUpdateFailedToast = () => {
 };
 
 export function App() {
-    const { user } = auth.useStore();
+    const { user } = twester.auth.useStore();
     const availableToastId = useRef<React.ReactText | null>(null);
 
     const ipc = getIpc();

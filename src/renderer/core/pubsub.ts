@@ -5,12 +5,10 @@ import {
     getChannelId,
 } from 'renderer/core/data';
 
-import { auth } from 'renderer/core/auth';
 import { claimChannelPointsBonus } from 'renderer/core/bonus';
 import { logging } from 'renderer/core/logging';
 import { makeGraphqlRequest } from 'renderer/api';
 import { twester } from 'renderer/core';
-// eslint-disable-next-line import/no-cycle
 import { watcher } from 'renderer/core/watcher';
 
 const NAME = 'PUBSUB';
@@ -98,7 +96,7 @@ class PubSubTopic {
 
     async value(): Promise<string> {
         if (this.isUserTopic()) {
-            return `${this.topic}.${auth.store.getState().user.id}`;
+            return `${this.topic}.${twester.auth.store.getState().user.id}`;
         }
 
         return `${this.topic}.${await getChannelId(this.channelLogin!)}`;
@@ -431,7 +429,7 @@ class WebSocketsPool {
         };
 
         if (topic.isUserTopic()) {
-            data.auth_token = auth.store.getState().accessToken;
+            data.auth_token = twester.auth.store.getState().accessToken;
         }
 
         const nonce = createNonce(15);

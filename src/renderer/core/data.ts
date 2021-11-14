@@ -2,7 +2,6 @@ import { OnlineStatus, StreamerId, StreamerLogin } from './streamer';
 import { makeGraphqlRequest, nodeClient } from 'renderer/api';
 
 import { StreamerIsOfflineError } from './errors';
-import { auth } from 'renderer/core/auth';
 import { logging } from 'renderer/core/logging';
 import { rightNowInSecs } from 'renderer/utils/rightNowInSecs';
 import { twester } from 'renderer/core';
@@ -54,7 +53,7 @@ export async function updateMinuteWatchedEventRequestInfo(
         channel_id: await getChannelId(login),
         broadcast_id: await getBroadcastId(login),
         player: 'site',
-        user_id: parseInt(auth.store.getState().user.id, 10),
+        user_id: parseInt(twester.auth.store.getState().user.id, 10),
     };
 
     const minuteWatched = {

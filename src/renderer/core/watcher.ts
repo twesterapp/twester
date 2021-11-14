@@ -2,7 +2,6 @@ import {
     getMinuteWatchedRequestInfo,
     updateStreamersToWatch,
 } from 'renderer/core/data';
-// eslint-disable-next-line import/no-cycle
 import {
     startListeningForChannelPoints,
     stopListeningForChannelPoints,
@@ -10,7 +9,6 @@ import {
 
 import { Storage } from 'renderer/utils/storage';
 import { Store } from 'renderer/utils/store';
-import { auth } from 'renderer/core/auth';
 import { loadChannelPointsContext } from 'renderer/core/bonus';
 import { logging } from 'renderer/core/logging';
 import { nodeClient } from 'renderer/api';
@@ -47,8 +45,8 @@ class Watcher extends Store<State> {
 
     public async play() {
         if (
-            !auth.store.getState().accessToken ||
-            !auth.store.getState().user.id
+            !twester.auth.store.getState().accessToken ||
+            !twester.auth.store.getState().user.id
         ) {
             log.exception('User is unauthorized. Skipping to start Watcher.');
             return;
@@ -211,7 +209,7 @@ class Watcher extends Store<State> {
     }
 
     private getStorageKey() {
-        return `${auth.store.getState().user.id}.watcher`;
+        return `${twester.auth.store.getState().user.id}.watcher`;
     }
 
     private getInitialState(): State {

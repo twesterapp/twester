@@ -20,7 +20,7 @@ interface State {
     accessToken: string;
 }
 
-class Auth extends Store<State> {
+export class Auth extends Store<State> {
     constructor() {
         super(NAME);
         this.initStore(() => this.getInitialState());
@@ -115,5 +115,3 @@ class Auth extends Store<State> {
         }
     }
 }
-
-export const auth = new Auth();

@@ -3,9 +3,9 @@ import { CaptchaSolvingErrorModal, LoadingScreen } from 'renderer/components';
 import React, { useEffect, useRef, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 
-import { auth } from 'renderer/core/auth';
 import { nodeClient } from 'renderer/api';
 import { px2rem } from 'renderer/utils/px2rem';
+import { twester } from 'renderer/core';
 import { useAppVersion } from 'renderer/hooks';
 
 enum FlowStep {
@@ -24,7 +24,7 @@ interface VerifyOptions {
 // TODO: Clean this mess.
 export function AuthPage() {
     const version = useAppVersion();
-    const { user } = auth.useStore();
+    const { user } = twester.auth.useStore();
     const theme = useTheme();
     const [flowStep, setFlowStep] = useState<FlowStep>(FlowStep.CREDENTIALS);
     const [verifyOptions, setVerifyOptions] = useState<VerifyOptions>({
@@ -219,7 +219,7 @@ function AskForLoginCredentials({
         setSendingReq(false);
 
         if (res.data.access_token) {
-            auth.login(res.data.access_token, username);
+            twester.auth.login(res.data.access_token, username);
         }
 
         if (res.data.captcha) {
@@ -349,7 +349,7 @@ function VerifyWithCode({
         });
 
         if (res.data.access_token) {
-            auth.login(res.data.access_token, username);
+            twester.auth.login(res.data.access_token, username);
         }
 
         setErr(res.data?.error?.message);
@@ -434,7 +434,7 @@ function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
         });
 
         if (res.data.access_token) {
-            auth.login(res.data.access_token, username);
+            twester.auth.login(res.data.access_token, username);
         }
 
         setErr(res.data?.error?.message);
