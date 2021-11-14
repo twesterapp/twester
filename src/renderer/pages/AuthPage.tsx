@@ -1,14 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { Button, IconGithub, InputText } from 'renderer/ui';
+import { CaptchaSolvingErrorModal, LoadingScreen } from 'renderer/components';
+import React, { useEffect, useRef, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 
-import { LoadingScreen, CaptchaSolvingErrorModal } from 'renderer/components';
-import { nodeClient } from 'renderer/api';
 import { auth } from 'renderer/core/auth';
-import { Button, IconGithub, InputText } from 'renderer/ui';
-
-import { useAppVersion } from 'renderer/hooks';
+import { nodeClient } from 'renderer/api';
 import { px2rem } from 'renderer/utils/px2rem';
-import { login } from '../utils';
+import { useAppVersion } from 'renderer/hooks';
 
 enum FlowStep {
     CREDENTIALS = 'credentials',
@@ -221,7 +219,7 @@ function AskForLoginCredentials({
         setSendingReq(false);
 
         if (res.data.access_token) {
-            login(res.data.access_token, username);
+            auth.login(res.data.access_token, username);
         }
 
         if (res.data.captcha) {
@@ -351,7 +349,7 @@ function VerifyWithCode({
         });
 
         if (res.data.access_token) {
-            login(res.data.access_token, username);
+            auth.login(res.data.access_token, username);
         }
 
         setErr(res.data?.error?.message);
@@ -436,7 +434,7 @@ function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
         });
 
         if (res.data.access_token) {
-            login(res.data.access_token, username);
+            auth.login(res.data.access_token, username);
         }
 
         setErr(res.data?.error?.message);

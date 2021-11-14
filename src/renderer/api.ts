@@ -1,5 +1,5 @@
-import axios from 'axios';
 import { auth } from 'renderer/core/auth';
+import axios from 'axios';
 import { logging } from 'renderer/core/logging';
 
 const log = logging.getLogger('API');
@@ -38,7 +38,7 @@ export async function makeGraphqlRequest<T extends Record<string, any>>(
             ) {
                 // The token has probably expired and there is no way to refresh
                 // the token, that's why we signout the user.
-                auth.signout();
+                auth.logout();
             }
         });
 }

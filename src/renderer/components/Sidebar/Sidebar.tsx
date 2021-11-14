@@ -1,18 +1,19 @@
-import React from 'react';
-import { useHistory } from 'react-router-dom';
+import {
+    Avatar,
+    IconButton,
+    IconHome,
+    IconSignOut,
+    IconStreamers,
+    Tooltip,
+} from 'renderer/ui';
 import { fetchChannelId, getUserProfilePicture } from 'renderer/core/data';
 import styled, { useTheme } from 'styled-components';
-import {
-    IconSignOut,
-    Avatar,
-    Tooltip,
-    IconStreamers,
-    IconHome,
-    IconButton,
-} from 'renderer/ui';
+
+import React from 'react';
+import { auth } from 'renderer/core/auth';
+import { useHistory } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import { watcher } from 'renderer/core/watcher';
-import { auth } from 'renderer/core/auth';
 
 interface SidebarOptions {
     // This helps us fix the issue of active icon in the sidebar not updating
@@ -84,7 +85,7 @@ export function Sidebar({ currentPage }: SidebarOptions) {
                             iconColor={theme.color.error}
                             bgColorOnHover={theme.color.textPrimary}
                             onClick={() => {
-                                auth.signout();
+                                auth.logout();
                             }}
                         />
                     </i>

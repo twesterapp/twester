@@ -1,6 +1,8 @@
-import { logging } from 'renderer/core/logging';
-import { Store } from 'renderer/utils/store';
+import { getChannelContextInfo, getUserProfilePicture } from './data';
+
 import { Storage } from 'renderer/utils/storage';
+import { Store } from 'renderer/utils/store';
+import { logging } from 'renderer/core/logging';
 
 const NAME = 'AUTH';
 
@@ -24,7 +26,33 @@ class Auth extends Store<State> {
         this.initStore(() => this.getInitialState());
     }
 
-    public signout() {
+    public async login(token: string, username: string) {
+        this.setToken(token);
+        const result = await getChannelContextInfo(username);
+
+        // This should never happen but if somehow it did happen, we will logout
+        // the user
+        if (!result) {
+            log.exception(
+                'No channel context info found for the logged in user. This should have never happened.'
+            );
+            this.logout();
+            return;
+        }
+
+        const profileImageUrl = await getUserProfilePicture(result.id);
+
+        const user: User = {
+            displayName: result.displayName,
+            id: result.id,
+            login: result.login,
+            profileImageUrl,
+        };
+        this.setUser(user);
+        window.location.reload();
+    }
+
+    public logout() {
         this.delToken();
         this.delUser();
         window.location.reload();
