@@ -9,12 +9,12 @@ import {
 
 import { Storage } from 'renderer/utils/storage';
 import { Store } from 'renderer/utils/store';
+import { core } from 'renderer/core';
 import { loadChannelPointsContext } from 'renderer/core/bonus';
 import { logging } from 'renderer/core/logging';
 import { nodeClient } from 'renderer/api';
 import { rightNowInSecs } from 'renderer/utils/rightNowInSecs';
 import { sleep } from 'renderer/utils/sleep';
-import { twester } from 'renderer/core';
 
 const NAME = 'WATCHER';
 
@@ -45,8 +45,8 @@ class Watcher extends Store<State> {
 
     public async play() {
         if (
-            !twester.auth.store.getState().accessToken ||
-            !twester.auth.store.getState().user.id
+            !core.auth.store.getState().accessToken ||
+            !core.auth.store.getState().user.id
         ) {
             log.exception('User is unauthorized. Skipping to start Watcher.');
             return;
@@ -56,7 +56,7 @@ class Watcher extends Store<State> {
         this.setWatcherStatus(WatcherStatus.BOOTING);
 
         log.info(
-            `Loading data for ${twester.streamers.all().length} streamers...`
+            `Loading data for ${core.streamers.all().length} streamers...`
         );
 
         await loadChannelPointsContext();
@@ -67,7 +67,7 @@ class Watcher extends Store<State> {
         log.info('Watcher is running!');
 
         while (this.isRunning()) {
-            const streamersToWatch = twester.streamers.online().slice(0, 2);
+            const streamersToWatch = core.streamers.online().slice(0, 2);
             const numOfStreamersToWatch = streamersToWatch.length;
 
             if (numOfStreamersToWatch) {
@@ -82,7 +82,7 @@ class Watcher extends Store<State> {
                     // will still keep watching that streamer because this
                     // `isOnline` check is made with cached value instead of
                     // actual recently fetched data from the Twitch server.
-                    if (twester.streamers.isStreamerOnline(streamer.login)) {
+                    if (core.streamers.isStreamerOnline(streamer.login)) {
                         try {
                             const info = getMinuteWatchedRequestInfo(
                                 streamer.login
@@ -90,7 +90,7 @@ class Watcher extends Store<State> {
 
                             if (info) {
                                 if (!streamer.watching) {
-                                    twester.streamers.update(streamer.id, {
+                                    core.streamers.update(streamer.id, {
                                         watching: true,
                                     });
                                     log.info(
@@ -111,7 +111,7 @@ class Watcher extends Store<State> {
                                     ) ||
                                     !streamer.lastMinuteWatchedEventTime
                                 ) {
-                                    twester.streamers.update(streamer.id, {
+                                    core.streamers.update(streamer.id, {
                                         minutesWatched:
                                             (streamer.minutesWatched += 1),
                                         lastMinuteWatchedEventTime:
@@ -146,7 +146,7 @@ class Watcher extends Store<State> {
 
         sleep.abort();
         stopListeningForChannelPoints();
-        twester.streamers.resetOnlineStatusOfAllStreamers();
+        core.streamers.resetOnlineStatusOfAllStreamers();
 
         this.setWatcherStatus(WatcherStatus.PAUSED);
 
@@ -186,7 +186,7 @@ class Watcher extends Store<State> {
     private fixWatchingStatus(): void {
         // We can only watch the first 2 online streamers. So these are the
         // streamers we should NOT be watching.
-        const streamersToNotWatch = twester.streamers.online().slice(2);
+        const streamersToNotWatch = core.streamers.online().slice(2);
 
         if (!streamersToNotWatch.length) {
             return;
@@ -194,7 +194,7 @@ class Watcher extends Store<State> {
 
         for (const streamer of streamersToNotWatch) {
             if (streamer.watching) {
-                twester.streamers.update(streamer.id, {
+                core.streamers.update(streamer.id, {
                     watching: false,
                 });
                 log.info(`Stopped watching ${streamer.displayName}`);
@@ -209,7 +209,7 @@ class Watcher extends Store<State> {
     }
 
     private getStorageKey() {
-        return `${twester.auth.store.getState().user.id}.watcher`;
+        return `${core.auth.store.getState().user.id}.watcher`;
     }
 
     private getInitialState(): State {

@@ -2,16 +2,12 @@ import { Auth } from './auth';
 import { StreamerManager } from './streamer-manager';
 
 /**
- * This class is the `core` of Twester.
+ * `Core` is the entry point to everything that `Twester` is and can do.
  *
- * This class is the entry point to everything that Twester is and can do.
- *
- * You should use `twester` (singleton) to interact with Twester instead
+ * You should use `core` (singleton) to interact with `Twester` instead
  * of directly interacting with other modules like `pubsub`, `watcher` and etc.
- *
- * @class Twester
  */
-export class Twester {
+export class Core {
     public auth: Auth;
 
     public streamers: StreamerManager;
@@ -22,4 +18,4 @@ export class Twester {
     }
 }
 
-export const twester = new Twester();
+export const core = new Core();

@@ -15,9 +15,9 @@ import styled, { useTheme } from 'styled-components';
 import { useDrag, useDrop } from 'react-dnd';
 
 import React from 'react';
+import { core } from 'renderer/core';
 import { formatMinutes } from 'renderer/utils/formatMinutes';
 import { px2rem } from 'renderer/utils/px2rem';
-import { twester } from 'renderer/core';
 import { useQuery } from 'react-query';
 import { watcher } from 'renderer/core/watcher';
 
@@ -44,7 +44,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
         getChannelContextInfo(streamer.login)
     );
 
-    const originalIndex = twester.streamers.findStreamerCard(streamer.id).index;
+    const originalIndex = core.streamers.findStreamerCard(streamer.id).index;
 
     const [{ isDragging }, drag] = useDrag(
         () => ({
@@ -58,14 +58,11 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
                 const { streamerId: droppedId, originalIndex } = item;
                 const didDrop = monitor.didDrop();
                 if (!didDrop) {
-                    twester.streamers.moveStreamerCard(
-                        droppedId,
-                        originalIndex
-                    );
+                    core.streamers.moveStreamerCard(droppedId, originalIndex);
                 }
             },
         }),
-        [streamer.id, originalIndex, twester.streamers.moveStreamerCard]
+        [streamer.id, originalIndex, core.streamers.moveStreamerCard]
     );
 
     const [, drop] = useDrop(
@@ -74,15 +71,15 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
             canDrop: () => false,
             hover({ streamerId: draggedId }: Item) {
                 if (draggedId !== streamer.id) {
-                    const index = twester.streamers.findStreamerCard(
+                    const index = core.streamers.findStreamerCard(
                         streamer.id
                     ).index;
 
-                    twester.streamers.moveStreamerCard(draggedId, index);
+                    core.streamers.moveStreamerCard(draggedId, index);
                 }
             },
         }),
-        [twester.streamers.findStreamerCard, twester.streamers.moveStreamerCard]
+        [core.streamers.findStreamerCard, core.streamers.moveStreamerCard]
     );
 
     React.useEffect(() => {
@@ -90,7 +87,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
             const result = await getChannelContextInfo(data.login);
             const profileImageUrl = await getUserProfilePicture(data.id);
 
-            twester.streamers.update(streamer.id, {
+            core.streamers.update(streamer.id, {
                 displayName: result?.displayName || data.displayName,
                 profileImageUrl,
             });
@@ -113,9 +110,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
                     {watcher.canPlay() ? (
                         <button
                             id="remove-button"
-                            onClick={() =>
-                                twester.streamers.remove(streamer.id)
-                            }
+                            onClick={() => core.streamers.remove(streamer.id)}
                             type="button"
                         >
                             <IconCross

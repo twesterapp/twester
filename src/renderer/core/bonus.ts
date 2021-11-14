@@ -1,8 +1,8 @@
 import { StreamerLogin } from './streamer';
+import { core } from 'renderer/core';
 import { getChannelId } from './data';
 import { logging } from 'renderer/core/logging';
 import { makeGraphqlRequest } from 'renderer/api';
-import { twester } from 'renderer/core';
 
 const log = logging.getLogger('BONUS');
 
@@ -10,7 +10,7 @@ export async function claimChannelPointsBonus(
     login: StreamerLogin,
     claimId: string
 ) {
-    const streamer = twester.streamers.getByLogin(login);
+    const streamer = core.streamers.getByLogin(login);
     const displayName = streamer ? streamer.displayName : login;
     log.debug(`Claming bonus for ${displayName}`);
 
@@ -32,7 +32,7 @@ export async function claimChannelPointsBonus(
 }
 
 export async function loadChannelPointsContext() {
-    twester.streamers.all().forEach(async (streamer) => {
+    core.streamers.all().forEach(async (streamer) => {
         const data = {
             operationName: 'ChannelPointsContext',
             variables: { channelLogin: streamer.login },
@@ -56,7 +56,7 @@ export async function loadChannelPointsContext() {
         const communityPoints =
             response.data.community.channel.self.communityPoints;
         const initialBalance = communityPoints.balance;
-        twester.streamers.update(streamer.id, {
+        core.streamers.update(streamer.id, {
             currentBalance: initialBalance,
         });
 

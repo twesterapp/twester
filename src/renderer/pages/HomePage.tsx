@@ -2,10 +2,10 @@ import { IconClock, IconPause, IconPlay, IconStar, Link } from 'renderer/ui';
 import styled, { useTheme } from 'styled-components';
 
 import React from 'react';
+import { core } from 'renderer/core';
 import { formatMinutes } from 'renderer/utils/formatMinutes';
 import { logging } from 'renderer/core/logging';
 import { px2rem } from 'renderer/utils/px2rem';
-import { twester } from 'renderer/core';
 import { useAppVersion } from 'renderer/hooks';
 import { watcher } from 'renderer/core/watcher';
 
@@ -14,7 +14,7 @@ export function HomePage() {
     const logsEndRef = React.useRef<HTMLDivElement>(null);
     const [isScrollAtBottom, setScrollAtBottom] = React.useState(true);
 
-    const { streamers } = twester.streamers.useStore();
+    const { streamers } = core.streamers.useStore();
     const { minutesWatched, pointsEarned } = watcher.useStore();
     const { logs } = logging.useStore();
     const theme = useTheme();

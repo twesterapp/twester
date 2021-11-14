@@ -2,9 +2,9 @@ import { OnlineStatus, StreamerId, StreamerLogin } from './streamer';
 import { makeGraphqlRequest, nodeClient } from 'renderer/api';
 
 import { StreamerIsOfflineError } from './errors';
+import { core } from 'renderer/core';
 import { logging } from 'renderer/core/logging';
 import { rightNowInSecs } from 'renderer/utils/rightNowInSecs';
-import { twester } from 'renderer/core';
 
 const log = logging.getLogger('DATA');
 
@@ -53,7 +53,7 @@ export async function updateMinuteWatchedEventRequestInfo(
         channel_id: await getChannelId(login),
         broadcast_id: await getBroadcastId(login),
         player: 'site',
-        user_id: parseInt(twester.auth.store.getState().user.id, 10),
+        user_id: parseInt(core.auth.store.getState().user.id, 10),
     };
 
     const minuteWatched = {
@@ -132,9 +132,9 @@ export async function getBroadcastId(streamerLogin: string): Promise<string> {
 }
 
 export async function updateStreamersToWatch() {
-    for (const streamer of twester.streamers.all()) {
+    core.streamers.all().forEach(async (streamer) => {
         await checkOnline(streamer.login);
-    }
+    });
 }
 
 export async function checkOnline(login: StreamerLogin) {
@@ -145,16 +145,13 @@ export async function checkOnline(login: StreamerLogin) {
         return;
     }
 
-    if (!twester.streamers.isStreamerOnline(login)) {
+    if (!core.streamers.isStreamerOnline(login)) {
         try {
             await updateMinuteWatchedEventRequestInfo(login);
-            twester.streamers.setStreamerOnlineStatus(
-                login,
-                OnlineStatus.ONLINE
-            );
+            core.streamers.setStreamerOnlineStatus(login, OnlineStatus.ONLINE);
         } catch (err) {
             if (err instanceof StreamerIsOfflineError) {
-                twester.streamers.setStreamerOnlineStatus(
+                core.streamers.setStreamerOnlineStatus(
                     login,
                     OnlineStatus.OFFLINE
                 );

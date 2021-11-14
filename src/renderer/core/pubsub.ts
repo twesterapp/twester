@@ -6,9 +6,9 @@ import {
 } from 'renderer/core/data';
 
 import { claimChannelPointsBonus } from 'renderer/core/bonus';
+import { core } from 'renderer/core';
 import { logging } from 'renderer/core/logging';
 import { makeGraphqlRequest } from 'renderer/api';
-import { twester } from 'renderer/core';
 import { watcher } from 'renderer/core/watcher';
 
 const NAME = 'PUBSUB';
@@ -72,7 +72,7 @@ export function stopListeningForChannelPoints() {
 function getNeededTopics(): PubSubTopic[] {
     const topics = [new PubSubTopic('community-points-user-v1')];
 
-    for (const streamer of twester.streamers.all()) {
+    for (const streamer of core.streamers.all()) {
         topics.push(new PubSubTopic('video-playback-by-id', streamer.login));
         topics.push(new PubSubTopic('raid', streamer.login));
     }
@@ -96,7 +96,7 @@ class PubSubTopic {
 
     async value(): Promise<string> {
         if (this.isUserTopic()) {
-            return `${this.topic}.${twester.auth.store.getState().user.id}`;
+            return `${this.topic}.${core.auth.store.getState().user.id}`;
         }
 
         return `${this.topic}.${await getChannelId(this.channelLogin!)}`;
@@ -322,7 +322,7 @@ class WebSocketsPool {
                         const pointsEarned =
                             messageData.point_gain.total_points;
                         const newBalance = messageData.balance.balance;
-                        const streamer = twester.streamers.getById(channelId);
+                        const streamer = core.streamers.getById(channelId);
                         const reason = messageData.point_gain.reason_code;
 
                         if (!streamer) {
@@ -350,7 +350,7 @@ class WebSocketsPool {
                             `+${pointsEarned} points for ${streamer.displayName} (${newBalance}) - Reason: ${reason}`
                         );
 
-                        twester.streamers.update(streamer.id, {
+                        core.streamers.update(streamer.id, {
                             currentBalance: newBalance,
                             pointsEarned: streamer.pointsEarned + pointsEarned,
                         });
@@ -361,7 +361,7 @@ class WebSocketsPool {
 
                     if (channelIdExistsInCache(channelId)) {
                         const claimId = messageData.claim.id;
-                        const streamer = twester.streamers.getById(channelId);
+                        const streamer = core.streamers.getById(channelId);
 
                         if (!streamer) {
                             log.error(
@@ -381,7 +381,7 @@ class WebSocketsPool {
                     }
                 }
             } else if (topic === 'video-playback-by-id') {
-                const streamer = twester.streamers.getById(streamerId);
+                const streamer = core.streamers.getById(streamerId);
 
                 if (!streamer) {
                     log.error(`No streamer found with id: ${streamerId}`);
@@ -392,7 +392,7 @@ class WebSocketsPool {
                 // the API updates. Therefore making it useless to check for it
                 //  here, as `checkOnline` will return `isOffline` status.
                 if (messageType === 'stream-down') {
-                    twester.streamers.setStreamerOnlineStatus(
+                    core.streamers.setStreamerOnlineStatus(
                         streamer.login,
                         OnlineStatus.OFFLINE
                     );
@@ -400,7 +400,7 @@ class WebSocketsPool {
                     checkOnline(streamer.login);
                 }
             } else if (topic === 'raid') {
-                const streamer = twester.streamers.getById(streamerId);
+                const streamer = core.streamers.getById(streamerId);
 
                 if (!streamer) {
                     log.error(`No streamer found with id: ${streamerId}`);
@@ -429,7 +429,7 @@ class WebSocketsPool {
         };
 
         if (topic.isUserTopic()) {
-            data.auth_token = twester.auth.store.getState().accessToken;
+            data.auth_token = core.auth.store.getState().accessToken;
         }
 
         const nonce = createNonce(15);

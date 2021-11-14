@@ -10,7 +10,7 @@ import { fetchChannelId, getUserProfilePicture } from 'renderer/core/data';
 import styled, { useTheme } from 'styled-components';
 
 import React from 'react';
-import { twester } from 'renderer/core';
+import { core } from 'renderer/core';
 import { useHistory } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import { watcher } from 'renderer/core/watcher';
@@ -24,7 +24,7 @@ interface SidebarOptions {
 export function Sidebar({ currentPage }: SidebarOptions) {
     const history = useHistory();
     const theme = useTheme();
-    const { user } = twester.auth.useStore();
+    const { user } = core.auth.useStore();
     // So that we can conditionally re-render `IconPause` or `IconPlay`.
     watcher.useStore();
 
@@ -85,7 +85,7 @@ export function Sidebar({ currentPage }: SidebarOptions) {
                             iconColor={theme.color.error}
                             bgColorOnHover={theme.color.textPrimary}
                             onClick={() => {
-                                twester.auth.logout();
+                                core.auth.logout();
                             }}
                         />
                     </i>
@@ -94,14 +94,14 @@ export function Sidebar({ currentPage }: SidebarOptions) {
                 <i style={{ height: '11px' }} />
 
                 <Tooltip
-                    title={twester.auth.store.getState().user.login || ''}
+                    title={core.auth.store.getState().user.login || ''}
                     placement="right"
                     enterDelay={1000}
                 >
                     <i>
                         <a
                             href={`https://www.twitch.tv/${
-                                twester.auth.store.getState().user.login
+                                core.auth.store.getState().user.login
                             }`}
                             target="_blank"
                             rel="noreferrer"

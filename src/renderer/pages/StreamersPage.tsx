@@ -6,10 +6,10 @@ import {
 } from 'renderer/core/data';
 
 import React from 'react';
+import { core } from 'renderer/core';
 import { logging } from 'renderer/core/logging';
 import { px2rem } from 'renderer/utils/px2rem';
 import styled from 'styled-components';
-import { twester } from 'renderer/core';
 import { useDrop } from 'react-dnd';
 import { watcher } from 'renderer/core/watcher';
 
@@ -18,8 +18,8 @@ const log = logging.getLogger('STREAMERS_PAGE');
 export function StreamersPage() {
     const [searchText, setSearchText] = React.useState('');
     const [fetchingStreamer, setFetchingStreamer] = React.useState(false);
-    twester.streamers.useStore();
-    const streamers = twester.streamers.all();
+    core.streamers.useStore();
+    const streamers = core.streamers.all();
 
     async function handleAddStreamer(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -34,7 +34,7 @@ export function StreamersPage() {
             }
             const profileImageUrl = await getUserProfilePicture(result.id);
 
-            twester.streamers.add({
+            core.streamers.add({
                 id: result.id,
                 login: result.login,
                 displayName: result.displayName,

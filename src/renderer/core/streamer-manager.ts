@@ -8,9 +8,9 @@ import {
     UpdateStreamerPayload,
 } from './streamer';
 
+import { Core } from './core';
 import { Storage } from '../utils/storage';
 import { Store } from '../utils/store';
-import { Twester } from './twester';
 import { logging } from './logging';
 
 const NAME = 'STREAMERS';
@@ -24,9 +24,9 @@ interface State {
 export class StreamerManager extends Store<State> {
     private streamers: Streamer[];
 
-    private twester: Twester;
+    private twester: Core;
 
-    constructor(twester: Twester) {
+    constructor(twester: Core) {
         super(NAME);
         this.twester = twester;
         this.initStore(() => this.getInitialState());
