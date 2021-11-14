@@ -37,7 +37,7 @@ export class StreamerManager extends Store<State> {
     }
 
     public online(): Streamer[] {
-        return this.all().filter(
+        return this.streamers.filter(
             (streamer) => streamer.onlineStatus === OnlineStatus.ONLINE
         );
     }
@@ -83,9 +83,7 @@ export class StreamerManager extends Store<State> {
             }
         }
 
-        throw new Error(
-            `StreamerManager: No streamer found wih streamer id ${id}`
-        );
+        throw new Error(`StreamerManager: No streamer found wih id ${id}.`);
     }
 
     public getByLogin(login: StreamerLogin): Streamer {
@@ -96,7 +94,7 @@ export class StreamerManager extends Store<State> {
         }
 
         throw new Error(
-            `StreamerManager: No streamer found wih login ${login}`
+            `StreamerManager: No streamer found wih login ${login}.`
         );
     }
 
