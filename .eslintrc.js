@@ -25,6 +25,7 @@ module.exports = {
         '@typescript-eslint/ban-ts-comment': 'off',
         '@typescript-eslint/no-empty-interface': 'off',
         'import/order': 'off',
+        'import/no-cycle': 'off',
     },
     parserOptions: {
         ecmaVersion: 2020,
