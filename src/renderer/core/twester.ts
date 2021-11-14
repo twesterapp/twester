@@ -1,4 +1,4 @@
-import { Streamers } from './streamers';
+import { StreamerManager } from './streamer-manager';
 
 /**
  * This class is the `core` of Twester.
@@ -11,10 +11,10 @@ import { Streamers } from './streamers';
  * @class Twester
  */
 class Twester {
-    public streamers: Streamers;
+    public streamers: StreamerManager;
 
     constructor() {
-        this.streamers = new Streamers();
+        this.streamers = new StreamerManager();
     }
 }
 

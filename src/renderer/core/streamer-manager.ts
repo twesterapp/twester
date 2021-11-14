@@ -1,8 +1,8 @@
 import {
+    IStreamer,
     NewStreamerPayload,
     OnlineStatus,
     Streamer,
-    StreamerData,
     StreamerId,
     StreamerLogin,
     UpdateStreamerPayload,
@@ -18,10 +18,10 @@ const NAME = 'STREAMERS';
 const log = logging.getLogger(NAME);
 
 interface State {
-    streamers: StreamerData[];
+    streamers: IStreamer[];
 }
 
-export class Streamers extends Store<State> {
+export class StreamerManager extends Store<State> {
     private streamers: Streamer[];
 
     constructor() {
@@ -53,7 +53,7 @@ export class Streamers extends Store<State> {
             }
         }
 
-        const streamerToAdd: StreamerData = {
+        const streamerToAdd: IStreamer = {
             ...payload,
             minutesWatched: 0,
             pointsEarned: 0,
@@ -158,7 +158,7 @@ export class Streamers extends Store<State> {
 
     private getInitialState(): State {
         try {
-            const streamers: StreamerData[] = JSON.parse(
+            const streamers: IStreamer[] = JSON.parse(
                 Storage.get(this.getStorageKey()) || ''
             );
 
@@ -192,7 +192,7 @@ export class Streamers extends Store<State> {
     }
 
     private syncStoreWithStreamers() {
-        const streamers: StreamerData[] = this.streamers;
+        const streamers: IStreamer[] = this.streamers;
         this.store.setState({ streamers });
     }
 

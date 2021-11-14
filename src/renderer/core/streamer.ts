@@ -14,7 +14,7 @@ export type StreamerLogin = string;
 export type StreamerId = string;
 
 // TODO: Clean these messy interfaces/type regarding Streamer
-export interface StreamerData {
+export interface IStreamer {
     login: StreamerLogin;
     id: StreamerId;
     displayName: string;
@@ -34,7 +34,7 @@ export interface StreamerData {
 }
 
 export type NewStreamerPayload = Omit<
-    StreamerData,
+    IStreamer,
     | 'onlineStatus'
     | 'lastOfflineTime'
     | 'currentBalance'
@@ -55,7 +55,7 @@ export interface UpdateStreamerPayload {
     lastMinuteWatchedEventTime?: number;
 }
 
-export class Streamer implements StreamerData {
+export class Streamer implements IStreamer {
     login: string;
 
     id: string;
@@ -78,7 +78,7 @@ export class Streamer implements StreamerData {
 
     pointsEarned: number;
 
-    constructor(payload: StreamerData) {
+    constructor(payload: IStreamer) {
         this.login = payload.login;
         this.id = payload.id;
         this.displayName = payload.displayName;
