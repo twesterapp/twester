@@ -42,7 +42,7 @@ export class StreamerManager extends Store<State> {
         );
     }
 
-    public addStreamer(payload: NewStreamerPayload) {
+    public add(payload: NewStreamerPayload) {
         for (const streamer of this.streamers) {
             if (streamer.id === payload.id) {
                 log.warning(

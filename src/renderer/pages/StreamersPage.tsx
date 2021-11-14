@@ -34,7 +34,7 @@ export function StreamersPage() {
             }
             const profileImageUrl = await getUserProfilePicture(result.id);
 
-            twester.streamers.addStreamer({
+            twester.streamers.add({
                 id: result.id,
                 login: result.login,
                 displayName: result.displayName,
