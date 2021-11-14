@@ -58,9 +58,7 @@ class Watcher extends Store<State> {
         this.setWatcherStatus(WatcherStatus.BOOTING);
 
         log.info(
-            `Loading data for ${
-                twester.streamers.getAllStreamers().length
-            } streamers...`
+            `Loading data for ${twester.streamers.all().length} streamers...`
         );
 
         await loadChannelPointsContext();
@@ -71,9 +69,7 @@ class Watcher extends Store<State> {
         log.info('Watcher is running!');
 
         while (this.isRunning()) {
-            const streamersToWatch = twester.streamers
-                .getAllStreamersOnline()
-                .slice(0, 2);
+            const streamersToWatch = twester.streamers.online().slice(0, 2);
             const numOfStreamersToWatch = streamersToWatch.length;
 
             if (numOfStreamersToWatch) {
@@ -198,9 +194,7 @@ class Watcher extends Store<State> {
     private fixWatchingStatus(): void {
         // We can only watch the first 2 online streamers. So these are the
         // streamers we should NOT be watching.
-        const streamersToNotWatch = twester.streamers
-            .getAllStreamersOnline()
-            .slice(2);
+        const streamersToNotWatch = twester.streamers.online().slice(2);
 
         if (!streamersToNotWatch.length) {
             return;

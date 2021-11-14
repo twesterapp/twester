@@ -32,12 +32,12 @@ export class StreamerManager extends Store<State> {
             .streamers.map((streamer) => new Streamer(streamer));
     }
 
-    public getAllStreamers(): Streamer[] {
+    public all(): Streamer[] {
         return this.streamers;
     }
 
-    public getAllStreamersOnline(): Streamer[] {
-        return this.getAllStreamers().filter(
+    public online(): Streamer[] {
+        return this.all().filter(
             (streamer) => streamer.onlineStatus === OnlineStatus.ONLINE
         );
     }

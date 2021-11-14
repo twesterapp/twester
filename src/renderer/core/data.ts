@@ -133,7 +133,7 @@ export async function getBroadcastId(streamerLogin: string): Promise<string> {
 }
 
 export async function updateStreamersToWatch() {
-    for (const streamer of twester.streamers.getAllStreamers()) {
+    for (const streamer of twester.streamers.all()) {
         await checkOnline(streamer.login);
     }
 }

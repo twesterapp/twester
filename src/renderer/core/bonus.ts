@@ -32,7 +32,7 @@ export async function claimChannelPointsBonus(
 }
 
 export async function loadChannelPointsContext() {
-    twester.streamers.getAllStreamers().forEach(async (streamer) => {
+    twester.streamers.all().forEach(async (streamer) => {
         const data = {
             operationName: 'ChannelPointsContext',
             variables: { channelLogin: streamer.login },

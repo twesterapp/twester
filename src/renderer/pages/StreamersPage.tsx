@@ -19,7 +19,7 @@ export function StreamersPage() {
     const [searchText, setSearchText] = React.useState('');
     const [fetchingStreamer, setFetchingStreamer] = React.useState(false);
     twester.streamers.useStore();
-    const streamers = twester.streamers.getAllStreamers();
+    const streamers = twester.streamers.all();
 
     async function handleAddStreamer(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();

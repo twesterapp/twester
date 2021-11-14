@@ -1,4 +1,4 @@
-import { OnlineStatus, StreamerData, StreamerLogin } from './streamer';
+import { OnlineStatus, Streamer, StreamerLogin } from './streamer';
 import {
     channelIdExistsInCache,
     checkOnline,
@@ -74,7 +74,7 @@ export function stopListeningForChannelPoints() {
 function getNeededTopics(): PubSubTopic[] {
     const topics = [new PubSubTopic('community-points-user-v1')];
 
-    for (const streamer of twester.streamers.getAllStreamers()) {
+    for (const streamer of twester.streamers.all()) {
         topics.push(new PubSubTopic('video-playback-by-id', streamer.login));
         topics.push(new PubSubTopic('raid', streamer.login));
     }
@@ -118,7 +118,7 @@ class Raid {
 
 const raidCache: Map<StreamerLogin, Raid> = new Map();
 
-function updateRaid(streamer: StreamerData, raid: Raid) {
+function updateRaid(streamer: Streamer, raid: Raid) {
     if (raidCache.get(streamer.login)) {
         return;
     }
