@@ -10,7 +10,7 @@ export async function claimChannelPointsBonus(
     login: StreamerLogin,
     claimId: string
 ) {
-    const streamer = twester.streamers.getStreamerByLogin(login);
+    const streamer = twester.streamers.getByLogin(login);
     const displayName = streamer ? streamer.displayName : login;
     log.debug(`Claming bonus for ${displayName}`);
 
@@ -56,7 +56,7 @@ export async function loadChannelPointsContext() {
         const communityPoints =
             response.data.community.channel.self.communityPoints;
         const initialBalance = communityPoints.balance;
-        twester.streamers.updateStreamer(streamer.id, {
+        twester.streamers.update(streamer.id, {
             currentBalance: initialBalance,
         });
 

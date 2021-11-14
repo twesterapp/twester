@@ -92,12 +92,9 @@ class Watcher extends Store<State> {
 
                             if (info) {
                                 if (!streamer.watching) {
-                                    twester.streamers.updateStreamer(
-                                        streamer.id,
-                                        {
-                                            watching: true,
-                                        }
-                                    );
+                                    twester.streamers.update(streamer.id, {
+                                        watching: true,
+                                    });
                                     log.info(
                                         `Started watching ${streamer.displayName}`
                                     );
@@ -116,15 +113,12 @@ class Watcher extends Store<State> {
                                     ) ||
                                     !streamer.lastMinuteWatchedEventTime
                                 ) {
-                                    twester.streamers.updateStreamer(
-                                        streamer.id,
-                                        {
-                                            minutesWatched:
-                                                (streamer.minutesWatched += 1),
-                                            lastMinuteWatchedEventTime:
-                                                rightNowInSecs(),
-                                        }
-                                    );
+                                    twester.streamers.update(streamer.id, {
+                                        minutesWatched:
+                                            (streamer.minutesWatched += 1),
+                                        lastMinuteWatchedEventTime:
+                                            rightNowInSecs(),
+                                    });
                                     this.incrementMinutesWatched();
                                 }
 
@@ -202,7 +196,7 @@ class Watcher extends Store<State> {
 
         for (const streamer of streamersToNotWatch) {
             if (streamer.watching) {
-                twester.streamers.updateStreamer(streamer.id, {
+                twester.streamers.update(streamer.id, {
                     watching: false,
                 });
                 log.info(`Stopped watching ${streamer.displayName}`);

@@ -71,8 +71,8 @@ export class StreamerManager extends Store<State> {
         this.onStreamersUpdate();
     }
 
-    public updateStreamer(id: StreamerId, payload: UpdateStreamerPayload) {
-        const streamer = this.getStreamerById(id);
+    public update(id: StreamerId, payload: UpdateStreamerPayload) {
+        const streamer = this.getById(id);
 
         if (streamer) {
             streamer.update(payload);
@@ -80,7 +80,7 @@ export class StreamerManager extends Store<State> {
         }
     }
 
-    public getStreamerById(id: StreamerId): Streamer | void {
+    public getById(id: StreamerId): Streamer | void {
         for (const streamer of this.streamers) {
             if (streamer.id === id) {
                 return streamer;
@@ -88,7 +88,7 @@ export class StreamerManager extends Store<State> {
         }
     }
 
-    public getStreamerByLogin(login: StreamerLogin): Streamer | void {
+    public getByLogin(login: StreamerLogin): Streamer | void {
         for (const streamer of this.streamers) {
             if (streamer.login === login) {
                 return streamer;
@@ -97,7 +97,7 @@ export class StreamerManager extends Store<State> {
     }
 
     public setStreamerOnlineStatus(login: StreamerLogin, status: OnlineStatus) {
-        const streamer = this.getStreamerByLogin(login);
+        const streamer = this.getByLogin(login);
 
         if (streamer) {
             streamer.setOnlineStatus(status);
@@ -106,7 +106,7 @@ export class StreamerManager extends Store<State> {
     }
 
     public isStreamerOnline(login: StreamerLogin): boolean {
-        const streamer = this.getStreamerByLogin(login);
+        const streamer = this.getByLogin(login);
 
         if (streamer) {
             return streamer.isOnline();
@@ -126,7 +126,7 @@ export class StreamerManager extends Store<State> {
     public findStreamerCard(
         id: StreamerId
     ): { streamer: Streamer; index: number } | void {
-        const streamer = this.getStreamerById(id);
+        const streamer = this.getById(id);
 
         if (streamer) {
             return {

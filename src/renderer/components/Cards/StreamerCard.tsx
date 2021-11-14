@@ -101,7 +101,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
             const result = await getChannelContextInfo(data.login);
             const profileImageUrl = await getUserProfilePicture(data.id);
 
-            twester.streamers.updateStreamer(streamer.id, {
+            twester.streamers.update(streamer.id, {
                 displayName: result?.displayName || data.displayName,
                 profileImageUrl,
             });
