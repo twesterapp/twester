@@ -1,7 +1,7 @@
 import {
     NewStreamerPayload,
     OnlineStatus,
-    StreamerClass,
+    Streamer,
     StreamerData,
     StreamerId,
     StreamerLogin,
@@ -22,21 +22,21 @@ interface State {
 }
 
 export class Streamers extends Store<State> {
-    private streamers: StreamerClass[];
+    private streamers: Streamer[];
 
     constructor() {
         super(NAME);
         this.initStore(() => this.getInitialState());
         this.streamers = this.store
             .getState()
-            .streamers.map((streamer) => new StreamerClass(streamer));
+            .streamers.map((streamer) => new Streamer(streamer));
     }
 
-    public getAllStreamers(): StreamerClass[] {
+    public getAllStreamers(): Streamer[] {
         return this.streamers;
     }
 
-    public getAllStreamersOnline(): StreamerClass[] {
+    public getAllStreamersOnline(): Streamer[] {
         return this.getAllStreamers().filter(
             (streamer) => streamer.onlineStatus === OnlineStatus.ONLINE
         );
@@ -60,7 +60,7 @@ export class Streamers extends Store<State> {
             lastMinuteWatchedEventTime: 0,
         };
 
-        this.streamers.push(new StreamerClass(streamerToAdd));
+        this.streamers.push(new Streamer(streamerToAdd));
         this.onStreamersUpdate();
     }
 
@@ -80,7 +80,7 @@ export class Streamers extends Store<State> {
         }
     }
 
-    public getStreamerById(id: StreamerId): StreamerClass | void {
+    public getStreamerById(id: StreamerId): Streamer | void {
         for (const streamer of this.streamers) {
             if (streamer.id === id) {
                 return streamer;
@@ -88,7 +88,7 @@ export class Streamers extends Store<State> {
         }
     }
 
-    public getStreamerByLogin(login: StreamerLogin): StreamerClass | void {
+    public getStreamerByLogin(login: StreamerLogin): Streamer | void {
         for (const streamer of this.streamers) {
             if (streamer.login === login) {
                 return streamer;
@@ -125,7 +125,7 @@ export class Streamers extends Store<State> {
 
     public findStreamerCard(
         id: StreamerId
-    ): { streamer: StreamerClass; index: number } | void {
+    ): { streamer: Streamer; index: number } | void {
         const streamer = this.getStreamerById(id);
 
         if (streamer) {

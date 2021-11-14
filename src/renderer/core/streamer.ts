@@ -55,12 +55,7 @@ export interface UpdateStreamerPayload {
     lastMinuteWatchedEventTime?: number;
 }
 
-interface IStreamer extends StreamerData {
-    setOnlineStatus(status: OnlineStatus): void;
-    isOnline(): boolean;
-}
-
-export class StreamerClass implements IStreamer {
+export class Streamer implements StreamerData {
     login: string;
 
     id: string;

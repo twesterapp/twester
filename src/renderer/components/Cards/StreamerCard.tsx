@@ -10,7 +10,7 @@ import {
     getChannelContextInfo,
     getUserProfilePicture,
 } from 'renderer/core/data';
-import { StreamerClass, StreamerId } from 'renderer/core/streamer';
+import { Streamer, StreamerId } from 'renderer/core/streamer';
 import styled, { useTheme } from 'styled-components';
 import { useDrag, useDrop } from 'react-dnd';
 
@@ -25,7 +25,7 @@ import { watcher } from 'renderer/core/watcher';
 // https://react-dnd.github.io/react-dnd/examples/sortable/cancel-on-drop-outside
 
 interface StreamerCardProps {
-    streamer: StreamerClass;
+    streamer: Streamer;
 }
 
 interface Item {
