@@ -171,9 +171,8 @@ export class StreamerManager extends Store<State> {
     }
 
     private syncStorageWithStore(): void {
-        // We don't want to store these properties of streamer to Storage.
-        // for app state. This one is for persisting to Storage.
-        const updatedForPersisting = this.store
+        // We don't want to store some state of streamer to Storage.
+        const updatedForPersisting: IStreamer[] = this.store
             .getState()
             .streamers.map((streamer) => ({
                 ...streamer,
@@ -187,7 +186,7 @@ export class StreamerManager extends Store<State> {
     }
 
     private syncStoreWithStreamers(): void {
-        const streamers: IStreamer[] = this.streamers;
+        const streamers: Streamer[] = this.streamers;
         this.store.setState({ streamers });
     }
 

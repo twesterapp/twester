@@ -1,17 +1,14 @@
-import {
-    getMinuteWatchedRequestInfo,
-    updateStreamersToWatch,
-} from 'renderer/core/data';
+import { getMinuteWatchedRequestInfo, updateStreamersToWatch } from './data';
 
+import { ChannelPoints } from './channel-points';
 import { Core } from './core';
 import { PubSub } from './pubsub';
-import { Storage } from 'renderer/utils/storage';
-import { Store } from 'renderer/utils/store';
-import { loadChannelPointsContext } from 'renderer/core/bonus';
-import { logging } from 'renderer/core/logging';
-import { nodeClient } from 'renderer/api';
-import { rightNowInSecs } from 'renderer/utils/rightNowInSecs';
-import { sleep } from 'renderer/utils/sleep';
+import { Storage } from '../utils/storage';
+import { Store } from '../utils/store';
+import { logging } from './logging';
+import { nodeClient } from '../api';
+import { rightNowInSecs } from '../utils/rightNowInSecs';
+import { sleep } from '../utils/sleep';
 
 const NAME = 'WATCHER';
 
@@ -62,7 +59,7 @@ export class Watcher extends Store<State> {
             `Loading data for ${this.core.streamers.all().length} streamers...`
         );
 
-        await loadChannelPointsContext();
+        await ChannelPoints.loadContext();
         await updateStreamersToWatch();
         this.pubsub.connect();
 

@@ -5,8 +5,8 @@ import {
     getChannelId,
 } from 'renderer/core/data';
 
+import { ChannelPoints } from './channel-points';
 import { Core } from './core';
-import { claimChannelPointsBonus } from 'renderer/core/bonus';
 import { core } from 'renderer/core';
 import { logging } from 'renderer/core/logging';
 import { makeGraphqlRequest } from 'renderer/api';
@@ -374,7 +374,7 @@ export class PubSub {
                             return;
                         }
 
-                        claimChannelPointsBonus(streamer.login, claimId);
+                        ChannelPoints.claimBonus(streamer.login, claimId);
                     }
                 }
             } else if (topic === 'video-playback-by-id') {
