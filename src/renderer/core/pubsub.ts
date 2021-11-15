@@ -218,19 +218,18 @@ export class PubSub {
     }
 
     private createNewWebSocket() {
-        const webSocket = new WebSocket('wss://pubsub-edge.twitch.tv/v1');
         log.debug('PubSub is connecting');
 
-        this.ws = webSocket;
+        this.ws = new WebSocket('wss://pubsub-edge.twitch.tv/v1');
         this.isOpened = false;
         this.isClosed = false;
         this.closedOnPurpose = false;
         this.topics = [];
         this.pendingTopics = [];
 
-        webSocket.onmessage = this.onMessage;
-        webSocket.onopen = () => this.onOpen();
-        webSocket.onclose = () => this.handleWebSocketReconnection();
+        this.ws.onmessage = (event) => this.onMessage(event);
+        this.ws.onopen = () => this.onOpen();
+        this.ws.onclose = () => this.handleWebSocketReconnection();
     }
 
     private onOpen() {

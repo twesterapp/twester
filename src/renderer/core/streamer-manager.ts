@@ -105,7 +105,7 @@ export class StreamerManager extends Store<State> {
         login: StreamerLogin,
         status: OnlineStatus
     ): void {
-        this.getByLogin(login).setOnlineStatus(status);
+        this.getByLogin(login).setOnlineStatus(status, true);
         this.onStreamersUpdate();
     }
 
@@ -115,7 +115,7 @@ export class StreamerManager extends Store<State> {
 
     public resetOnlineStatusOfAllStreamers(): void {
         this.streamers.forEach((streamer) => {
-            streamer.setOnlineStatus(OnlineStatus.OFFLINE);
+            streamer.setOnlineStatus(OnlineStatus.OFFLINE, false);
         });
 
         this.onStreamersUpdate();

@@ -92,12 +92,17 @@ export class Streamer implements IStreamer {
         this.pointsEarned = payload.pointsEarned;
     }
 
-    public setOnlineStatus(status: OnlineStatus): void {
-        log.info(
-            `${this.displayName} (${this.currentBalance}) is ${
-                status === OnlineStatus.ONLINE ? 'Online' : 'Offline'
-            }`
-        );
+    public setOnlineStatus(status: OnlineStatus, printInfoLog: boolean): void {
+        // We don't want to print the `is Offline` info log when we call
+        // `StreamerManager.resetOnlineStatusOfAllStreamers()`, which sets the
+        // `status` to `OnlineStatus.OFFLINE`.
+        if (printInfoLog) {
+            log.info(
+                `${this.displayName} (${this.currentBalance}) is ${
+                    status === OnlineStatus.ONLINE ? 'Online' : 'Offline'
+                }`
+            );
+        }
 
         if (status === OnlineStatus.OFFLINE) {
             this.update({

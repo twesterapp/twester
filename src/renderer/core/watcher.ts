@@ -148,7 +148,6 @@ export class Watcher extends Store<State> {
         this.core.streamers.resetOnlineStatusOfAllStreamers();
 
         this.setWatcherStatus(WatcherStatus.PAUSED);
-
         log.info(`Watcher is paused!`);
     }
 
