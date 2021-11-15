@@ -4,6 +4,7 @@ import {
 } from 'renderer/core/data';
 
 import { Core } from './core';
+import { PubSub } from './pubsub';
 import { Storage } from 'renderer/utils/storage';
 import { Store } from 'renderer/utils/store';
 import { loadChannelPointsContext } from 'renderer/core/bonus';
@@ -36,9 +37,12 @@ type SavedState = Omit<State, 'status'>;
 export class Watcher extends Store<State> {
     private core: Core;
 
+    private pubsub: PubSub;
+
     constructor(core: Core) {
         super(NAME);
         this.core = core;
+        this.pubsub = new PubSub(this.core);
         this.initStore(() => this.getInitialState());
     }
 
@@ -60,7 +64,7 @@ export class Watcher extends Store<State> {
 
         await loadChannelPointsContext();
         await updateStreamersToWatch();
-        this.core.pubsub.connect();
+        this.pubsub.connect();
 
         this.setWatcherStatus(WatcherStatus.RUNNING);
         log.info('Watcher is running!');
@@ -144,7 +148,7 @@ export class Watcher extends Store<State> {
         this.setWatcherStatus(WatcherStatus.PAUSING);
 
         sleep.abort();
-        this.core.pubsub.disconnect();
+        this.pubsub.disconnect();
         this.core.streamers.resetOnlineStatusOfAllStreamers();
 
         this.setWatcherStatus(WatcherStatus.PAUSED);
