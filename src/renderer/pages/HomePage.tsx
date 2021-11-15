@@ -7,7 +7,6 @@ import { formatMinutes } from 'renderer/utils/formatMinutes';
 import { logging } from 'renderer/core/logging';
 import { px2rem } from 'renderer/utils/px2rem';
 import { useAppVersion } from 'renderer/hooks';
-import { watcher } from 'renderer/core/watcher';
 
 export function HomePage() {
     const version = useAppVersion();
@@ -15,14 +14,14 @@ export function HomePage() {
     const [isScrollAtBottom, setScrollAtBottom] = React.useState(true);
 
     const { streamers } = core.streamers.useStore();
-    const { minutesWatched, pointsEarned } = watcher.useStore();
+    const { minutesWatched, pointsEarned } = core.watcher.useStore();
     const { logs } = logging.useStore();
     const theme = useTheme();
 
     const hasStreamersToWatch = streamers.length > 0;
 
     const isPlayButtonActive = (): boolean => {
-        if (watcher.canPlay() && hasStreamersToWatch) {
+        if (core.watcher.canPlay() && hasStreamersToWatch) {
             return true;
         }
 
@@ -30,7 +29,7 @@ export function HomePage() {
     };
 
     const isPauseButtonActive = (): boolean => {
-        if (watcher.canPause()) {
+        if (core.watcher.canPause()) {
             return true;
         }
 
@@ -62,7 +61,7 @@ export function HomePage() {
                     ? theme.color.brightBlue
                     : theme.color.disabled
             }
-            onClick={() => isPlayButtonActive() && watcher.play()}
+            onClick={() => isPlayButtonActive() && core.watcher.play()}
         />
     );
 
@@ -79,7 +78,7 @@ export function HomePage() {
                     ? theme.color.brightBlue
                     : theme.color.disabled
             }
-            onClick={() => isPauseButtonActive() && watcher.pause()}
+            onClick={() => isPauseButtonActive() && core.watcher.pause()}
         />
     );
 
@@ -128,7 +127,7 @@ export function HomePage() {
                         <p>{pointsEarned}</p>
                     </StatInfo>
 
-                    {!watcher.canPlay()
+                    {!core.watcher.canPlay()
                         ? RenderPauseButton()
                         : RenderPlayButton()}
                 </StatsContainer>

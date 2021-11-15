@@ -24,11 +24,11 @@ interface State {
 export class StreamerManager extends Store<State> {
     private streamers: Streamer[];
 
-    private twester: Core;
+    private core: Core;
 
-    constructor(twester: Core) {
+    constructor(core: Core) {
         super(NAME);
-        this.twester = twester;
+        this.core = core;
         this.initStore(() => this.getInitialState());
         this.streamers = this.store
             .getState()
@@ -148,7 +148,7 @@ export class StreamerManager extends Store<State> {
     }
 
     private getStorageKey(): string {
-        return `${this.twester.auth.store.getState().user.id}.streamers`;
+        return `${this.core.auth.store.getState().user.id}.streamers`;
     }
 
     private getInitialState(): State {

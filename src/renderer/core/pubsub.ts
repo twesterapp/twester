@@ -5,11 +5,11 @@ import {
     getChannelId,
 } from 'renderer/core/data';
 
+import { Core } from './core';
 import { claimChannelPointsBonus } from 'renderer/core/bonus';
 import { core } from 'renderer/core';
 import { logging } from 'renderer/core/logging';
 import { makeGraphqlRequest } from 'renderer/api';
-import { watcher } from 'renderer/core/watcher';
 
 const NAME = 'PUBSUB';
 
@@ -40,36 +40,7 @@ const log = logging.getLogger(NAME);
  *    listening to topics for the new streamer.
  */
 
-let wsPool: WebSocketsPool | null = null;
-
-export function startListeningForChannelPoints() {
-    log.debug('Starting to listen for channel points');
-
-    const topics = getNeededTopics();
-    wsPool = new WebSocketsPool();
-
-    for (let i = 0; i < topics.length; i += 1) {
-        const topic = topics[i];
-        wsPool.submit(topic);
-    }
-}
-
-export function stopListeningForChannelPoints() {
-    log.debug('Stopping to listen for channel points');
-
-    if (!wsPool) {
-        log.exception(
-            `WebSocketsPool instance "wsPool" is null. Cannot close PubSub connection and stop listening for channel points.`
-        );
-    }
-
-    if (wsPool) {
-        wsPool.stop();
-        wsPool = null;
-    }
-}
-
-function getNeededTopics(): PubSubTopic[] {
+function getTopics(): PubSubTopic[] {
     const topics = [new PubSubTopic('community-points-user-v1')];
 
     for (const streamer of core.streamers.all()) {
@@ -150,8 +121,8 @@ function createNonce(length: number) {
     return nonce;
 }
 
-class WebSocketsPool {
-    private webSocket: WebSocket | null = null;
+export class PubSub {
+    private ws: WebSocket | null = null;
 
     private topics: PubSubTopic[] = [];
 
@@ -177,12 +148,37 @@ class WebSocketsPool {
 
     private lastMessageType = '';
 
-    constructor() {
-        this.webSocket = null;
+    private core: Core;
+
+    constructor(core: Core) {
+        this.core = core;
     }
 
-    submit(topic: PubSubTopic) {
-        if (!this.webSocket || this.topics.length >= 50) {
+    public startListeningForChannelPoints(): void {
+        log.debug('Starting to listen for channel points');
+
+        for (const topic of getTopics()) {
+            this.submit(topic);
+        }
+    }
+
+    public stopListeningForChannelPoints(): void {
+        log.debug('Stopping to listen for channel points');
+
+        if (!this.ws) {
+            log.exception(
+                `WebSocket instance "ws" is null. Cannot close PubSub connection and stop listening for channel points.`
+            );
+        }
+
+        if (this.ws) {
+            this.stop();
+            this.ws = null;
+        }
+    }
+
+    private submit(topic: PubSubTopic) {
+        if (!this.ws || this.topics.length >= 50) {
             this.createNewWebSocket();
         }
 
@@ -190,12 +186,12 @@ class WebSocketsPool {
 
         if (!this.isOpened) {
             this.pendingTopics.push(topic);
-        } else if (this.webSocket) {
+        } else if (this.ws) {
             this.listenForTopic(topic);
         }
     }
 
-    stop() {
+    private stop() {
         this.closedOnPurpose = true;
 
         if (!this.isOpened) {
@@ -210,11 +206,11 @@ class WebSocketsPool {
             return;
         }
 
-        if (this.webSocket) {
+        if (this.ws) {
             log.debug('PubSub is closing');
 
             this.clearPingHandle();
-            this.webSocket.close();
+            this.ws.close();
             this.isClosed = true;
 
             log.debug('PubSub is closed');
@@ -225,7 +221,7 @@ class WebSocketsPool {
         const webSocket = new WebSocket('wss://pubsub-edge.twitch.tv/v1');
         log.debug('PubSub is connecting');
 
-        this.webSocket = webSocket;
+        this.ws = webSocket;
         this.isOpened = false;
         this.isClosed = false;
         this.closedOnPurpose = false;
@@ -264,7 +260,7 @@ class WebSocketsPool {
         this.pingHandle = setInterval(() => this.ping(), this.pingInterval);
     }
 
-    ping() {
+    private ping() {
         log.debug('PubSub sending PING');
 
         this.send({
@@ -281,9 +277,9 @@ class WebSocketsPool {
         if (
             this.isOpened &&
             !this.isClosed &&
-            this.webSocket?.readyState === WebSocket.OPEN
+            this.ws?.readyState === WebSocket.OPEN
         ) {
-            this.webSocket?.send(JSON.stringify(message));
+            this.ws?.send(JSON.stringify(message));
         }
     }
 
@@ -322,7 +318,7 @@ class WebSocketsPool {
                         const pointsEarned =
                             messageData.point_gain.total_points;
                         const newBalance = messageData.balance.balance;
-                        const streamer = core.streamers.getById(channelId);
+                        const streamer = this.core.streamers.getById(channelId);
                         const reason = messageData.point_gain.reason_code;
 
                         if (!streamer) {
@@ -350,18 +346,18 @@ class WebSocketsPool {
                             `+${pointsEarned} points for ${streamer.displayName} (${newBalance}) - Reason: ${reason}`
                         );
 
-                        core.streamers.update(streamer.id, {
+                        this.core.streamers.update(streamer.id, {
                             currentBalance: newBalance,
                             pointsEarned: streamer.pointsEarned + pointsEarned,
                         });
-                        watcher.addPointsEarned(pointsEarned);
+                        this.core.watcher.addPointsEarned(pointsEarned);
                     }
                 } else if (messageType === 'claim-available') {
                     const channelId = messageData.claim.channel_id;
 
                     if (channelIdExistsInCache(channelId)) {
                         const claimId = messageData.claim.id;
-                        const streamer = core.streamers.getById(channelId);
+                        const streamer = this.core.streamers.getById(channelId);
 
                         if (!streamer) {
                             log.error(
@@ -381,7 +377,7 @@ class WebSocketsPool {
                     }
                 }
             } else if (topic === 'video-playback-by-id') {
-                const streamer = core.streamers.getById(streamerId);
+                const streamer = this.core.streamers.getById(streamerId);
 
                 if (!streamer) {
                     log.error(`No streamer found with id: ${streamerId}`);
@@ -392,7 +388,7 @@ class WebSocketsPool {
                 // the API updates. Therefore making it useless to check for it
                 //  here, as `checkOnline` will return `isOffline` status.
                 if (messageType === 'stream-down') {
-                    core.streamers.setStreamerOnlineStatus(
+                    this.core.streamers.setStreamerOnlineStatus(
                         streamer.login,
                         OnlineStatus.OFFLINE
                     );
@@ -400,7 +396,7 @@ class WebSocketsPool {
                     checkOnline(streamer.login);
                 }
             } else if (topic === 'raid') {
-                const streamer = core.streamers.getById(streamerId);
+                const streamer = this.core.streamers.getById(streamerId);
 
                 if (!streamer) {
                     log.error(`No streamer found with id: ${streamerId}`);
@@ -429,7 +425,7 @@ class WebSocketsPool {
         };
 
         if (topic.isUserTopic()) {
-            data.auth_token = core.auth.store.getState().accessToken;
+            data.auth_token = this.core.auth.store.getState().accessToken;
         }
 
         const nonce = createNonce(15);
@@ -459,7 +455,7 @@ class WebSocketsPool {
 
     private tryReconnecting() {
         if (this.shouldTryReconnecting) {
-            this.webSocket = null;
+            this.ws = null;
 
             if (this.topics) {
                 for (let i = 0; i < this.topics.length; i += 1) {

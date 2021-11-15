@@ -11,7 +11,6 @@ import { logging } from 'renderer/core/logging';
 import { px2rem } from 'renderer/utils/px2rem';
 import styled from 'styled-components';
 import { useDrop } from 'react-dnd';
-import { watcher } from 'renderer/core/watcher';
 
 const log = logging.getLogger('STREAMERS_PAGE');
 
@@ -53,7 +52,7 @@ export function StreamersPage() {
 
     return (
         <PageWrapper>
-            {!watcher.canPlay() && (
+            {!core.watcher.canPlay() && (
                 <HelpMessage>
                     Go to <Link to="/">Home</Link> tab and{' '}
                     <em>
@@ -67,7 +66,7 @@ export function StreamersPage() {
                     style={{ marginRight: `${px2rem(12)}`, width: '300px' }}
                     placeholder="Streamer to add"
                     value={searchText}
-                    disabled={!watcher.canPlay() || fetchingStreamer}
+                    disabled={!core.watcher.canPlay() || fetchingStreamer}
                     onChange={(e) => setSearchText(e.target.value)}
                     hidePlaceholderOnFocus={false}
                 />
@@ -75,7 +74,7 @@ export function StreamersPage() {
                     width="46px"
                     variant="submit"
                     loading={fetchingStreamer}
-                    disabled={!watcher.canPlay() ?? !searchText.trim()}
+                    disabled={!core.watcher.canPlay() ?? !searchText.trim()}
                 >
                     <IconPlus />
                 </Button>

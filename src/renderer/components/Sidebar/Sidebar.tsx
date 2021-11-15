@@ -13,7 +13,6 @@ import React from 'react';
 import { core } from 'renderer/core';
 import { useHistory } from 'react-router-dom';
 import { useQuery } from 'react-query';
-import { watcher } from 'renderer/core/watcher';
 
 interface SidebarOptions {
     // This helps us fix the issue of active icon in the sidebar not updating
@@ -26,7 +25,7 @@ export function Sidebar({ currentPage }: SidebarOptions) {
     const theme = useTheme();
     const { user } = core.auth.useStore();
     // So that we can conditionally re-render `IconPause` or `IconPlay`.
-    watcher.useStore();
+    core.watcher.useStore();
 
     const { data: profileImageUrl } = useQuery('ME_INFO', async () => {
         const id = await fetchChannelId(user.login);

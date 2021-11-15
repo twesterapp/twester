@@ -19,7 +19,6 @@ import { core } from 'renderer/core';
 import { formatMinutes } from 'renderer/utils/formatMinutes';
 import { px2rem } from 'renderer/utils/px2rem';
 import { useQuery } from 'react-query';
-import { watcher } from 'renderer/core/watcher';
 
 // Blatantly copied from React DnD's example, check
 // https://react-dnd.github.io/react-dnd/examples/sortable/cancel-on-drop-outside
@@ -53,7 +52,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
             collect: (monitor) => ({
                 isDragging: monitor.isDragging(),
             }),
-            canDrag: () => !!watcher.canPlay(),
+            canDrag: () => !!core.watcher.canPlay(),
             end: (item, monitor) => {
                 const { streamerId: droppedId, originalIndex } = item;
                 const didDrop = monitor.didDrop();
@@ -107,7 +106,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
         >
             <Content>
                 <TopRight>
-                    {watcher.canPlay() ? (
+                    {core.watcher.canPlay() ? (
                         <button
                             id="remove-button"
                             onClick={() => core.streamers.remove(streamer.id)}
