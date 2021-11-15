@@ -40,17 +40,6 @@ const log = logging.getLogger(NAME);
  *    listening to topics for the new streamer.
  */
 
-function getTopics(): PubSubTopic[] {
-    const topics = [new PubSubTopic('community-points-user-v1')];
-
-    for (const streamer of core.streamers.all()) {
-        topics.push(new PubSubTopic('video-playback-by-id', streamer.login));
-        topics.push(new PubSubTopic('raid', streamer.login));
-    }
-
-    return topics;
-}
-
 class PubSubTopic {
     private topic: string;
 
@@ -154,20 +143,20 @@ export class PubSub {
         this.core = core;
     }
 
-    public startListeningForChannelPoints(): void {
-        log.debug('Starting to listen for channel points');
+    public connect(): void {
+        log.debug('Starting to listen for channel points.');
 
-        for (const topic of getTopics()) {
+        for (const topic of this.getTopics()) {
             this.submit(topic);
         }
     }
 
-    public stopListeningForChannelPoints(): void {
-        log.debug('Stopping to listen for channel points');
+    public disconnect(): void {
+        log.debug('Stopping to listen for channel points.');
 
         if (!this.ws) {
             log.exception(
-                `WebSocket instance "ws" is null. Cannot close PubSub connection and stop listening for channel points.`
+                `WebSocket instance 'ws' is null. Cannot close PubSub connection and stop listening for channel points.`
             );
         }
 
@@ -175,6 +164,19 @@ export class PubSub {
             this.stop();
             this.ws = null;
         }
+    }
+
+    private getTopics(): PubSubTopic[] {
+        const topics = [new PubSubTopic('community-points-user-v1')];
+
+        for (const streamer of core.streamers.all()) {
+            topics.push(
+                new PubSubTopic('video-playback-by-id', streamer.login)
+            );
+            topics.push(new PubSubTopic('raid', streamer.login));
+        }
+
+        return topics;
     }
 
     private submit(topic: PubSubTopic) {

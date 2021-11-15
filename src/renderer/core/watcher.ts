@@ -60,7 +60,7 @@ export class Watcher extends Store<State> {
 
         await loadChannelPointsContext();
         await updateStreamersToWatch();
-        this.core.pubsub.startListeningForChannelPoints();
+        this.core.pubsub.connect();
 
         this.setWatcherStatus(WatcherStatus.RUNNING);
         log.info('Watcher is running!');
@@ -144,7 +144,7 @@ export class Watcher extends Store<State> {
         this.setWatcherStatus(WatcherStatus.PAUSING);
 
         sleep.abort();
-        this.core.pubsub.stopListeningForChannelPoints();
+        this.core.pubsub.disconnect();
         this.core.streamers.resetOnlineStatusOfAllStreamers();
 
         this.setWatcherStatus(WatcherStatus.PAUSED);
