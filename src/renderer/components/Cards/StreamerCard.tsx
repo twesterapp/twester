@@ -6,7 +6,7 @@ import {
     IconStar,
 } from 'renderer/ui';
 import {
-    ContextUser,
+    ChannelContext,
     getChannelContextInfo,
     getUserProfilePicture,
 } from 'renderer/core/data';
@@ -83,7 +83,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
     );
 
     React.useEffect(() => {
-        const run = async (data: ContextUser) => {
+        const run = async (data: ChannelContext) => {
             const result = await getChannelContextInfo(data.login);
             const profileImageUrl = await getUserProfilePicture(data.id);
 

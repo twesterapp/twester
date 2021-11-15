@@ -28,26 +28,24 @@ export class Auth extends Store<State> {
 
     public async login(token: string, username: string) {
         this.setToken(token);
-        const result = await getChannelContextInfo(username);
+        const channel = await getChannelContextInfo(username);
 
-        // This should never happen but if somehow it did happen, we will logout
-        // the user
-        if (!result) {
+        // This should never happen!
+        if (!channel) {
             log.exception(
                 'No channel context info found for the logged in user. This should have never happened.'
             );
-            this.logout();
-            return;
+            return this.logout();
         }
 
-        const profileImageUrl = await getUserProfilePicture(result.id);
-
+        const profileImageUrl = await getUserProfilePicture(channel.id);
         const user: User = {
-            displayName: result.displayName,
-            id: result.id,
-            login: result.login,
+            displayName: channel.displayName,
+            id: channel.id,
+            login: channel.login,
             profileImageUrl,
         };
+
         this.setUser(user);
         window.location.reload();
     }
@@ -58,13 +56,13 @@ export class Auth extends Store<State> {
         window.location.reload();
     }
 
-    public setUser(user: User) {
+    private setUser(user: User) {
         log.debug('Setting user');
         Storage.set('user', JSON.stringify(user));
         return this.store.setState({ user });
     }
 
-    public delUser() {
+    private delUser() {
         log.debug('Deleting user');
         Storage.remove('user');
         return this.store.setState({
@@ -77,12 +75,12 @@ export class Auth extends Store<State> {
         });
     }
 
-    public setToken(accessToken: string) {
+    private setToken(accessToken: string) {
         Storage.set('access-token', accessToken);
         return this.store.setState({ accessToken });
     }
 
-    public delToken() {
+    private delToken() {
         Storage.remove('access-token');
         return this.store.setState({
             accessToken: '',

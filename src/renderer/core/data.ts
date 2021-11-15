@@ -132,9 +132,10 @@ export async function getBroadcastId(streamerLogin: string): Promise<string> {
 }
 
 export async function updateStreamersToWatch() {
-    core.streamers.all().forEach(async (streamer) => {
+    // Apparently, using a `forEach` loop to call `checkOnline` doesn't await.
+    for (const streamer of core.streamers.all()) {
         await checkOnline(streamer.login);
-    });
+    }
 }
 
 export async function checkOnline(login: StreamerLogin) {
@@ -210,7 +211,7 @@ export async function getUserProfilePicture(id: StreamerId) {
     return profilePictureUrl;
 }
 
-export interface ContextUser {
+export interface ChannelContext {
     displayName: string;
     id: string;
     login: string;
@@ -218,7 +219,7 @@ export interface ContextUser {
 
 export async function getChannelContextInfo(
     login: StreamerLogin
-): Promise<ContextUser | null> {
+): Promise<ChannelContext | null> {
     const data = {
         operationName: 'PersonalSections',
         variables: {
@@ -245,12 +246,12 @@ export async function getChannelContextInfo(
     };
 
     const response = await makeGraphqlRequest(data);
-    const contextUser: ContextUser = response?.data?.contextUser;
+    const context: ChannelContext = response?.data?.contextUser;
 
-    if (!contextUser) {
+    if (!context) {
         log.error(`No channel context info found for login '${login}'`);
         return null;
     }
 
-    return contextUser;
+    return context;
 }
