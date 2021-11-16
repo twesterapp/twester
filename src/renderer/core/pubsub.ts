@@ -1,11 +1,11 @@
 import { Core, core } from './core';
-import { OnlineStatus, Streamer, StreamerLogin } from './streamer';
 import { channelIdExistsInCache, checkOnline } from 'renderer/core/data';
 
 import { ChannelPoints } from './channel-points';
+import { OnlineStatus } from './streamer';
+import { Raid } from './raid';
 import { Topic } from './topic';
 import { logging } from './logging';
-import { makeGraphqlRequest } from '../api';
 
 const NAME = 'PUBSUB';
 
@@ -35,42 +35,6 @@ const log = logging.getLogger(NAME);
  *    incrementing as the streamer goes offline and we start "watching" and
  *    listening to topics for the new streamer.
  */
-
-class Raid {
-    public id: string;
-
-    public loginToRaid: StreamerLogin;
-
-    constructor(raidId: string, targetLogin: StreamerLogin) {
-        this.id = raidId;
-        this.loginToRaid = targetLogin;
-    }
-}
-
-const raidCache: Map<StreamerLogin, Raid> = new Map();
-
-function updateRaid(streamer: Streamer, raid: Raid) {
-    if (raidCache.get(streamer.login)) {
-        return;
-    }
-
-    raidCache.set(streamer.login, raid);
-    const data = {
-        operationName: 'JoinRaid',
-        variables: { input: { raidID: raid.id } },
-        extensions: {
-            persistedQuery: {
-                version: 1,
-                sha256Hash:
-                    'c6a332a86d1087fbbb1a8623aa01bd1313d2386e7c63be60fdb2d1901f01a4ae',
-            },
-        },
-    };
-    makeGraphqlRequest(data);
-    log.info(
-        `Joining raid from ${streamer.displayName} to ${raid.loginToRaid}!`
-    );
-}
 
 function createNonce(length: number) {
     let nonce = '';
@@ -372,15 +336,14 @@ export class PubSub {
             } else if (topic === 'raid') {
                 const streamer = this.core.streamers.getById(streamerId);
 
-                if (!streamer) {
-                    log.error(`No streamer found with id: ${streamerId}`);
-                    return;
-                }
-
                 if (messageType === 'raid_update_v2') {
                     const raidInfo = message.raid;
-                    const raid = new Raid(raidInfo.id, raidInfo.target_login);
-                    updateRaid(streamer, raid);
+                    const raid = new Raid(
+                        raidInfo.id,
+                        raidInfo.target_login,
+                        streamer
+                    );
+                    raid.joinRaid();
                 }
             }
         } else if (data.type === 'RESPONSE' && data.error.length > 0) {
