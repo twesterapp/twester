@@ -1,15 +1,11 @@
+import { Core, core } from './core';
 import { OnlineStatus, Streamer, StreamerLogin } from './streamer';
-import {
-    channelIdExistsInCache,
-    checkOnline,
-    getChannelId,
-} from 'renderer/core/data';
+import { channelIdExistsInCache, checkOnline } from 'renderer/core/data';
 
 import { ChannelPoints } from './channel-points';
-import { Core } from './core';
-import { core } from 'renderer/core';
-import { logging } from 'renderer/core/logging';
-import { makeGraphqlRequest } from 'renderer/api';
+import { Topic } from './topic';
+import { logging } from './logging';
+import { makeGraphqlRequest } from '../api';
 
 const NAME = 'PUBSUB';
 
@@ -39,29 +35,6 @@ const log = logging.getLogger(NAME);
  *    incrementing as the streamer goes offline and we start "watching" and
  *    listening to topics for the new streamer.
  */
-
-class PubSubTopic {
-    private topic: string;
-
-    private channelLogin: string | null;
-
-    constructor(topic: string, channelLogin: string | null = null) {
-        this.topic = topic;
-        this.channelLogin = channelLogin;
-    }
-
-    isUserTopic(): boolean {
-        return this.channelLogin === null;
-    }
-
-    async value(): Promise<string> {
-        if (this.isUserTopic()) {
-            return `${this.topic}.${core.auth.store.getState().user.id}`;
-        }
-
-        return `${this.topic}.${await getChannelId(this.channelLogin!)}`;
-    }
-}
 
 class Raid {
     public id: string;
@@ -113,9 +86,9 @@ function createNonce(length: number) {
 export class PubSub {
     private ws: WebSocket | null = null;
 
-    private topics: PubSubTopic[] = [];
+    private topics: Topic[] = [];
 
-    private pendingTopics: PubSubTopic[] = [];
+    private pendingTopics: Topic[] = [];
 
     private isOpened = false;
 
@@ -166,20 +139,20 @@ export class PubSub {
         }
     }
 
-    private getTopics(): PubSubTopic[] {
-        const topics = [new PubSubTopic('community-points-user-v1')];
+    private getTopics(): Topic[] {
+        const topics = [new Topic(this.core, 'community-points-user-v1')];
 
         for (const streamer of core.streamers.all()) {
             topics.push(
-                new PubSubTopic('video-playback-by-id', streamer.login)
+                new Topic(this.core, 'video-playback-by-id', streamer.login)
             );
-            topics.push(new PubSubTopic('raid', streamer.login));
+            topics.push(new Topic(this.core, 'raid', streamer.login));
         }
 
         return topics;
     }
 
-    private submit(topic: PubSubTopic) {
+    private submit(topic: Topic) {
         if (!this.ws || this.topics.length >= 50) {
             this.createNewWebSocket();
         }
@@ -419,7 +392,7 @@ export class PubSub {
         }
     }
 
-    private async listenForTopic(topic: PubSubTopic) {
+    private async listenForTopic(topic: Topic) {
         const data = {
             topics: [`${await topic.value()}`],
             auth_token: '',
