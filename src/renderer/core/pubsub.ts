@@ -5,6 +5,7 @@ import { ChannelPoints } from './channel-points';
 import { OnlineStatus } from './streamer';
 import { Raid } from './raid';
 import { Topic } from './topic';
+import { createNonce } from '../utils/nonce';
 import { logging } from './logging';
 
 const NAME = 'PUBSUB';
@@ -36,16 +37,6 @@ const log = logging.getLogger(NAME);
  *    listening to topics for the new streamer.
  */
 
-function createNonce(length: number) {
-    let nonce = '';
-    const possible =
-        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (let i = 0; i < length; i += 1) {
-        nonce += possible.charAt(Math.floor(Math.random() * possible.length));
-    }
-
-    return nonce;
-}
 
 export class PubSub {
     private ws: WebSocket | null = null;
