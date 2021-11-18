@@ -1,5 +1,5 @@
 import { Core, core } from './core';
-import { channelIdExistsInCache, checkOnline } from 'renderer/core/data';
+import { channelIdExistsInCache, checkOnline } from './data';
 
 import { ChannelPoints } from './channel-points';
 import { OnlineStatus } from './streamer';
@@ -37,6 +37,8 @@ const log = logging.getLogger(NAME);
  *    listening to topics for the new streamer.
  */
 
+const RECONNECTION_INTERVAL = 30 * 1000;
+const PING_INTERVAL = 4.5 * 60 * 1000;
 
 export class PubSub {
     private ws: WebSocket | null = null;
@@ -55,11 +57,7 @@ export class PubSub {
 
     private pingHandle!: NodeJS.Timeout;
 
-    private pingInterval = 4.5 * 60 * 1000;
-
     private reconnectionHandle!: NodeJS.Timeout;
-
-    private reconnectionInterval = 30 * 1000;
 
     private lastMessageTime = 0;
 
@@ -159,7 +157,8 @@ export class PubSub {
 
         this.ws.onmessage = (event) => this.onMessage(event);
         this.ws.onopen = () => this.onOpen();
-        this.ws.onclose = () => this.handleWebSocketReconnection();
+        this.ws.onclose = (event) =>
+            this.handleWebSocketReconnection(event.reason);
     }
 
     private onOpen() {
@@ -186,7 +185,7 @@ export class PubSub {
             }
         }
 
-        this.pingHandle = setInterval(() => this.ping(), this.pingInterval);
+        this.pingHandle = setInterval(() => this.ping(), PING_INTERVAL);
     }
 
     private ping() {
@@ -342,7 +341,7 @@ export class PubSub {
                 `Error while trying to listen for a topic:\n${data.error}`
             );
         } else if (data.type === 'RECONNECT') {
-            this.handleWebSocketReconnection();
+            this.handleWebSocketReconnection(`Recieved 'RECONNECT' message.`);
         }
     }
 
@@ -366,7 +365,9 @@ export class PubSub {
         }
     }
 
-    private async handleWebSocketReconnection() {
+    private async handleWebSocketReconnection(reason: string) {
+        log.warning(`Reason for disconnect: ${reason}`);
+
         if (this.closedOnPurpose) {
             return;
         }
@@ -377,7 +378,7 @@ export class PubSub {
         log.info('PubSub disconnected! Trying to reconnect...');
         this.reconnectionHandle = setInterval(
             () => this.tryReconnecting(),
-            this.reconnectionInterval
+            RECONNECTION_INTERVAL
         );
     }
 
