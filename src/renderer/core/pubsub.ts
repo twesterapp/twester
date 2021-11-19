@@ -157,8 +157,15 @@ export class PubSub {
 
         this.ws.onmessage = (event) => this.onMessage(event);
         this.ws.onopen = () => this.onOpen();
-        this.ws.onclose = (event) =>
-            this.handleWebSocketReconnection(event.reason);
+        this.ws.onclose = (event) => {
+            let reason = 'Unknown';
+
+            if (event.code === 1005) {
+                reason = 'PubSub.close() was called';
+            }
+
+            this.handleWebSocketReconnection(reason);
+        };
     }
 
     private onOpen() {
@@ -366,7 +373,7 @@ export class PubSub {
     }
 
     private async handleWebSocketReconnection(reason: string) {
-        log.warning(`Reason for disconnect: ${reason}`);
+        log.warning(`PubSub's reason for disconnect: ${reason}`);
 
         if (this.closedOnPurpose) {
             return;
