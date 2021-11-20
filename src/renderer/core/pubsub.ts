@@ -8,9 +8,7 @@ import { Topic } from './topic';
 import { createNonce } from '../utils/nonce';
 import { logging } from './logging';
 
-const NAME = 'PUBSUB';
-
-const log = logging.getLogger(NAME);
+const log = logging.getLogger('PUBSUB');
 
 /**
  * Some important notes about the Twitch PubSub

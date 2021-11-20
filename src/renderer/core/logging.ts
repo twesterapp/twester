@@ -1,6 +1,6 @@
+import { Store } from '../utils/store';
+import { getIpc } from '../utils/ipc';
 import { v4 as uuid } from 'uuid';
-import { Store } from 'renderer/utils/store';
-import { getIpc } from 'renderer/utils/ipc';
 
 enum Level {
     EXCEPTION = 'EXCEPTION',

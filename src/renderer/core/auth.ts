@@ -1,12 +1,12 @@
 import { getChannelContextInfo, getUserProfilePicture } from './data';
 
-import { Storage } from 'renderer/utils/storage';
-import { Store } from 'renderer/utils/store';
-import { logging } from 'renderer/core/logging';
+import { Storage } from '../utils/storage';
+import { Store } from '../utils/store';
+import { logging } from './logging';
 
 const NAME = 'AUTH';
 
-const log = logging.getLogger(NAME);
+const log = logging.getLogger('AUTH');
 
 export interface User {
     displayName: string;

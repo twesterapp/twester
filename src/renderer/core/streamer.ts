@@ -1,9 +1,7 @@
 import { logging } from './logging';
 import { rightNowInSecs } from '../utils/rightNowInSecs';
 
-const NAME = 'STREAMER';
-
-const log = logging.getLogger(NAME);
+const log = logging.getLogger('STREAMER');
 
 export enum OnlineStatus {
     ONLINE = 'ONLINE',

@@ -3,8 +3,7 @@ import { Streamer, StreamerLogin } from './streamer';
 import { logging } from './logging';
 import { makeGraphqlRequest } from '../api';
 
-const NAME = 'RAID';
-const log = logging.getLogger(NAME);
+const log = logging.getLogger('RAID');
 
 type RaidId = string;
 

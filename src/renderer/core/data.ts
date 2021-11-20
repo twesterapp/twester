@@ -1,10 +1,10 @@
 import { OnlineStatus, StreamerId, StreamerLogin } from './streamer';
-import { makeGraphqlRequest, nodeClient } from 'renderer/api';
+import { makeGraphqlRequest, nodeClient } from '../api';
 
 import { StreamerIsOfflineError } from './errors';
-import { core } from 'renderer/core';
-import { logging } from 'renderer/core/logging';
-import { rightNowInSecs } from 'renderer/utils/rightNowInSecs';
+import { core } from './core';
+import { logging } from './logging';
+import { rightNowInSecs } from '../utils/rightNowInSecs';
 
 const log = logging.getLogger('DATA');
 
