@@ -1,6 +1,5 @@
 import { StreamerLogin } from './streamer';
 import { core } from './core';
-import { getChannelId } from './data';
 import { logging } from './logging';
 import { makeGraphqlRequest } from '../api';
 
@@ -19,7 +18,7 @@ export class ChannelPoints {
             operationName: 'ClaimCommunityPoints',
             variables: {
                 input: {
-                    channelID: await getChannelId(login),
+                    channelID: streamer.id,
                     claimID: claimId,
                 },
             },
