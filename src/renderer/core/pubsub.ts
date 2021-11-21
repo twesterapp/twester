@@ -159,7 +159,7 @@ export class PubSub {
             let reason = 'Unknown';
 
             if (event.code === 1005) {
-                reason = 'PubSub.close() was called';
+                reason = 'Closed on purpose';
             }
 
             this.handleWebSocketReconnection(reason);

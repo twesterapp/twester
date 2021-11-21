@@ -11,72 +11,52 @@ export enum OnlineStatus {
 export type StreamerLogin = string;
 export type StreamerId = string;
 
-// TODO: Clean these messy interfaces/type regarding Streamer
-export interface IStreamer {
-    login: StreamerLogin;
-    id: StreamerId;
+export interface NewStreamerPayload {
     displayName: string;
-    profileImageUrl: string;
-    onlineStatus?: OnlineStatus;
+    id: StreamerId;
     lastOfflineTime?: number;
-    // Channel points for the streamer at the current time of the watcher session.
-    currentBalance?: number;
-    // Is this streamer being watched by the `watcher`.
+    login: StreamerLogin;
+    profileImageUrl: string;
     watching?: boolean;
-    // This helps us from incrementing `minutesWatched` if the user keeps
-    // pausing and playing the Watcher. This can lead to minuteWatched value to
-    // be wrong. Check it's usage in `watcher.ts`.
+}
+
+export interface StreamerPayload extends NewStreamerPayload {
+    currentBalance?: number;
     lastMinuteWatchedEventTime: number; // epoch in secs
     minutesWatched: number;
+    onlineStatus?: OnlineStatus;
     pointsEarned: number;
 }
 
-export type NewStreamerPayload = Omit<
-    IStreamer,
-    | 'onlineStatus'
-    | 'lastOfflineTime'
-    | 'currentBalance'
-    | 'minutesWatched'
-    | 'pointsEarned'
-    | 'lastMinuteWatchedEventTime'
+// Can update anything in the `StreamerPayload` except `login` and `id`.
+export type UpdateStreamerPayload = Partial<
+    Omit<StreamerPayload, 'login' | 'id'>
 >;
 
-export interface UpdateStreamerPayload {
-    displayName?: string;
-    profileImageUrl?: string;
-    onlineStatus?: OnlineStatus;
-    lastOfflineTime?: number;
-    currentBalance?: number;
-    minutesWatched?: number;
-    pointsEarned?: number;
-    watching?: boolean;
-    lastMinuteWatchedEventTime?: number;
-}
+export class Streamer implements StreamerPayload {
+    public login: string;
 
-export class Streamer implements IStreamer {
-    login: string;
+    public id: string;
 
-    id: string;
+    public displayName: string;
 
-    displayName: string;
+    public profileImageUrl: string;
 
-    profileImageUrl: string;
+    public onlineStatus: OnlineStatus;
 
-    onlineStatus: OnlineStatus;
+    public lastOfflineTime: number;
 
-    lastOfflineTime: number;
+    public currentBalance: number;
 
-    currentBalance: number;
+    public watching: boolean;
 
-    watching: boolean;
+    public lastMinuteWatchedEventTime: number;
 
-    lastMinuteWatchedEventTime: number;
+    public minutesWatched: number;
 
-    minutesWatched: number;
+    public pointsEarned: number;
 
-    pointsEarned: number;
-
-    constructor(payload: IStreamer) {
+    constructor(payload: StreamerPayload) {
         this.login = payload.login;
         this.id = payload.id;
         this.displayName = payload.displayName;
