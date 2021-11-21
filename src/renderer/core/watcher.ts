@@ -1,10 +1,9 @@
-import { getMinuteWatchedRequestInfo, updateStreamersToWatch } from './data';
-
 import { ChannelPoints } from './channel-points';
 import { Core } from './core';
 import { PubSub } from './pubsub';
 import { Storage } from '../utils/storage';
 import { Store } from '../utils/store';
+import { getMinuteWatchedRequestInfo } from './data';
 import { logging } from './logging';
 import { nodeClient } from '../api';
 import { rightNowInSecs } from '../utils/rightNowInSecs';
@@ -60,7 +59,7 @@ export class Watcher extends Store<State> {
         );
 
         await ChannelPoints.loadContext();
-        await updateStreamersToWatch();
+        await this.core.streamers.checkOnlineStatusOfAllStreamers();
         this.pubsub.connect();
 
         this.setWatcherStatus(WatcherStatus.RUNNING);
