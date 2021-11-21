@@ -1,8 +1,8 @@
 import { Button, IconPlus, InputText, Link } from 'renderer/ui';
 import { ItemTypes, StreamerCard } from 'renderer/components';
 import {
-    getChannelContextInfo,
-    getUserProfilePicture,
+    fetchChannelContextInfo,
+    fetchUserProfilePicture,
 } from 'renderer/core/data';
 
 import React from 'react';
@@ -26,12 +26,12 @@ export function StreamersPage() {
         try {
             setFetchingStreamer(true);
 
-            const result = await getChannelContextInfo(searchText.trim());
+            const result = await fetchChannelContextInfo(searchText.trim());
             if (!result) {
                 log.error(`No streamer found with search query: ${searchText}`);
                 return;
             }
-            const profileImageUrl = await getUserProfilePicture(result.id);
+            const profileImageUrl = await fetchUserProfilePicture(result.id);
 
             core.streamers.add({
                 id: result.id,

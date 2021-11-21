@@ -24,15 +24,17 @@ const minuteWatchedRequests: Map<string, MinuteWatchedRequest> = new Map();
 export function getMinuteWatchedRequestInfo(
     login: StreamerLogin
 ): MinuteWatchedRequest {
-    let info = { url: '', payload: { data: '' } };
-    if (minuteWatchedRequests.has(login)) {
-        info = minuteWatchedRequests.get(login)!;
+    const info = minuteWatchedRequests.get(login)!;
+    if (!info) {
+        throw new Error(
+            `Minute watched request info not found for login '${login}'.`
+        );
     }
 
     return info;
 }
 
-async function getMinuteWatchedRequestUrl(
+async function fetchMinuteWatchedRequestUrl(
     login: StreamerLogin
 ): Promise<string> {
     return nodeClient
@@ -40,18 +42,18 @@ async function getMinuteWatchedRequestUrl(
         .then((res) => res.data.data.minute_watched_url)
         .catch((err) =>
             log.error(
-                `Failed to fetch minute watched request URL for login '${login}':`,
+                `Failed to fetch minute watched request URL for login '${login}'.\n`,
                 err
             )
         );
 }
 
-export async function updateMinuteWatchedEventRequestInfo(
+async function updateMinuteWatchedEventRequestInfo(
     login: StreamerLogin
 ): Promise<void> {
     const eventProperties = {
         channel_id: await getChannelId(login),
-        broadcast_id: await getBroadcastId(login),
+        broadcast_id: await fetchBroadcastId(login),
         player: 'site',
         user_id: parseInt(core.auth.store.getState().user.id, 10),
     };
@@ -66,13 +68,13 @@ export async function updateMinuteWatchedEventRequestInfo(
         afterBase64 = btoa(JSON.stringify([minuteWatched]));
     } catch (err) {
         log.error(
-            `Failed to perform Base64 encoding for minute watched event request info for login '${login}':`,
+            `Failed to perform Base64 encoding for minute watched event request info for login '${login}'.\n`,
             err
         );
         return;
     }
 
-    const url = await getMinuteWatchedRequestUrl(login);
+    const url = await fetchMinuteWatchedRequestUrl(login);
     const payload = {
         data: afterBase64,
     };
@@ -82,15 +84,17 @@ export async function updateMinuteWatchedEventRequestInfo(
 }
 
 export async function getChannelId(streamerLogin: string): Promise<string> {
-    if (channelIdByStreamerLogin.has(streamerLogin)) {
-        return channelIdByStreamerLogin.get(streamerLogin)!;
+    const id = channelIdByStreamerLogin.get(streamerLogin);
+
+    if (id) {
+        return id;
     }
 
-    const id = await fetchChannelId(streamerLogin);
-    channelIdByStreamerLogin.set(streamerLogin, id);
-    streamerLoginByChannelId.set(id, streamerLogin);
+    const channelId = await fetchChannelId(streamerLogin);
+    channelIdByStreamerLogin.set(streamerLogin, channelId);
+    streamerLoginByChannelId.set(channelId, streamerLogin);
 
-    return id;
+    return channelId;
 }
 
 export function channelIdExistsInCache(id: string): boolean {
@@ -98,16 +102,16 @@ export function channelIdExistsInCache(id: string): boolean {
 }
 
 export function getStreamerLoginByChannelIdFromCache(id: string): string {
-    let login = '';
+    const login = streamerLoginByChannelId.get(id)!;
 
-    if (streamerLoginByChannelId.has(id)) {
-        login = streamerLoginByChannelId.get(id)!;
+    if (!login) {
+        throw new Error(`No login exists for channel id '${id}'`);
     }
 
     return login;
 }
 
-export async function getBroadcastId(streamerLogin: string): Promise<string> {
+export async function fetchBroadcastId(streamerLogin: string): Promise<string> {
     const data = {
         operationName: 'WithIsStreamLiveQuery',
         variables: { id: await getChannelId(streamerLogin) },
@@ -129,13 +133,6 @@ export async function getBroadcastId(streamerLogin: string): Promise<string> {
 
     const id = stream.id;
     return id;
-}
-
-export async function updateStreamersToWatch() {
-    // Apparently, using a `forEach` loop to call `checkOnline` doesn't await.
-    for (const streamer of core.streamers.all()) {
-        await checkOnline(streamer.login);
-    }
 }
 
 export async function checkOnline(login: StreamerLogin) {
@@ -192,7 +189,7 @@ export async function fetchChannelId(login: StreamerLogin) {
     return id;
 }
 
-export async function getUserProfilePicture(id: StreamerId) {
+export async function fetchUserProfilePicture(id: StreamerId) {
     const data = {
         query: 'query GetUserProfilePicture($userId: ID!) {user(id: $userId) {profileImageURL(width: 300)}}',
         variables: {
@@ -217,7 +214,7 @@ export interface ChannelContext {
     login: string;
 }
 
-export async function getChannelContextInfo(
+export async function fetchChannelContextInfo(
     login: StreamerLogin
 ): Promise<ChannelContext | null> {
     const data = {

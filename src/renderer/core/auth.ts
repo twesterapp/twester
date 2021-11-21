@@ -1,4 +1,4 @@
-import { getChannelContextInfo, getUserProfilePicture } from './data';
+import { fetchChannelContextInfo, fetchUserProfilePicture } from './data';
 
 import { Storage } from '../utils/storage';
 import { Store } from '../utils/store';
@@ -28,7 +28,7 @@ export class Auth extends Store<State> {
 
     public async login(token: string, username: string) {
         this.setToken(token);
-        const channel = await getChannelContextInfo(username);
+        const channel = await fetchChannelContextInfo(username);
 
         // This should never happen!
         if (!channel) {
@@ -38,7 +38,7 @@ export class Auth extends Store<State> {
             return this.logout();
         }
 
-        const profileImageUrl = await getUserProfilePicture(channel.id);
+        const profileImageUrl = await fetchUserProfilePicture(channel.id);
         const user: User = {
             displayName: channel.displayName,
             id: channel.id,

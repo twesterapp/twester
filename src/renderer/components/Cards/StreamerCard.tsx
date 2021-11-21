@@ -7,8 +7,8 @@ import {
 } from 'renderer/ui';
 import {
     ChannelContext,
-    getChannelContextInfo,
-    getUserProfilePicture,
+    fetchChannelContextInfo,
+    fetchUserProfilePicture,
 } from 'renderer/core/data';
 import { Streamer, StreamerId } from 'renderer/core/streamer';
 import styled, { useTheme } from 'styled-components';
@@ -40,7 +40,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
     const theme = useTheme();
 
     const { data } = useQuery(`STREAMER_CARD_INFO.${streamer.login}`, () =>
-        getChannelContextInfo(streamer.login)
+        fetchChannelContextInfo(streamer.login)
     );
 
     const originalIndex = core.streamers.findStreamerCard(streamer.id).index;
@@ -83,8 +83,8 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
 
     React.useEffect(() => {
         const run = async (data: ChannelContext) => {
-            const result = await getChannelContextInfo(data.login);
-            const profileImageUrl = await getUserProfilePicture(data.id);
+            const result = await fetchChannelContextInfo(data.login);
+            const profileImageUrl = await fetchUserProfilePicture(data.id);
 
             core.streamers.update(streamer.id, {
                 displayName: result?.displayName || data.displayName,

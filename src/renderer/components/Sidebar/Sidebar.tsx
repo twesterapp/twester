@@ -6,7 +6,7 @@ import {
     IconStreamers,
     Tooltip,
 } from 'renderer/ui';
-import { fetchChannelId, getUserProfilePicture } from 'renderer/core/data';
+import { fetchChannelId, fetchUserProfilePicture } from 'renderer/core/data';
 import styled, { useTheme } from 'styled-components';
 
 import React from 'react';
@@ -29,7 +29,7 @@ export function Sidebar({ currentPage }: SidebarOptions) {
 
     const { data: profileImageUrl } = useQuery('ME_INFO', async () => {
         const id = await fetchChannelId(user.login);
-        return getUserProfilePicture(id);
+        return fetchUserProfilePicture(id);
     });
 
     const onHomePage = currentPage === '/';
