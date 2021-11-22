@@ -6,10 +6,6 @@ import {
     IconStreamers,
     Tooltip,
 } from 'renderer/ui';
-import {
-    fetchChannelContextInfo,
-    fetchUserProfilePicture,
-} from 'renderer/core/data';
 import styled, { useTheme } from 'styled-components';
 
 import React from 'react';
@@ -38,8 +34,8 @@ export function Sidebar({ currentPage }: SidebarOptions) {
     core.watcher.useStore();
 
     const { data } = useQuery<MeInfoQueryResponse>('ME_INFO', async () => {
-        const context = await fetchChannelContextInfo(user.login);
-        const imageUrl = await fetchUserProfilePicture(context.id);
+        const context = await core.api.getChannelContext(user.login);
+        const imageUrl = await core.api.getUserProfilePicture(context.id);
 
         return {
             id: context.id,

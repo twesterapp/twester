@@ -1,5 +1,3 @@
-import { fetchBroadcastId, fetchMinuteWatchedRequestUrl } from './data';
-
 import { Streamer } from './streamer';
 import { core } from './core';
 import { logging } from './logging';
@@ -22,7 +20,7 @@ export class Stream {
     }
 
     public static async init(streamer: Streamer): Promise<Stream | null> {
-        const broadcastId = await fetchBroadcastId(streamer);
+        const broadcastId = await core.api.getBroadcastId(streamer);
 
         const eventProperties = {
             channel_id: streamer.id,
@@ -47,7 +45,7 @@ export class Stream {
             return null;
         }
 
-        const url = await fetchMinuteWatchedRequestUrl(streamer.login);
+        const url = await core.api.getMinuteWatchedRequestUrl(streamer.login);
         const payload = {
             data: afterBase64,
         };

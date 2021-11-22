@@ -1,3 +1,4 @@
+import { API } from './api';
 import { Auth } from './auth';
 import { StreamerManager } from './streamer-manager';
 import { Watcher } from './watcher';
@@ -9,6 +10,8 @@ import { Watcher } from './watcher';
  * of directly interacting with other modules like `PubSub`, `Streamer` and etc.
  */
 export class Core {
+    public api: API;
+
     public auth: Auth;
 
     public streamers: StreamerManager;
@@ -16,6 +19,7 @@ export class Core {
     public watcher: Watcher;
 
     constructor() {
+        this.api = new API(this);
         this.auth = new Auth();
         this.streamers = new StreamerManager(this);
         this.watcher = new Watcher(this);

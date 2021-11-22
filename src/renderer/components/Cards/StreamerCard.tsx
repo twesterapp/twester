@@ -5,15 +5,11 @@ import {
     IconEyeOpen,
     IconStar,
 } from 'renderer/ui';
-import {
-    ChannelContext,
-    fetchChannelContextInfo,
-    fetchUserProfilePicture,
-} from 'renderer/core/data';
 import { Streamer, StreamerId } from 'renderer/core/streamer';
 import styled, { useTheme } from 'styled-components';
 import { useDrag, useDrop } from 'react-dnd';
 
+import { ChannelContext } from 'renderer/core/api';
 import React from 'react';
 import { core } from 'renderer/core';
 import { formatMinutes } from 'renderer/utils/formatMinutes';
@@ -40,7 +36,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
     const theme = useTheme();
 
     const { data } = useQuery(`STREAMER_CARD_INFO.${streamer.login}`, () =>
-        fetchChannelContextInfo(streamer.login)
+        core.api.getChannelContext(streamer.login)
     );
 
     const originalIndex = core.streamers.findStreamerCard(streamer.id).index;
@@ -83,8 +79,10 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
 
     React.useEffect(() => {
         const run = async (data: ChannelContext) => {
-            const result = await fetchChannelContextInfo(data.login);
-            const profileImageUrl = await fetchUserProfilePicture(data.id);
+            const result = await core.api.getChannelContext(data.login);
+            const profileImageUrl = await core.api.getUserProfilePicture(
+                data.id
+            );
 
             core.streamers.update(streamer.id, {
                 displayName: result?.displayName || data.displayName,
