@@ -77,36 +77,6 @@ export async function fetchBroadcastId(streamerLogin: string): Promise<string> {
     return id;
 }
 
-export async function fetchChannelId(login: StreamerLogin) {
-    const data = {
-        operationName: 'ReportMenuItem',
-        variables: {
-            channelLogin: login,
-        },
-        extensions: {
-            persistedQuery: {
-                version: 1,
-                sha256Hash:
-                    '8f3628981255345ca5e5453dfd844efffb01d6413a9931498836e6268692a30c',
-            },
-        },
-    };
-
-    const response = await makeGraphqlRequest(data);
-    const responseData = response.data;
-
-    const id = responseData?.user?.id;
-
-    // This should never happen, it's just for precaution so that app doesn't
-    // crash in production. If a valid `login` is provided, a valid `channelId`
-    // will be returned.
-    if (!id) {
-        log.error(`Failed to fetch channel ID for login '${login}'`);
-        return '';
-    }
-
-    return id;
-}
 
 export async function fetchUserProfilePicture(id: StreamerId) {
     const data = {

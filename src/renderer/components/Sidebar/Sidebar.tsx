@@ -6,7 +6,10 @@ import {
     IconStreamers,
     Tooltip,
 } from 'renderer/ui';
-import { fetchChannelId, fetchUserProfilePicture } from 'renderer/core/data';
+import {
+    fetchChannelContextInfo,
+    fetchUserProfilePicture,
+} from 'renderer/core/data';
 import styled, { useTheme } from 'styled-components';
 
 import React from 'react';
@@ -20,6 +23,13 @@ interface SidebarOptions {
     currentPage: string;
 }
 
+interface MeInfoQueryResponse {
+    id: string;
+    login: string;
+    displayName: string;
+    profileImageUrl: string;
+}
+
 export function Sidebar({ currentPage }: SidebarOptions) {
     const history = useHistory();
     const theme = useTheme();
@@ -27,9 +37,16 @@ export function Sidebar({ currentPage }: SidebarOptions) {
     // So that we can conditionally re-render `IconPause` or `IconPlay`.
     core.watcher.useStore();
 
-    const { data: profileImageUrl } = useQuery('ME_INFO', async () => {
-        const id = await fetchChannelId(user.login);
-        return fetchUserProfilePicture(id);
+    const { data } = useQuery<MeInfoQueryResponse>('ME_INFO', async () => {
+        const context = await fetchChannelContextInfo(user.login);
+        const imageUrl = await fetchUserProfilePicture(context.id);
+
+        return {
+            id: context.id,
+            login: context.login,
+            displayName: context.displayName,
+            profileImageUrl: imageUrl,
+        };
     });
 
     const onHomePage = currentPage === '/';
@@ -93,19 +110,20 @@ export function Sidebar({ currentPage }: SidebarOptions) {
                 <i style={{ height: '11px' }} />
 
                 <Tooltip
-                    title={core.auth.store.getState().user.login || ''}
+                    title={data?.displayName || ''}
                     placement="right"
                     enterDelay={1000}
                 >
                     <i>
                         <a
-                            href={`https://www.twitch.tv/${
-                                core.auth.store.getState().user.login
-                            }`}
+                            href={`https://www.twitch.tv/${data?.login || ''}`}
                             target="_blank"
                             rel="noreferrer"
                         >
-                            <Avatar src={profileImageUrl} size={48} />
+                            <Avatar
+                                src={data?.profileImageUrl as string}
+                                size={48}
+                            />
                         </a>
                     </i>
                 </Tooltip>
