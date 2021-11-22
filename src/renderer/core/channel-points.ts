@@ -12,7 +12,7 @@ export class ChannelPoints {
     ): Promise<void> {
         const streamer = core.streamers.getByLogin(login);
         const displayName = streamer ? streamer.displayName : login;
-        log.debug(`Claming bonus for ${displayName}`);
+        log.debug(`Claiming bonus for ${displayName}`);
 
         const data = {
             operationName: 'ClaimCommunityPoints',
