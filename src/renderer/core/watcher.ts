@@ -81,7 +81,7 @@ export class Watcher extends Store<State> {
                     // will still keep watching that streamer because this
                     // `isOnline` check is made with cached value instead of
                     // actual recently fetched data from the Twitch server.
-                    if (this.core.streamers.isStreamerOnline(streamer.login)) {
+                    if (streamer.isOnline()) {
                         try {
                             const info = getMinuteWatchedRequestInfo(
                                 streamer.login
