@@ -6,20 +6,6 @@ import { logging } from './logging';
 
 const log = logging.getLogger('DATA');
 
-export async function fetchMinuteWatchedRequestUrl(
-    login: StreamerLogin
-): Promise<string> {
-    return nodeClient
-        .get(`/minute-watched-request-url?streamerLogin=${login}`)
-        .then((res) => res.data.data.minute_watched_url)
-        .catch((err) =>
-            log.error(
-                `Failed to fetch minute watched request URL for login '${login}'.\n`,
-                err
-            )
-        );
-}
-
 export async function fetchBroadcastId(streamer: Streamer): Promise<string> {
     const data = {
         operationName: 'WithIsStreamLiveQuery',
