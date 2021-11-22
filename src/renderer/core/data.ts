@@ -55,7 +55,7 @@ async function updateMinuteWatchedEventRequestInfo(
         channel_id: await getChannelId(login),
         broadcast_id: await fetchBroadcastId(login),
         player: 'site',
-        user_id: parseInt(core.auth.store.getState().user.id, 10),
+        user_id: Number(core.auth.store.getState().user.id),
     };
 
     const minuteWatched = {
