@@ -1,15 +1,10 @@
-import { StreamerId, StreamerLogin } from './streamer';
+import { Streamer, StreamerId, StreamerLogin } from './streamer';
 import { makeGraphqlRequest, nodeClient } from '../api';
 
 import { StreamerIsOfflineError } from './errors';
 import { logging } from './logging';
 
 const log = logging.getLogger('DATA');
-/**
- *  CACHING
- */
-const channelIdByStreamerLogin: Map<string, string> = new Map();
-const streamerLoginByChannelId: Map<string, string> = new Map();
 
 export async function fetchMinuteWatchedRequestUrl(
     login: StreamerLogin
@@ -25,38 +20,10 @@ export async function fetchMinuteWatchedRequestUrl(
         );
 }
 
-export async function getChannelId(streamerLogin: string): Promise<string> {
-    const id = channelIdByStreamerLogin.get(streamerLogin);
-
-    if (id) {
-        return id;
-    }
-
-    const channelId = await fetchChannelId(streamerLogin);
-    channelIdByStreamerLogin.set(streamerLogin, channelId);
-    streamerLoginByChannelId.set(channelId, streamerLogin);
-
-    return channelId;
-}
-
-export function channelIdExistsInCache(id: string): boolean {
-    return streamerLoginByChannelId.has(id);
-}
-
-export function getStreamerLoginByChannelIdFromCache(id: string): string {
-    const login = streamerLoginByChannelId.get(id)!;
-
-    if (!login) {
-        throw new Error(`No login exists for channel id '${id}'`);
-    }
-
-    return login;
-}
-
-export async function fetchBroadcastId(streamerLogin: string): Promise<string> {
+export async function fetchBroadcastId(streamer: Streamer): Promise<string> {
     const data = {
         operationName: 'WithIsStreamLiveQuery',
-        variables: { id: await getChannelId(streamerLogin) },
+        variables: { id: streamer.id },
         extensions: {
             persistedQuery: {
                 version: 1,
@@ -70,15 +37,17 @@ export async function fetchBroadcastId(streamerLogin: string): Promise<string> {
     const stream = response.data.user.stream;
 
     if (!stream) {
-        throw new StreamerIsOfflineError(`${streamerLogin} is offline!`);
+        // We catch this error to know if a streamer is online or offline, that's
+        // why we are not logging this as exception. We log something as exception
+        // if it's unexpected/unhandled/uncaught.
+        throw new StreamerIsOfflineError(`${streamer.displayName} is offline!`);
     }
 
     const id = stream.id;
     return id;
 }
 
-
-export async function fetchUserProfilePicture(id: StreamerId) {
+export async function fetchUserProfilePicture(id: StreamerId): Promise<string> {
     const data = {
         query: 'query GetUserProfilePicture($userId: ID!) {user(id: $userId) {profileImageURL(width: 300)}}',
         variables: {
@@ -90,8 +59,9 @@ export async function fetchUserProfilePicture(id: StreamerId) {
     const profilePictureUrl = response?.data?.user?.profileImageURL;
 
     if (!profilePictureUrl) {
-        log.error(`No user profile picture found for streamerId '${id}'`);
-        return '';
+        const errMsg = `No user profile picture found for streamer id '${id}'.`;
+        log.exception(errMsg);
+        throw new Error(errMsg);
     }
 
     return profilePictureUrl;
@@ -105,7 +75,7 @@ export interface ChannelContext {
 
 export async function fetchChannelContextInfo(
     login: StreamerLogin
-): Promise<ChannelContext | null> {
+): Promise<ChannelContext> {
     const data = {
         operationName: 'PersonalSections',
         variables: {
@@ -135,8 +105,9 @@ export async function fetchChannelContextInfo(
     const context: ChannelContext = response?.data?.contextUser;
 
     if (!context) {
-        log.error(`No channel context info found for login '${login}'`);
-        return null;
+        const errMsg = `No channel context info found for login '${login}'`;
+        log.exception(errMsg);
+        throw new Error(errMsg);
     }
 
     return context;

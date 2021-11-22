@@ -4,7 +4,6 @@ import { ChannelPoints } from './channel-points';
 import { OnlineStatus } from './streamer';
 import { Raid } from './raid';
 import { Topic } from './topic';
-import { channelIdExistsInCache } from './data';
 import { createNonce } from '../utils/nonce';
 import { logging } from './logging';
 
@@ -245,67 +244,62 @@ export class PubSub {
                 if (messageType === 'points-earned') {
                     const channelId = messageData.channel_id;
 
-                    if (channelIdExistsInCache(channelId)) {
-                        const pointsEarned =
-                            messageData.point_gain.total_points;
-                        const newBalance = messageData.balance.balance;
-                        const streamer = this.core.streamers.getById(channelId);
-                        const reason = messageData.point_gain.reason_code;
+                    const pointsEarned = messageData.point_gain.total_points;
+                    const newBalance = messageData.balance.balance;
+                    const streamer = this.core.streamers.getById(channelId);
+                    const reason = messageData.point_gain.reason_code;
 
-                        if (!streamer) {
-                            log.error(
-                                `Ignoring ${pointsEarned} points earned for #${channelId}" because this streamer is not added for being watched`
-                            );
-                            return;
-                        }
-
-                        if (!streamer.watching) {
-                            log.warning(
-                                `Ignoring ${pointsEarned} points earned for ${streamer.displayName} because this streamer is not being watched`
-                            );
-                            return;
-                        }
-
-                        if (reason === 'PREDICTION') {
-                            log.warning(
-                                `Ignoring ${pointsEarned} points earned for ${streamer.displayName} because the points were earned in a prediction and it was done on Twitch`
-                            );
-                            return;
-                        }
-
-                        log.info(
-                            `+${pointsEarned} points for ${streamer.displayName} (${newBalance}) - Reason: ${reason}`
+                    if (!streamer) {
+                        log.error(
+                            `Ignoring ${pointsEarned} points earned for #${channelId}" because this streamer is not added for being watched`
                         );
-
-                        this.core.streamers.update(streamer.id, {
-                            currentBalance: newBalance,
-                            pointsEarned: streamer.pointsEarned + pointsEarned,
-                        });
-                        this.core.watcher.addPointsEarned(pointsEarned);
+                        return;
                     }
+
+                    if (!streamer.watching) {
+                        log.warning(
+                            `Ignoring ${pointsEarned} points earned for ${streamer.displayName} because this streamer is not being watched`
+                        );
+                        return;
+                    }
+
+                    if (reason === 'PREDICTION') {
+                        log.warning(
+                            `Ignoring ${pointsEarned} points earned for ${streamer.displayName} because the points were earned in a prediction and it was done on Twitch`
+                        );
+                        return;
+                    }
+
+                    log.info(
+                        `+${pointsEarned} points for ${streamer.displayName} (${newBalance}) - Reason: ${reason}`
+                    );
+
+                    this.core.streamers.update(streamer.id, {
+                        currentBalance: newBalance,
+                        pointsEarned: streamer.pointsEarned + pointsEarned,
+                    });
+                    this.core.watcher.addPointsEarned(pointsEarned);
                 } else if (messageType === 'claim-available') {
                     const channelId = messageData.claim.channel_id;
 
-                    if (channelIdExistsInCache(channelId)) {
-                        const claimId = messageData.claim.id;
-                        const streamer = this.core.streamers.getById(channelId);
+                    const claimId = messageData.claim.id;
+                    const streamer = this.core.streamers.getById(channelId);
 
-                        if (!streamer) {
-                            log.error(
-                                `Cannot claim bonus for #${channelId} because this streamer is not added for being watched`
-                            );
-                            return;
-                        }
-
-                        if (!streamer.watching) {
-                            log.warning(
-                                `Not claiming bonus for ${streamer.displayName} because this streamer is not being watched`
-                            );
-                            return;
-                        }
-
-                        ChannelPoints.claimBonus(streamer.login, claimId);
+                    if (!streamer) {
+                        log.error(
+                            `Cannot claim bonus for #${channelId} because this streamer is not added for being watched`
+                        );
+                        return;
                     }
+
+                    if (!streamer.watching) {
+                        log.warning(
+                            `Not claiming bonus for ${streamer.displayName} because this streamer is not being watched`
+                        );
+                        return;
+                    }
+
+                    ChannelPoints.claimBonus(streamer.login, claimId);
                 }
             } else if (topic === 'video-playback-by-id') {
                 const streamer = this.core.streamers.getById(streamerId);
@@ -342,7 +336,7 @@ export class PubSub {
 
     private async listenForTopic(topic: Topic) {
         const data = {
-            topics: [`${await topic.value()}`],
+            topics: [`${topic.formatted()}`],
             auth_token: '',
         };
 
