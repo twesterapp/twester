@@ -31,9 +31,8 @@ export interface StreamerPayload extends NewStreamerPayload {
 }
 
 // Can update anything in the `StreamerPayload` except `login` and `id`.
-export type UpdateStreamerPayload = Partial<
-    Omit<StreamerPayload, 'login' | 'id'>
->;
+export interface UpdateStreamerPayload
+    extends Partial<Omit<StreamerPayload, 'login' | 'id'>> {}
 
 export class Streamer implements StreamerPayload {
     public login: string;
