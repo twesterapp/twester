@@ -3,7 +3,6 @@ import { Core } from './core';
 import { PubSub } from './pubsub';
 import { Storage } from '../utils/storage';
 import { Store } from '../utils/store';
-import { getMinuteWatchedRequestInfo } from './data';
 import { logging } from './logging';
 import { nodeClient } from '../api';
 import { rightNowInSecs } from '../utils/rightNowInSecs';
@@ -83,46 +82,49 @@ export class Watcher extends Store<State> {
                     // actual recently fetched data from the Twitch server.
                     if (streamer.isOnline()) {
                         try {
-                            const info = getMinuteWatchedRequestInfo(
-                                streamer.login
-                            );
+                            const info = streamer.stream?.requestInfo;
 
-                            if (info) {
-                                if (!streamer.watching) {
-                                    this.core.streamers.update(streamer.id, {
-                                        watching: true,
-                                    });
-                                    log.info(
-                                        `Started watching ${streamer.displayName}`
-                                    );
-
-                                    this.fixWatchingStatus();
-                                }
-
-                                await nodeClient.post('/minute-watched-event', {
-                                    url: info.url,
-                                    payload: info.payload,
-                                });
-
-                                if (
-                                    this.minutePassedSince(
-                                        streamer.lastMinuteWatchedEventTime
-                                    ) ||
-                                    !streamer.lastMinuteWatchedEventTime
-                                ) {
-                                    this.core.streamers.update(streamer.id, {
-                                        minutesWatched:
-                                            (streamer.minutesWatched += 1),
-                                        lastMinuteWatchedEventTime:
-                                            rightNowInSecs(),
-                                    });
-                                    this.incrementMinutesWatched();
-                                }
-
-                                log.debug(
-                                    `Minute watched event sent for ${streamer.displayName}`
+                            if (!info) {
+                                throw new Error(
+                                    'Watcher: No minute watched event request info found in ' +
+                                        "'streamer.stream.requestInfo'. This should have not happened."
                                 );
                             }
+
+                            if (!streamer.watching) {
+                                this.core.streamers.update(streamer.id, {
+                                    watching: true,
+                                });
+                                log.info(
+                                    `Started watching ${streamer.displayName}`
+                                );
+
+                                this.fixWatchingStatus();
+                            }
+
+                            await nodeClient.post('/minute-watched-event', {
+                                url: info.url,
+                                payload: info.payload,
+                            });
+
+                            if (
+                                this.minutePassedSince(
+                                    streamer.lastMinuteWatchedEventTime
+                                ) ||
+                                !streamer.lastMinuteWatchedEventTime
+                            ) {
+                                this.core.streamers.update(streamer.id, {
+                                    minutesWatched:
+                                        (streamer.minutesWatched += 1),
+                                    lastMinuteWatchedEventTime:
+                                        rightNowInSecs(),
+                                });
+                                this.incrementMinutesWatched();
+                            }
+
+                            log.debug(
+                                `Minute watched event sent for ${streamer.displayName}`
+                            );
                         } catch {
                             log.error(
                                 `Minute watched event failed for ${streamer.displayName}`

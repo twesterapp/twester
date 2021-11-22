@@ -1,3 +1,5 @@
+import { Stream } from './stream';
+import { StreamerIsOfflineError } from './errors';
 import { logging } from './logging';
 import { rightNowInSecs } from '../utils/rightNowInSecs';
 
@@ -56,6 +58,8 @@ export class Streamer implements StreamerPayload {
 
     public pointsEarned: number;
 
+    public stream: Stream | null;
+
     constructor(payload: StreamerPayload) {
         this.login = payload.login;
         this.id = payload.id;
@@ -68,6 +72,7 @@ export class Streamer implements StreamerPayload {
         this.lastMinuteWatchedEventTime = payload.lastMinuteWatchedEventTime;
         this.minutesWatched = payload.minutesWatched;
         this.pointsEarned = payload.pointsEarned;
+        this.stream = null;
     }
 
     public setOnlineStatus(status: OnlineStatus, printInfoLog: boolean): void {
@@ -139,6 +144,27 @@ export class Streamer implements StreamerPayload {
         if (payload.lastMinuteWatchedEventTime) {
             this.lastMinuteWatchedEventTime =
                 payload.lastMinuteWatchedEventTime;
+        }
+    }
+
+    public async checkOnlineStatus(): Promise<void> {
+        // Twitch API has a delay for querying channels. If a query is made
+        // right after the streamer went offline, it will cause a false
+        // "streamer is live" event.
+        if (rightNowInSecs() < this.lastOfflineTime + 60) {
+            return;
+        }
+
+        if (!this.isOnline()) {
+            try {
+                this.stream = await Stream.init(this);
+                this.setOnlineStatus(OnlineStatus.ONLINE, true);
+            } catch (err) {
+                if (err instanceof StreamerIsOfflineError) {
+                    this.stream = null;
+                    this.setOnlineStatus(OnlineStatus.OFFLINE, true);
+                }
+            }
         }
     }
 }

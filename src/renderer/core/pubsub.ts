@@ -1,10 +1,10 @@
 import { Core, core } from './core';
-import { channelIdExistsInCache, checkOnline } from './data';
 
 import { ChannelPoints } from './channel-points';
 import { OnlineStatus } from './streamer';
 import { Raid } from './raid';
 import { Topic } from './topic';
+import { channelIdExistsInCache } from './data';
 import { createNonce } from '../utils/nonce';
 import { logging } from './logging';
 
@@ -216,7 +216,7 @@ export class PubSub {
         }
     }
 
-    private onMessage(event: MessageEvent) {
+    private async onMessage(event: MessageEvent) {
         const data = JSON.parse(event.data);
 
         if (data.type === 'PONG') {
@@ -312,21 +312,13 @@ export class PubSub {
             } else if (topic === 'video-playback-by-id') {
                 const streamer = this.core.streamers.getById(streamerId);
 
-                if (!streamer) {
-                    log.error(`No streamer found with id: ${streamerId}`);
-                    return;
-                }
-
                 // There is stream-up message type, but it's sent earlier than
                 // the API updates. Therefore making it useless to check for it
                 //  here, as `checkOnline` will return `isOffline` status.
                 if (messageType === 'stream-down') {
-                    this.core.streamers.setStreamerOnlineStatus(
-                        streamer.login,
-                        OnlineStatus.OFFLINE
-                    );
+                    streamer.setOnlineStatus(OnlineStatus.OFFLINE, true);
                 } else if (messageType === 'viewcount') {
-                    checkOnline(streamer.login);
+                    await streamer.checkOnlineStatus();
                 }
             } else if (topic === 'raid') {
                 const streamer = this.core.streamers.getById(streamerId);

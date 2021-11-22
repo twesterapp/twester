@@ -11,7 +11,6 @@ import {
 import { Core } from './core';
 import { Storage } from '../utils/storage';
 import { Store } from '../utils/store';
-import { checkOnline } from './data';
 import { logging } from './logging';
 
 const NAME = 'STREAMERS';
@@ -117,7 +116,7 @@ export class StreamerManager extends Store<State> {
     public async checkOnlineStatusOfAllStreamers(): Promise<void> {
         // Apparently, using a `forEach` loop to call `checkOnline` doesn't await.
         for (const streamer of this.streamers) {
-            await checkOnline(streamer.login);
+            await streamer.checkOnlineStatus();
         }
     }
 

@@ -1,40 +1,17 @@
-import { OnlineStatus, StreamerId, StreamerLogin } from './streamer';
+import { StreamerId, StreamerLogin } from './streamer';
 import { makeGraphqlRequest, nodeClient } from '../api';
 
 import { StreamerIsOfflineError } from './errors';
-import { core } from './core';
 import { logging } from './logging';
-import { rightNowInSecs } from '../utils/rightNowInSecs';
 
 const log = logging.getLogger('DATA');
-
-interface MinuteWatchedRequest {
-    url: string;
-    payload: { data: string };
-}
-
 /**
  *  CACHING
  */
 const channelIdByStreamerLogin: Map<string, string> = new Map();
 const streamerLoginByChannelId: Map<string, string> = new Map();
-const lastOfflineTime: Map<string, number> = new Map();
-const minuteWatchedRequests: Map<string, MinuteWatchedRequest> = new Map();
 
-export function getMinuteWatchedRequestInfo(
-    login: StreamerLogin
-): MinuteWatchedRequest {
-    const info = minuteWatchedRequests.get(login)!;
-    if (!info) {
-        throw new Error(
-            `Minute watched request info not found for login '${login}'.`
-        );
-    }
-
-    return info;
-}
-
-async function fetchMinuteWatchedRequestUrl(
+export async function fetchMinuteWatchedRequestUrl(
     login: StreamerLogin
 ): Promise<string> {
     return nodeClient
@@ -46,41 +23,6 @@ async function fetchMinuteWatchedRequestUrl(
                 err
             )
         );
-}
-
-async function updateMinuteWatchedEventRequestInfo(
-    login: StreamerLogin
-): Promise<void> {
-    const eventProperties = {
-        channel_id: await getChannelId(login),
-        broadcast_id: await fetchBroadcastId(login),
-        player: 'site',
-        user_id: Number(core.auth.store.getState().user.id),
-    };
-
-    const minuteWatched = {
-        event: 'minute-watched',
-        properties: eventProperties,
-    };
-
-    let afterBase64: string;
-    try {
-        afterBase64 = btoa(JSON.stringify([minuteWatched]));
-    } catch (err) {
-        log.error(
-            `Failed to perform Base64 encoding for minute watched event request info for login '${login}'.\n`,
-            err
-        );
-        return;
-    }
-
-    const url = await fetchMinuteWatchedRequestUrl(login);
-    const payload = {
-        data: afterBase64,
-    };
-
-    // Caching
-    minuteWatchedRequests.set(login, { url, payload });
 }
 
 export async function getChannelId(streamerLogin: string): Promise<string> {
@@ -133,29 +75,6 @@ export async function fetchBroadcastId(streamerLogin: string): Promise<string> {
 
     const id = stream.id;
     return id;
-}
-
-export async function checkOnline(login: StreamerLogin) {
-    // Twitch API has a delay for querying channels. If a query is made
-    // right after the streamer went offline, it will cause a false
-    // "streamer is live" event.
-    if (rightNowInSecs() < (lastOfflineTime.get(login) ?? 0) + 60) {
-        return;
-    }
-
-    if (!core.streamers.isStreamerOnline(login)) {
-        try {
-            await updateMinuteWatchedEventRequestInfo(login);
-            core.streamers.setStreamerOnlineStatus(login, OnlineStatus.ONLINE);
-        } catch (err) {
-            if (err instanceof StreamerIsOfflineError) {
-                core.streamers.setStreamerOnlineStatus(
-                    login,
-                    OnlineStatus.OFFLINE
-                );
-            }
-        }
-    }
 }
 
 export async function fetchChannelId(login: StreamerLogin) {
