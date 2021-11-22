@@ -22,7 +22,7 @@ export class Stream {
     }
 
     public static async init(streamer: Streamer): Promise<Stream | null> {
-        const broadcastId = await fetchBroadcastId(streamer.login);
+        const broadcastId = await fetchBroadcastId(streamer);
 
         const eventProperties = {
             channel_id: streamer.id,
