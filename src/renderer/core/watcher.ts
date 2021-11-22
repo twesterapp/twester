@@ -42,14 +42,6 @@ export class Watcher extends Store<State> {
     }
 
     public async play() {
-        if (
-            !this.core.auth.store.getState().accessToken ||
-            !this.core.auth.store.getState().user.id
-        ) {
-            log.exception('User is unauthorized. Skipping to start Watcher.');
-            return;
-        }
-
         log.info('Watcher is booting...');
         this.setWatcherStatus(WatcherStatus.BOOTING);
 
