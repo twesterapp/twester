@@ -1,29 +1,28 @@
 import { Core } from './core';
-import { StreamerLogin } from './streamer';
-import { getChannelId } from './data';
+import { Streamer } from './streamer';
 
 export class Topic {
     private topic: string;
 
-    private login: StreamerLogin | null;
+    private streamer: Streamer | null;
 
     private core: Core;
 
-    constructor(core: Core, topic: string, login: StreamerLogin | null = null) {
+    constructor(core: Core, topic: string, streamer: Streamer | null = null) {
         this.core = core;
         this.topic = topic;
-        this.login = login;
+        this.streamer = streamer;
     }
 
-    isUserTopic(): boolean {
-        return this.login === null;
+    isUserTopic(streamer = this.streamer): streamer is null {
+        return streamer === null;
     }
 
-    async value(): Promise<string> {
-        if (this.isUserTopic()) {
+    formatted(): string {
+        if (this.isUserTopic(this.streamer)) {
             return `${this.topic}.${this.core.auth.store.getState().user.id}`;
         }
 
-        return `${this.topic}.${await getChannelId(this.login!)}`;
+        return `${this.topic}.${this.streamer.id})}`;
     }
 }

@@ -94,10 +94,8 @@ export class PubSub {
         const topics = [new Topic(this.core, 'community-points-user-v1')];
 
         for (const streamer of core.streamers.all()) {
-            topics.push(
-                new Topic(this.core, 'video-playback-by-id', streamer.login)
-            );
-            topics.push(new Topic(this.core, 'raid', streamer.login));
+            topics.push(new Topic(this.core, 'video-playback-by-id', streamer));
+            topics.push(new Topic(this.core, 'raid', streamer));
         }
 
         return topics;
