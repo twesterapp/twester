@@ -214,30 +214,30 @@ function AskForLoginCredentials({
 
         setSendingReq(false);
 
-        if (res.data.access_token) {
-            core.auth.login(res.data.access_token, username);
+        if (res.access_token) {
+            core.auth.login(res.access_token, username);
         }
 
-        if (res.data.captcha) {
+        if (res.captcha) {
             const data: VerifyOptions = {
                 username,
                 password,
-                captcha: res.data.captcha,
-                email: res.data?.email,
+                captcha: res.captcha,
+                email: res.email,
             };
 
-            if (res.data.error.code === 3011) {
+            if (res.error.code === 3011) {
                 nextStepCallback(FlowStep.TWO_FA_TOKEN, data);
                 return;
             }
 
-            if (res.data.error.code === 3022) {
+            if (res.error.code === 3022) {
                 nextStepCallback(FlowStep.TWITCHGUARD_CODE, data);
                 return;
             }
         }
 
-        setErr(res.data?.error?.message);
+        setErr(res.error?.message);
         setLoginFailedOnce(true);
     }
 
@@ -344,11 +344,11 @@ function VerifyWithCode({
             code,
         });
 
-        if (res.data.access_token) {
-            core.auth.login(res.data.access_token, username);
+        if (res.access_token) {
+            core.auth.login(res.access_token, username);
         }
 
-        setErr(res.data?.error?.message);
+        setErr(res.error?.message);
         setSendingReq(false);
     }
 
@@ -359,8 +359,8 @@ function VerifyWithCode({
 
         const res = await core.api.resendCode(username);
 
-        if (res.data?.error) {
-            setErr(res.data.error);
+        if (res.error) {
+            setErr(res.error);
         }
     }
 
@@ -427,11 +427,11 @@ function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
             two_fa: twoFa,
         });
 
-        if (res.data.access_token) {
-            core.auth.login(res.data.access_token, username);
+        if (res.access_token) {
+            core.auth.login(res.access_token, username);
         }
 
-        setErr(res.data?.error?.message);
+        setErr(res.error?.message);
         setSendingReq(false);
     }
 
