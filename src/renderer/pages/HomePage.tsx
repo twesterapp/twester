@@ -2,26 +2,26 @@ import { IconClock, IconPause, IconPlay, IconStar, Link } from 'renderer/ui';
 import styled, { useTheme } from 'styled-components';
 
 import React from 'react';
-import { core } from 'renderer/core/core';
 import { formatMinutes } from 'renderer/utils/formatMinutes';
 import { logging } from 'renderer/core/logging';
 import { px2rem } from 'renderer/utils/px2rem';
+import { streamers } from 'renderer/core/streamer-manager';
 import { useAppVersion } from 'renderer/hooks';
+import { watcher } from 'renderer/core/watcher';
 
 export function HomePage() {
     const version = useAppVersion();
     const logsEndRef = React.useRef<HTMLDivElement>(null);
     const [isScrollAtBottom, setScrollAtBottom] = React.useState(true);
 
-    const { streamers } = core.streamers.useStore();
-    const { minutesWatched, pointsEarned } = core.watcher.useStore();
+    const { minutesWatched, pointsEarned } = watcher.useStore();
     const { logs } = logging.useStore();
     const theme = useTheme();
 
-    const hasStreamersToWatch = streamers.length > 0;
+    const hasStreamersToWatch = streamers.all().length > 0;
 
     const isPlayButtonActive = (): boolean => {
-        if (core.watcher.canPlay() && hasStreamersToWatch) {
+        if (watcher.canPlay() && hasStreamersToWatch) {
             return true;
         }
 
@@ -29,7 +29,7 @@ export function HomePage() {
     };
 
     const isPauseButtonActive = (): boolean => {
-        if (core.watcher.canPause()) {
+        if (watcher.canPause()) {
             return true;
         }
 
@@ -61,7 +61,7 @@ export function HomePage() {
                     ? theme.color.brightBlue
                     : theme.color.disabled
             }
-            onClick={() => isPlayButtonActive() && core.watcher.play()}
+            onClick={() => isPlayButtonActive() && watcher.play()}
         />
     );
 
@@ -78,7 +78,7 @@ export function HomePage() {
                     ? theme.color.brightBlue
                     : theme.color.disabled
             }
-            onClick={() => isPauseButtonActive() && core.watcher.pause()}
+            onClick={() => isPauseButtonActive() && watcher.pause()}
         />
     );
 
@@ -127,7 +127,7 @@ export function HomePage() {
                         <p>{pointsEarned}</p>
                     </StatInfo>
 
-                    {!core.watcher.canPlay()
+                    {!watcher.canPlay()
                         ? RenderPauseButton()
                         : RenderPlayButton()}
                 </StatsContainer>

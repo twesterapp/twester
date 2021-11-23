@@ -1,5 +1,6 @@
 import { Streamer } from './streamer';
-import { core } from './core';
+import { api } from './api';
+import { auth } from './auth';
 import { logging } from './logging';
 
 const log = logging.getLogger('STREAM');
@@ -19,14 +20,14 @@ export class Stream {
         this.requestInfo = info;
     }
 
-    public static async init(streamer: Streamer): Promise<Stream | null> {
-        const broadcastId = await core.api.getBroadcastId(streamer);
+    public static async init(streamer: Streamer): Promise<Stream | undefined> {
+        const broadcastId = await api.getBroadcastId(streamer);
 
         const eventProperties = {
             channel_id: streamer.id,
             broadcast_id: broadcastId,
             player: 'site',
-            user_id: Number(core.auth.store.getState().user.id),
+            user_id: Number(auth.store.getState().user.id),
         };
 
         const minuteWatched = {
@@ -42,10 +43,10 @@ export class Stream {
                 `Failed to perform Base64 encoding for minute watched event request info for login '${streamer.login}'.\n`,
                 err
             );
-            return null;
+            return;
         }
 
-        const url = await core.api.getMinuteWatchedRequestUrl(streamer.login);
+        const url = await api.getMinuteWatchedRequestUrl(streamer.login);
         const payload = {
             data: afterBase64,
         };

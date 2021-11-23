@@ -1,6 +1,7 @@
 import { Streamer } from './streamer';
-import { core } from './core';
+import { api } from './api';
 import { logging } from './logging';
+import { streamers } from './streamer-manager';
 
 const log = logging.getLogger('BONUS');
 
@@ -11,14 +12,12 @@ export class ChannelPoints {
     ): Promise<void> {
         const displayName = streamer.displayName;
         log.debug(`Claiming bonus for ${displayName}`);
-        core.api.claimChannelPointsBonus(streamer.id, claimId);
+        api.claimChannelPointsBonus(streamer.id, claimId);
     }
 
     public static async loadContext(): Promise<void> {
-        for (const streamer of core.streamers.all()) {
-            const response = await core.api.getChannelPointsContext(
-                streamer.login
-            );
+        for (const streamer of streamers.all()) {
+            const response = await api.getChannelPointsContext(streamer.login);
 
             if (!response.data.community) {
                 log.error(
@@ -29,7 +28,7 @@ export class ChannelPoints {
             const communityPoints =
                 response.data.community.channel.self.communityPoints;
             const initialBalance = communityPoints.balance;
-            core.streamers.update(streamer.id, {
+            streamers.update(streamer.id, {
                 currentBalance: initialBalance,
             });
 

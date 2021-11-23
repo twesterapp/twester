@@ -5,16 +5,17 @@ import {
     IconEyeOpen,
     IconStar,
 } from 'renderer/ui';
+import { ChannelContext, api } from 'renderer/core/api';
 import { Streamer, StreamerId } from 'renderer/core/streamer';
 import styled, { useTheme } from 'styled-components';
 import { useDrag, useDrop } from 'react-dnd';
 
-import { ChannelContext } from 'renderer/core/api';
 import React from 'react';
-import { core } from 'renderer/core/core';
 import { formatMinutes } from 'renderer/utils/formatMinutes';
 import { px2rem } from 'renderer/utils/px2rem';
+import { streamers } from 'renderer/core/streamer-manager';
 import { useQuery } from 'react-query';
+import { watcher } from 'renderer/core/watcher';
 
 // Blatantly copied from React DnD's example, check
 // https://react-dnd.github.io/react-dnd/examples/sortable/cancel-on-drop-outside
@@ -36,10 +37,10 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
     const theme = useTheme();
 
     const { data } = useQuery(`STREAMER_CARD_INFO.${streamer.login}`, () =>
-        core.api.getChannelContext(streamer.login)
+        api.getChannelContext(streamer.login)
     );
 
-    const originalIndex = core.streamers.findStreamerCard(streamer.id).index;
+    const originalIndex = streamers.findStreamerCard(streamer.id).index;
 
     const [{ isDragging }, drag] = useDrag(
         () => ({
@@ -48,16 +49,16 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
             collect: (monitor) => ({
                 isDragging: monitor.isDragging(),
             }),
-            canDrag: () => !!core.watcher.canPlay(),
+            canDrag: () => !!watcher.canPlay(),
             end: (item, monitor) => {
                 const { streamerId: droppedId, originalIndex } = item;
                 const didDrop = monitor.didDrop();
                 if (!didDrop) {
-                    core.streamers.moveStreamerCard(droppedId, originalIndex);
+                    streamers.moveStreamerCard(droppedId, originalIndex);
                 }
             },
         }),
-        [streamer.id, originalIndex, core.streamers.moveStreamerCard]
+        [streamer.id, originalIndex, streamers.moveStreamerCard]
     );
 
     const [, drop] = useDrop(
@@ -66,25 +67,21 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
             canDrop: () => false,
             hover({ streamerId: draggedId }: Item) {
                 if (draggedId !== streamer.id) {
-                    const index = core.streamers.findStreamerCard(
-                        streamer.id
-                    ).index;
+                    const index = streamers.findStreamerCard(streamer.id).index;
 
-                    core.streamers.moveStreamerCard(draggedId, index);
+                    streamers.moveStreamerCard(draggedId, index);
                 }
             },
         }),
-        [core.streamers.findStreamerCard, core.streamers.moveStreamerCard]
+        [streamers.findStreamerCard, streamers.moveStreamerCard]
     );
 
     React.useEffect(() => {
         const run = async (data: ChannelContext) => {
-            const result = await core.api.getChannelContext(data.login);
-            const profileImageUrl = await core.api.getUserProfilePicture(
-                data.id
-            );
+            const result = await api.getChannelContext(data.login);
+            const profileImageUrl = await api.getUserProfilePicture(data.id);
 
-            core.streamers.update(streamer.id, {
+            streamers.update(streamer.id, {
                 displayName: result?.displayName || data.displayName,
                 profileImageUrl,
             });
@@ -104,10 +101,10 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
         >
             <Content>
                 <TopRight>
-                    {core.watcher.canPlay() ? (
+                    {watcher.canPlay() ? (
                         <button
                             id="remove-button"
-                            onClick={() => core.streamers.remove(streamer.id)}
+                            onClick={() => streamers.remove(streamer.id)}
                             type="button"
                         >
                             <IconCross

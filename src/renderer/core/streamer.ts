@@ -26,6 +26,7 @@ export interface StreamerPayload extends NewStreamerPayload {
     minutesWatched: number;
     onlineStatus?: OnlineStatus;
     pointsEarned: number;
+    stream?: Stream;
 }
 
 // Can update anything in the `StreamerPayload` except `login` and `id`.
@@ -57,7 +58,7 @@ export class Streamer implements StreamerPayload {
 
     public pointsEarned: number;
 
-    public stream: Stream | null;
+    public stream?: Stream;
 
     constructor(payload: StreamerPayload) {
         this.login = payload.login;
@@ -71,14 +72,16 @@ export class Streamer implements StreamerPayload {
         this.lastMinuteWatchedEventTime = payload.lastMinuteWatchedEventTime;
         this.minutesWatched = payload.minutesWatched;
         this.pointsEarned = payload.pointsEarned;
-        this.stream = null;
     }
 
-    public setOnlineStatus(status: OnlineStatus, printInfoLog: boolean): void {
+    public setOnlineStatus(
+        status: OnlineStatus,
+        triggeredByPubSub: boolean
+    ): void {
         // We don't want to print the `is Offline` info log when we call
         // `StreamerManager.resetOnlineStatusOfAllStreamers()`, which sets the
         // `status` to `OnlineStatus.OFFLINE`.
-        if (printInfoLog) {
+        if (triggeredByPubSub) {
             log.info(
                 `${this.displayName} (${this.currentBalance}) is ${
                     status === OnlineStatus.ONLINE ? 'Online' : 'Offline'
@@ -89,8 +92,13 @@ export class Streamer implements StreamerPayload {
         if (status === OnlineStatus.OFFLINE) {
             this.update({
                 onlineStatus: status,
-                lastOfflineTime: rightNowInSecs(),
+                // We don't want to set this to `rightNowInSecs` if this wasn't
+                // triggered by PubSub `stream-down` message.
+                lastOfflineTime: triggeredByPubSub
+                    ? rightNowInSecs()
+                    : this.lastOfflineTime,
                 watching: false,
+                stream: undefined,
             });
         } else {
             this.update({
@@ -160,7 +168,7 @@ export class Streamer implements StreamerPayload {
                 this.setOnlineStatus(OnlineStatus.ONLINE, true);
             } catch (err) {
                 if (err instanceof StreamerIsOfflineError) {
-                    this.stream = null;
+                    this.stream = undefined;
                     this.setOnlineStatus(OnlineStatus.OFFLINE, true);
                 }
             }

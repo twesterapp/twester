@@ -9,9 +9,11 @@ import {
 import styled, { useTheme } from 'styled-components';
 
 import React from 'react';
-import { core } from 'renderer/core/core';
+import { api } from 'renderer/core/api';
+import { auth } from 'renderer/core/auth';
 import { useHistory } from 'react-router-dom';
 import { useQuery } from 'react-query';
+import { watcher } from 'renderer/core/watcher';
 
 interface SidebarOptions {
     // This helps us fix the issue of active icon in the sidebar not updating
@@ -29,13 +31,13 @@ interface MeInfoQueryResponse {
 export function Sidebar({ currentPage }: SidebarOptions) {
     const history = useHistory();
     const theme = useTheme();
-    const { user } = core.auth.useStore();
+    const { user } = auth.useStore();
     // So that we can conditionally re-render `IconPause` or `IconPlay`.
-    core.watcher.useStore();
+    watcher.useStore();
 
     const { data } = useQuery<MeInfoQueryResponse>('ME_INFO', async () => {
-        const context = await core.api.getChannelContext(user.login);
-        const imageUrl = await core.api.getUserProfilePicture(context.id);
+        const context = await api.getChannelContext(user.login);
+        const imageUrl = await api.getUserProfilePicture(context.id);
 
         return {
             id: context.id,
@@ -97,7 +99,7 @@ export function Sidebar({ currentPage }: SidebarOptions) {
                             iconColor={theme.color.error}
                             bgColorOnHover={theme.color.textPrimary}
                             onClick={() => {
-                                core.auth.logout();
+                                auth.logout();
                             }}
                         />
                     </i>

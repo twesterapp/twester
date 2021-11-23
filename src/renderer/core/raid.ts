@@ -1,6 +1,6 @@
 import { Streamer, StreamerLogin } from './streamer';
 
-import { Core } from './core';
+import { api } from './api';
 import { logging } from './logging';
 
 const log = logging.getLogger('RAID');
@@ -24,15 +24,7 @@ export class Raid {
 
     private joinedRaid: boolean;
 
-    private core: Core;
-
-    constructor(
-        core: Core,
-        id: RaidId,
-        loginToRaid: StreamerLogin,
-        raidedBy: Streamer
-    ) {
-        this.core = core;
+    constructor(id: RaidId, loginToRaid: StreamerLogin, raidedBy: Streamer) {
         this.id = id;
         this.loginToRaid = loginToRaid;
         this.gettingRaidedBy = raidedBy;
@@ -53,7 +45,7 @@ export class Raid {
         }
 
         this.joinedRaid = true;
-        this.core.api.joinRaid(this.id);
+        api.joinRaid(this.id);
         log.info(
             `Joining raid from ${this.gettingRaidedBy.displayName} to ${this.loginToRaid}!`
         );

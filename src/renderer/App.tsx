@@ -18,7 +18,7 @@ import { GlobalStyle } from './ui';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { Sidebar } from './components';
-import { core } from 'renderer/core/core';
+import { auth } from './core/auth';
 import { getIpc } from './utils/ipc';
 import { injectStyle } from 'react-toastify/dist/inject-style';
 import styled from 'styled-components';
@@ -62,7 +62,7 @@ const onUpdateFailedToast = () => {
 };
 
 export function App() {
-    const { user } = core.auth.useStore();
+    const { user } = auth.useStore();
     const availableToastId = useRef<React.ReactText | null>(null);
 
     const ipc = getIpc();

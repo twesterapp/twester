@@ -2,19 +2,21 @@ import { Button, IconPlus, InputText, Link } from 'renderer/ui';
 import { ItemTypes, StreamerCard } from 'renderer/components';
 
 import React from 'react';
-import { core } from 'renderer/core/core';
+import { api } from 'renderer/core/api';
 import { logging } from 'renderer/core/logging';
 import { px2rem } from 'renderer/utils/px2rem';
+import { streamers } from 'renderer/core/streamer-manager';
 import styled from 'styled-components';
 import { useDrop } from 'react-dnd';
+import { watcher } from 'renderer/core/watcher';
 
 const log = logging.getLogger('STREAMERS_PAGE');
 
 export function StreamersPage() {
     const [searchText, setSearchText] = React.useState('');
     const [fetchingStreamer, setFetchingStreamer] = React.useState(false);
-    core.streamers.useStore();
-    const streamers = core.streamers.all();
+    streamers.useStore();
+    const streamersList = streamers.all();
 
     async function handleAddStreamer(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -22,16 +24,14 @@ export function StreamersPage() {
         try {
             setFetchingStreamer(true);
 
-            const result = await core.api.getChannelContext(searchText.trim());
+            const result = await api.getChannelContext(searchText.trim());
             if (!result) {
                 log.error(`No streamer found with search query: ${searchText}`);
                 return;
             }
-            const profileImageUrl = await core.api.getUserProfilePicture(
-                result.id
-            );
+            const profileImageUrl = await api.getUserProfilePicture(result.id);
 
-            core.streamers.add({
+            streamers.add({
                 id: result.id,
                 login: result.login,
                 displayName: result.displayName,
@@ -49,7 +49,7 @@ export function StreamersPage() {
 
     return (
         <PageWrapper>
-            {!core.watcher.canPlay() && (
+            {!watcher.canPlay() && (
                 <HelpMessage>
                     Go to <Link to="/">Home</Link> tab and{' '}
                     <em>
@@ -63,7 +63,7 @@ export function StreamersPage() {
                     style={{ marginRight: `${px2rem(12)}`, width: '300px' }}
                     placeholder="Streamer to add"
                     value={searchText}
-                    disabled={!core.watcher.canPlay() || fetchingStreamer}
+                    disabled={!watcher.canPlay() || fetchingStreamer}
                     onChange={(e) => setSearchText(e.target.value)}
                     hidePlaceholderOnFocus={false}
                 />
@@ -71,7 +71,7 @@ export function StreamersPage() {
                     width="46px"
                     variant="submit"
                     loading={fetchingStreamer}
-                    disabled={!core.watcher.canPlay() ?? !searchText.trim()}
+                    disabled={!watcher.canPlay() ?? !searchText.trim()}
                 >
                     <IconPlus />
                 </Button>
@@ -83,8 +83,8 @@ export function StreamersPage() {
             </Info>
 
             <Streamers ref={drop}>
-                {streamers.length > 0 &&
-                    streamers.map((streamer) => {
+                {streamersList.length > 0 &&
+                    streamersList.map((streamer) => {
                         return (
                             <StreamerCard
                                 key={streamer.id}

@@ -8,9 +8,9 @@ import {
     UpdateStreamerPayload,
 } from './streamer';
 
-import { Core } from './core';
 import { Storage } from '../utils/storage';
 import { Store } from '../utils/store';
+import { auth } from './auth';
 import { logging } from './logging';
 
 const NAME = 'STREAMERS';
@@ -25,12 +25,9 @@ export class StreamerManager extends Store<State> {
 
     private streamersIdCache: Set<StreamerId>;
 
-    private core: Core;
-
-    constructor(core: Core) {
+    constructor() {
         super(NAME);
 
-        this.core = core;
         this.streamers = [];
         this.streamersIdCache = new Set();
 
@@ -132,6 +129,12 @@ export class StreamerManager extends Store<State> {
         // Apparently, using a `forEach` loop to call `checkOnline` doesn't await.
         for (const streamer of this.streamers) {
             await streamer.checkOnlineStatus();
+            // We have to update the store state to update the
+            // `online` and `watching` state on `StreamerCard`
+            // on `StreamersPage`. Otherwise, all the StreamerCards
+            // will update together at the end. That's when you get
+            // all `live` + `watching` pop up on StreamerCard.
+            this.onStreamersUpdate();
         }
     }
 
@@ -170,7 +173,7 @@ export class StreamerManager extends Store<State> {
     }
 
     private getStorageKey(): string {
-        return `${this.core.auth.store.getState().user.id}.streamers`;
+        return `${auth.store.getState().user.id}.streamers`;
     }
 
     private getInitialState(): State {
@@ -202,13 +205,16 @@ export class StreamerManager extends Store<State> {
                 lastOfflineTime: 0,
                 currentBalance: 0,
                 watching: false,
+                stream: undefined,
             }));
 
         Storage.set(this.getStorageKey(), JSON.stringify(updatedForPersisting));
     }
 
     private syncStoreWithStreamers(): void {
-        const streamers: StreamerPayload[] = this.streamers;
+        const streamers: StreamerPayload[] = this.streamers.map(
+            (streamer) => streamer
+        );
         this.store.setState({ streamers });
     }
 
@@ -217,3 +223,5 @@ export class StreamerManager extends Store<State> {
         this.syncStorageWithStore();
     }
 }
+
+export const streamers = new StreamerManager();

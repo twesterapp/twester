@@ -1,15 +1,12 @@
-import { Core } from './core';
 import { Streamer } from './streamer';
+import { auth } from './auth';
 
 export class Topic {
     private topic: string;
 
     private streamer: Streamer | null;
 
-    private core: Core;
-
-    constructor(core: Core, topic: string, streamer: Streamer | null = null) {
-        this.core = core;
+    constructor(topic: string, streamer: Streamer | null = null) {
         this.topic = topic;
         this.streamer = streamer;
     }
@@ -20,7 +17,7 @@ export class Topic {
 
     formatted(): string {
         if (this.isUserTopic(this.streamer)) {
-            return `${this.topic}.${this.core.auth.store.getState().user.id}`;
+            return `${this.topic}.${auth.store.getState().user.id}`;
         }
 
         return `${this.topic}.${this.streamer.id})}`;

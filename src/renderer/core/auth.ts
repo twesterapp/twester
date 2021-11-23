@@ -1,6 +1,6 @@
 import { Storage } from '../utils/storage';
 import { Store } from '../utils/store';
-import { core } from 'renderer/core/core';
+import { api } from './api';
 import { logging } from './logging';
 
 const NAME = 'AUTH';
@@ -27,7 +27,7 @@ export class Auth extends Store<State> {
 
     public async login(token: string, username: string) {
         this.setToken(token);
-        const channel = await core.api.getChannelContext(username);
+        const channel = await api.getChannelContext(username);
 
         // This should never happen!
         if (!channel) {
@@ -37,9 +37,7 @@ export class Auth extends Store<State> {
             return this.logout();
         }
 
-        const profileImageUrl = await core.api.getUserProfilePicture(
-            channel.id
-        );
+        const profileImageUrl = await api.getUserProfilePicture(channel.id);
         const user: User = {
             displayName: channel.displayName,
             id: channel.id,
@@ -114,3 +112,5 @@ export class Auth extends Store<State> {
         }
     }
 }
+
+export const auth = new Auth();

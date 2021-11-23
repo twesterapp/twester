@@ -1,11 +1,12 @@
-import { Core, core } from './core';
-
 import { ChannelPoints } from './channel-points';
 import { OnlineStatus } from './streamer';
 import { Raid } from './raid';
 import { Topic } from './topic';
+import { auth } from './auth';
 import { createNonce } from '../utils/nonce';
 import { logging } from './logging';
+import { streamers } from './streamer-manager';
+import { watcher } from './watcher';
 
 /**
  * Some important notes about the Twitch PubSub
@@ -60,12 +61,6 @@ export class PubSub {
 
     private lastMessageType = '';
 
-    private core: Core;
-
-    constructor(core: Core) {
-        this.core = core;
-    }
-
     public connect(): void {
         log.debug('Starting to listen for channel points.');
 
@@ -90,11 +85,11 @@ export class PubSub {
     }
 
     private getTopics(): Topic[] {
-        const topics = [new Topic(this.core, 'community-points-user-v1')];
+        const topics = [new Topic('community-points-user-v1')];
 
-        for (const streamer of core.streamers.all()) {
-            topics.push(new Topic(this.core, 'video-playback-by-id', streamer));
-            topics.push(new Topic(this.core, 'raid', streamer));
+        for (const streamer of streamers.all()) {
+            topics.push(new Topic('video-playback-by-id', streamer));
+            topics.push(new Topic('raid', streamer));
         }
 
         return topics;
@@ -244,11 +239,11 @@ export class PubSub {
                 if (messageType === 'points-earned') {
                     const channelId = messageData.channel_id;
 
-                    if (core.streamers.idExistsInCache(channelId)) {
+                    if (streamers.idExistsInCache(channelId)) {
                         const pointsEarned =
                             messageData.point_gain.total_points;
                         const newBalance = messageData.balance.balance;
-                        const streamer = this.core.streamers.getById(channelId);
+                        const streamer = streamers.getById(channelId);
                         const reason = messageData.point_gain.reason_code;
 
                         if (!streamer.watching) {
@@ -269,18 +264,18 @@ export class PubSub {
                             `+${pointsEarned} points for ${streamer.displayName} (${newBalance}) - Reason: ${reason}`
                         );
 
-                        this.core.streamers.update(streamer.id, {
+                        streamers.update(streamer.id, {
                             currentBalance: newBalance,
                             pointsEarned: streamer.pointsEarned + pointsEarned,
                         });
-                        this.core.watcher.addPointsEarned(pointsEarned);
+                        watcher.addPointsEarned(pointsEarned);
                     }
                 } else if (messageType === 'claim-available') {
                     const channelId = messageData.claim.channel_id;
 
-                    if (core.streamers.idExistsInCache(channelId)) {
+                    if (streamers.idExistsInCache(channelId)) {
                         const claimId = messageData.claim.id;
-                        const streamer = this.core.streamers.getById(channelId);
+                        const streamer = streamers.getById(channelId);
 
                         if (!streamer.watching) {
                             log.warning(
@@ -293,7 +288,7 @@ export class PubSub {
                     }
                 }
             } else if (topic === 'video-playback-by-id') {
-                const streamer = this.core.streamers.getById(streamerId);
+                const streamer = streamers.getById(streamerId);
 
                 // There is stream-up message type, but it's sent earlier than
                 // the API updates. Therefore making it useless to check for it
@@ -304,12 +299,11 @@ export class PubSub {
                     await streamer.checkOnlineStatus();
                 }
             } else if (topic === 'raid') {
-                const streamer = this.core.streamers.getById(streamerId);
+                const streamer = streamers.getById(streamerId);
 
                 if (messageType === 'raid_update_v2') {
                     const raidInfo = message.raid;
                     const raid = new Raid(
-                        this.core,
                         raidInfo.id,
                         raidInfo.target_login,
                         streamer
@@ -333,7 +327,7 @@ export class PubSub {
         };
 
         if (topic.isUserTopic()) {
-            data.auth_token = this.core.auth.store.getState().accessToken;
+            data.auth_token = auth.store.getState().accessToken;
         }
 
         const nonce = createNonce(15);

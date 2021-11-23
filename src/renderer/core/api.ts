@@ -1,9 +1,9 @@
 import { Streamer, StreamerId, StreamerLogin } from './streamer';
 import axios, { Method } from 'axios';
 
-import { Core } from './core';
 import { MinuteWatchedRequestInfo } from './stream';
 import { StreamerIsOfflineError } from './errors';
+import { auth } from './auth';
 import { logging } from './logging';
 
 const NODE_PORT = '42069';
@@ -18,12 +18,6 @@ export interface ChannelContext {
 const log = logging.getLogger('API');
 
 export class API {
-    private core: Core;
-
-    constructor(core: Core) {
-        this.core = core;
-    }
-
     public async login(data: { username: string; password: string }) {
         return this.makeNodeRequest('POST', '/auth', data);
     }
@@ -274,10 +268,12 @@ export class API {
                 ) {
                     // The token has probably expired and there is no way to refresh
                     // the token, that's why we signout the user.
-                    this.core.auth.logout();
+                    auth.logout();
                 }
 
                 return error as TError;
             });
     }
 }
+
+export const api = new API();

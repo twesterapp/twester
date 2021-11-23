@@ -1,11 +1,13 @@
 import { ChannelPoints } from './channel-points';
-import { Core } from './core';
 import { PubSub } from './pubsub';
 import { Storage } from '../utils/storage';
 import { Store } from '../utils/store';
+import { api } from './api';
+import { auth } from './auth';
 import { logging } from './logging';
 import { rightNowInSecs } from '../utils/rightNowInSecs';
 import { sleep } from '../utils/sleep';
+import { streamers } from './streamer-manager';
 
 const NAME = 'WATCHER';
 const log = logging.getLogger(NAME);
@@ -28,14 +30,11 @@ interface State {
 type SavedState = Omit<State, 'status'>;
 
 export class Watcher extends Store<State> {
-    private core: Core;
-
     private pubsub: PubSub;
 
-    constructor(core: Core) {
+    constructor() {
         super(NAME);
-        this.core = core;
-        this.pubsub = new PubSub(this.core);
+        this.pubsub = new PubSub();
         this.initStore(() => this.getInitialState());
     }
 
@@ -43,19 +42,17 @@ export class Watcher extends Store<State> {
         log.info('Watcher is booting...');
         this.setWatcherStatus(WatcherStatus.BOOTING);
 
-        log.info(
-            `Loading data for ${this.core.streamers.all().length} streamers...`
-        );
+        log.info(`Loading data for ${streamers.all().length} streamers...`);
 
         await ChannelPoints.loadContext();
-        await this.core.streamers.checkOnlineStatusOfAllStreamers();
+        await streamers.checkOnlineStatusOfAllStreamers();
         this.pubsub.connect();
 
         this.setWatcherStatus(WatcherStatus.RUNNING);
         log.info('Watcher is running!');
 
         while (this.isRunning()) {
-            const streamersToWatch = this.core.streamers.online().slice(0, 2);
+            const streamersToWatch = streamers.online().slice(0, 2);
             const numOfStreamersToWatch = streamersToWatch.length;
 
             if (numOfStreamersToWatch) {
@@ -82,7 +79,7 @@ export class Watcher extends Store<State> {
                             }
 
                             if (!streamer.watching) {
-                                this.core.streamers.update(streamer.id, {
+                                streamers.update(streamer.id, {
                                     watching: true,
                                 });
                                 log.info(
@@ -92,7 +89,7 @@ export class Watcher extends Store<State> {
                                 this.fixWatchingStatus();
                             }
 
-                            this.core.api.sendMinuteWatchedEvent(info);
+                            api.sendMinuteWatchedEvent(info);
 
                             if (
                                 this.minutePassedSince(
@@ -100,7 +97,7 @@ export class Watcher extends Store<State> {
                                 ) ||
                                 !streamer.lastMinuteWatchedEventTime
                             ) {
-                                this.core.streamers.update(streamer.id, {
+                                streamers.update(streamer.id, {
                                     minutesWatched:
                                         (streamer.minutesWatched += 1),
                                     lastMinuteWatchedEventTime:
@@ -134,7 +131,7 @@ export class Watcher extends Store<State> {
 
         sleep.abort();
         this.pubsub.disconnect();
-        this.core.streamers.resetOnlineStatusOfAllStreamers();
+        streamers.resetOnlineStatusOfAllStreamers();
 
         this.setWatcherStatus(WatcherStatus.PAUSED);
         log.info(`Watcher is paused!`);
@@ -173,7 +170,7 @@ export class Watcher extends Store<State> {
     private fixWatchingStatus(): void {
         // We can only watch the first 2 online streamers. So these are the
         // streamers we should NOT be watching.
-        const streamersToNotWatch = this.core.streamers.online().slice(2);
+        const streamersToNotWatch = streamers.online().slice(2);
 
         if (!streamersToNotWatch.length) {
             return;
@@ -181,7 +178,7 @@ export class Watcher extends Store<State> {
 
         for (const streamer of streamersToNotWatch) {
             if (streamer.watching) {
-                this.core.streamers.update(streamer.id, {
+                streamers.update(streamer.id, {
                     watching: false,
                 });
                 log.info(`Stopped watching ${streamer.displayName}`);
@@ -196,7 +193,7 @@ export class Watcher extends Store<State> {
     }
 
     private getStorageKey() {
-        return `${this.core.auth.store.getState().user.id}.watcher`;
+        return `${auth.store.getState().user.id}.watcher`;
     }
 
     private getInitialState(): State {
@@ -253,3 +250,5 @@ export class Watcher extends Store<State> {
         Storage.set(this.getStorageKey(), JSON.stringify(state));
     }
 }
+
+export const watcher = new Watcher();

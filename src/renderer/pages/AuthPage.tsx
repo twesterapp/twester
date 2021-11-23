@@ -3,7 +3,8 @@ import { CaptchaSolvingErrorModal, LoadingScreen } from 'renderer/components';
 import React, { useEffect, useRef, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 
-import { core } from 'renderer/core/core';
+import { api } from 'renderer/core/api';
+import { auth } from 'renderer/core/auth';
 import { px2rem } from 'renderer/utils/px2rem';
 import { useAppVersion } from 'renderer/hooks';
 
@@ -23,7 +24,7 @@ interface VerifyOptions {
 // TODO: Clean this mess.
 export function AuthPage() {
     const version = useAppVersion();
-    const { user } = core.auth.useStore();
+    const { user } = auth.useStore();
     const theme = useTheme();
     const [flowStep, setFlowStep] = useState<FlowStep>(FlowStep.CREDENTIALS);
     const [verifyOptions, setVerifyOptions] = useState<VerifyOptions>({
@@ -210,12 +211,12 @@ function AskForLoginCredentials({
         setSendingReq(true);
         setErr('');
 
-        const res = await core.api.login({ username, password });
+        const res = await api.login({ username, password });
 
         setSendingReq(false);
 
         if (res.access_token) {
-            core.auth.login(res.access_token, username);
+            auth.login(res.access_token, username);
         }
 
         if (res.captcha) {
@@ -337,7 +338,7 @@ function VerifyWithCode({
         setSendingReq(true);
         setErr('');
 
-        const res = await core.api.submitTwitchguardCode({
+        const res = await api.submitTwitchguardCode({
             username,
             password,
             captcha,
@@ -345,7 +346,7 @@ function VerifyWithCode({
         });
 
         if (res.access_token) {
-            core.auth.login(res.access_token, username);
+            auth.login(res.access_token, username);
         }
 
         setErr(res.error?.message);
@@ -357,7 +358,7 @@ function VerifyWithCode({
         setSendingResendReq(true);
         setErr('');
 
-        const res = await core.api.resendCode(username);
+        const res = await api.resendCode(username);
 
         if (res.error) {
             setErr(res.error);
@@ -420,7 +421,7 @@ function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
         setSendingReq(true);
         setErr('');
 
-        const res = await core.api.submitTwoFaCode({
+        const res = await api.submitTwoFaCode({
             username,
             password,
             captcha,
@@ -428,7 +429,7 @@ function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
         });
 
         if (res.access_token) {
-            core.auth.login(res.access_token, username);
+            auth.login(res.access_token, username);
         }
 
         setErr(res.error?.message);
