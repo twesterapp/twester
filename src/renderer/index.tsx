@@ -25,8 +25,7 @@ render(
 );
 
 /**
- * All the modules from `src/renderer/core` which provide the
- * core functionality of `Twester`.
+ * Modules from `src/renderer/core` provide the core functionality of `Twester`.
  *
  * What I have done below is attach core modules to the `twester` obj so
  * that I can access every modules and their state from browser console.
@@ -48,10 +47,13 @@ interface Global {
     [key: string]: any; // Add index signature
 }
 
-(globalThis as Global).twester = Object();
-(globalThis as Global).twester.watcher = watcher;
-(globalThis as Global).twester.streamers = streamers;
-(globalThis as Global).twester.auth = auth;
-(globalThis as Global).twester.api = api;
-(globalThis as Global).twester.logging = logging;
-(globalThis as Global).twester.ChannelPoints = ChannelPoints;
+const twester = {
+    watcher,
+    streamers,
+    auth,
+    api,
+    logging,
+    ChannelPoints,
+};
+
+(globalThis as Global).twester = twester;
