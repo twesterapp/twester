@@ -4,12 +4,10 @@ import { PubSub } from './pubsub';
 import { Storage } from '../utils/storage';
 import { Store } from '../utils/store';
 import { logging } from './logging';
-import { nodeClient } from '../api';
 import { rightNowInSecs } from '../utils/rightNowInSecs';
 import { sleep } from '../utils/sleep';
 
 const NAME = 'WATCHER';
-
 const log = logging.getLogger(NAME);
 
 export enum WatcherStatus {
@@ -94,10 +92,7 @@ export class Watcher extends Store<State> {
                                 this.fixWatchingStatus();
                             }
 
-                            await nodeClient.post('/minute-watched-event', {
-                                url: info.url,
-                                payload: info.payload,
-                            });
+                            this.core.api.sendMinuteWatchedEvent(info);
 
                             if (
                                 this.minutePassedSince(

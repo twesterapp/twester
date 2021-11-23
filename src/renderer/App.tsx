@@ -18,7 +18,7 @@ import { GlobalStyle } from './ui';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { Sidebar } from './components';
-import { core } from 'renderer/core';
+import { core } from 'renderer/core/core';
 import { getIpc } from './utils/ipc';
 import { injectStyle } from 'react-toastify/dist/inject-style';
 import styled from 'styled-components';

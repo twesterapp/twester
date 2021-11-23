@@ -2,7 +2,7 @@ import { Button, IconPlus, InputText, Link } from 'renderer/ui';
 import { ItemTypes, StreamerCard } from 'renderer/components';
 
 import React from 'react';
-import { core } from 'renderer/core';
+import { core } from 'renderer/core/core';
 import { logging } from 'renderer/core/logging';
 import { px2rem } from 'renderer/utils/px2rem';
 import styled from 'styled-components';
@@ -38,7 +38,6 @@ export function StreamersPage() {
                 profileImageUrl,
             });
         } catch {
-            // What am I trying to catch here? No function above throws error.
             log.error('Failed to fetch channel info');
         }
 

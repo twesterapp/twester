@@ -14,7 +14,6 @@ import { Store } from '../utils/store';
 import { logging } from './logging';
 
 const NAME = 'STREAMERS';
-
 const log = logging.getLogger(NAME);
 
 interface State {
@@ -24,15 +23,31 @@ interface State {
 export class StreamerManager extends Store<State> {
     private streamers: Streamer[];
 
+    private streamersIdCache: Set<StreamerId>;
+
     private core: Core;
 
     constructor(core: Core) {
         super(NAME);
+
         this.core = core;
+        this.streamers = [];
+        this.streamersIdCache = new Set();
+
         this.initStore(() => this.getInitialState());
-        this.streamers = this.store
-            .getState()
-            .streamers.map((streamer) => new Streamer(streamer));
+        // Initialize store first then initialize streamers.
+        this.initStreamers();
+    }
+
+    private initStreamers(): void {
+        for (const streamer of this.store.getState().streamers) {
+            this.streamers.push(new Streamer(streamer));
+            this.streamersIdCache.add(streamer.id);
+        }
+    }
+
+    public idExistsInCache(id: StreamerId): boolean {
+        return this.streamersIdCache.has(id);
     }
 
     public all(): Streamer[] {

@@ -11,7 +11,7 @@ import { useDrag, useDrop } from 'react-dnd';
 
 import { ChannelContext } from 'renderer/core/api';
 import React from 'react';
-import { core } from 'renderer/core';
+import { core } from 'renderer/core/core';
 import { formatMinutes } from 'renderer/utils/formatMinutes';
 import { px2rem } from 'renderer/utils/px2rem';
 import { useQuery } from 'react-query';

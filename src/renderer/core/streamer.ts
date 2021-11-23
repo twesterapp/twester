@@ -3,8 +3,6 @@ import { StreamerIsOfflineError } from './errors';
 import { logging } from './logging';
 import { rightNowInSecs } from '../utils/rightNowInSecs';
 
-const log = logging.getLogger('STREAMER');
-
 export enum OnlineStatus {
     ONLINE = 'ONLINE',
     OFFLINE = 'OFFLINE',
@@ -33,6 +31,8 @@ export interface StreamerPayload extends NewStreamerPayload {
 // Can update anything in the `StreamerPayload` except `login` and `id`.
 export interface UpdateStreamerPayload
     extends Partial<Omit<StreamerPayload, 'login' | 'id'>> {}
+
+const log = logging.getLogger('STREAMER');
 
 export class Streamer implements StreamerPayload {
     public login: string;

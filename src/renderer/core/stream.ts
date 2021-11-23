@@ -4,7 +4,7 @@ import { logging } from './logging';
 
 const log = logging.getLogger('STREAM');
 
-interface MinuteWatchedRequestInfo {
+export interface MinuteWatchedRequestInfo {
     url: string;
     payload: { data: string };
 }

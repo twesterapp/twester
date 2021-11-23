@@ -142,6 +142,7 @@ class Log {
     }
 }
 
+// Exporting for type. Do not create instance of `Logger` instead use core.logging.getLogger()
 class Logger {
     private name: string;
 

@@ -1,11 +1,10 @@
 import { Streamer, StreamerId, StreamerLogin } from './streamer';
-import axios, { AxiosInstance } from 'axios';
+import axios, { Method } from 'axios';
 
 import { Core } from './core';
+import { MinuteWatchedRequestInfo } from './stream';
 import { StreamerIsOfflineError } from './errors';
 import { logging } from './logging';
-
-const log = logging.getLogger('API');
 
 const NODE_PORT = '42069';
 const TWITCH_CLIENT_ID = 'kimne78kx3ncx6brgo4mv6wki5h1ko';
@@ -16,6 +15,7 @@ export interface ChannelContext {
     id: string;
     login: string;
 }
+const log = logging.getLogger('API');
 
 export class API {
     private core: Core;
@@ -24,12 +24,56 @@ export class API {
         this.core = core;
     }
 
+    public async login(data: { username: string; password: string }) {
+        return this.makeNodeRequest('POST', '/auth', data);
+    }
+
+    public resendCode(username: string) {
+        return this.makeNodeRequest(
+            'POST',
+            `/auth/resend-code?streamerLogin=${username}`
+        );
+    }
+
+    public async submitTwitchguardCode(data: {
+        username: string;
+        password: string;
+        captcha: string;
+        code: string;
+    }) {
+        return this.makeNodeRequest('POST', '/auth/code', data);
+    }
+
+    public async submitTwoFaCode(data: {
+        username: string;
+        password: string;
+        captcha: string;
+        two_fa: string;
+    }) {
+        return this.makeNodeRequest('POST', '/auth/two-fa', data);
+    }
+
     public async getMinuteWatchedRequestUrl(
         login: StreamerLogin
     ): Promise<string> {
-        return this.getNodeClient()
-            .get(`/minute-watched-request-url?streamerLogin=${login}`)
-            .then((res) => res.data.data.minute_watched_url);
+        const data = await this.makeNodeRequest(
+            'GET',
+            `/minute-watched-request-url?streamerLogin=${login}`
+        );
+
+        const url = data?.data?.minute_watched_url;
+
+        if (!url) {
+            const errMsg = `Failed to get minute watched request url for login '${login}'.`;
+            log.exception(errMsg);
+            throw new Error(errMsg);
+        }
+
+        return url;
+    }
+
+    public sendMinuteWatchedEvent(info: MinuteWatchedRequestInfo): void {
+        this.makeNodeRequest('POST', '/minute-watched-event', info);
     }
 
     public async getBroadcastId(streamer: Streamer): Promise<string> {
@@ -46,7 +90,7 @@ export class API {
         };
 
         const response = await this.makeGraphqlRequest(data);
-        const stream = response.data.user.stream;
+        const stream = response?.data?.user?.stream;
 
         if (!stream) {
             // We catch this error to know if a streamer is online or offline, that's
@@ -121,16 +165,91 @@ export class API {
         return context;
     }
 
-    private getNodeClient(): AxiosInstance {
-        return axios.create({
-            baseURL: `http://localhost:${NODE_PORT}`,
-        });
+    public getChannelPointsContext(login: StreamerLogin) {
+        const data = {
+            operationName: 'ChannelPointsContext',
+            variables: { channelLogin: login },
+            extensions: {
+                persistedQuery: {
+                    version: 1,
+                    sha256Hash:
+                        '9988086babc615a918a1e9a722ff41d98847acac822645209ac7379eecb27152',
+                },
+            },
+        };
+
+        return this.makeGraphqlRequest(data);
+    }
+
+    public claimChannelPointsBonus(id: StreamerId, claimId: string): void {
+        const data = {
+            operationName: 'ClaimCommunityPoints',
+            variables: {
+                input: {
+                    channelID: id,
+                    claimID: claimId,
+                },
+            },
+            extensions: {
+                persistedQuery: {
+                    version: 1,
+                    sha256Hash:
+                        '46aaeebe02c99afdf4fc97c7c0cba964124bf6b0af229395f1f6d1feed05b3d0',
+                },
+            },
+        };
+
+        this.makeGraphqlRequest(data);
+    }
+
+    public joinRaid(raidId: string): void {
+        const data = {
+            operationName: 'JoinRaid',
+            variables: { input: { raidID: raidId } },
+            extensions: {
+                persistedQuery: {
+                    version: 1,
+                    sha256Hash:
+                        'c6a332a86d1087fbbb1a8623aa01bd1313d2386e7c63be60fdb2d1901f01a4ae',
+                },
+            },
+        };
+
+        this.makeGraphqlRequest(data);
+    }
+
+    private async makeNodeRequest<
+        TData extends Record<any, any>,
+        TResponse extends Record<any, any>,
+        TError extends Record<any, any>
+    >(
+        method: Method,
+        path: string,
+        data: TData = {} as TData
+    ): Promise<TResponse | TError> {
+        return axios({
+            method,
+            url: `http://localhost:${NODE_PORT}${path}`,
+            data,
+        })
+            .then((res) => {
+                const data = res.data;
+                return data as TResponse;
+            })
+            .catch((error) => {
+                log.error(
+                    `makeNodeRequest failed: [${error?.response?.status}]: ${error?.response?.data?.message}`
+                );
+
+                return error as TError;
+            });
     }
 
     private async makeGraphqlRequest<
+        TData extends Record<any, any>,
         TResponse extends Record<any, any>,
-        TData extends Record<any, any>
-    >(data: TData): Promise<TResponse> {
+        TError extends Record<any, any>
+    >(data: TData): Promise<TResponse | TError> {
         return axios({
             method: 'POST',
             url: 'https://gql.twitch.tv/gql',
@@ -142,11 +261,11 @@ export class API {
         })
             .then((res) => {
                 const data = res.data;
-                return data;
+                return data as TResponse;
             })
             .catch((error) => {
                 log.error(
-                    `Failed to make Twitch GraphQL request [${error?.response?.status}]: ${error?.response?.data?.message}`
+                    `makeGraphqlRequest failed: [${error?.response?.status}]: ${error?.response?.data?.message}`
                 );
 
                 if (
@@ -157,6 +276,8 @@ export class API {
                     // the token, that's why we signout the user.
                     this.core.auth.logout();
                 }
+
+                return error as TError;
             });
     }
 }

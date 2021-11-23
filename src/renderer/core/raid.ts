@@ -1,7 +1,7 @@
 import { Streamer, StreamerLogin } from './streamer';
 
+import { Core } from './core';
 import { logging } from './logging';
-import { makeGraphqlRequest } from '../api';
 
 const log = logging.getLogger('RAID');
 
@@ -24,7 +24,15 @@ export class Raid {
 
     private joinedRaid: boolean;
 
-    constructor(id: RaidId, loginToRaid: StreamerLogin, raidedBy: Streamer) {
+    private core: Core;
+
+    constructor(
+        core: Core,
+        id: RaidId,
+        loginToRaid: StreamerLogin,
+        raidedBy: Streamer
+    ) {
+        this.core = core;
         this.id = id;
         this.loginToRaid = loginToRaid;
         this.gettingRaidedBy = raidedBy;
@@ -45,20 +53,7 @@ export class Raid {
         }
 
         this.joinedRaid = true;
-
-        const data = {
-            operationName: 'JoinRaid',
-            variables: { input: { raidID: this.id } },
-            extensions: {
-                persistedQuery: {
-                    version: 1,
-                    sha256Hash:
-                        'c6a332a86d1087fbbb1a8623aa01bd1313d2386e7c63be60fdb2d1901f01a4ae',
-                },
-            },
-        };
-
-        makeGraphqlRequest(data);
+        this.core.api.joinRaid(this.id);
         log.info(
             `Joining raid from ${this.gettingRaidedBy.displayName} to ${this.loginToRaid}!`
         );

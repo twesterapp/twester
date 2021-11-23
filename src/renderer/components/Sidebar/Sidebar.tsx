@@ -9,7 +9,7 @@ import {
 import styled, { useTheme } from 'styled-components';
 
 import React from 'react';
-import { core } from 'renderer/core';
+import { core } from 'renderer/core/core';
 import { useHistory } from 'react-router-dom';
 import { useQuery } from 'react-query';
 

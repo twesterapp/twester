@@ -3,8 +3,7 @@ import { CaptchaSolvingErrorModal, LoadingScreen } from 'renderer/components';
 import React, { useEffect, useRef, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 
-import { core } from 'renderer/core';
-import { nodeClient } from 'renderer/api';
+import { core } from 'renderer/core/core';
 import { px2rem } from 'renderer/utils/px2rem';
 import { useAppVersion } from 'renderer/hooks';
 
@@ -211,10 +210,7 @@ function AskForLoginCredentials({
         setSendingReq(true);
         setErr('');
 
-        const res = await nodeClient.post('/auth', {
-            username,
-            password,
-        });
+        const res = await core.api.login({ username, password });
 
         setSendingReq(false);
 
@@ -341,7 +337,7 @@ function VerifyWithCode({
         setSendingReq(true);
         setErr('');
 
-        const res = await nodeClient.post('/auth/code', {
+        const res = await core.api.submitTwitchguardCode({
             username,
             password,
             captcha,
@@ -361,9 +357,7 @@ function VerifyWithCode({
         setSendingResendReq(true);
         setErr('');
 
-        const res = await nodeClient.post(
-            `/auth/resend-code?streamerLogin=${username || 'ceoshikhar'}`
-        );
+        const res = await core.api.resendCode(username);
 
         if (res.data?.error) {
             setErr(res.data.error);
@@ -426,7 +420,7 @@ function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
         setSendingReq(true);
         setErr('');
 
-        const res = await nodeClient.post('/auth/two-fa', {
+        const res = await core.api.submitTwoFaCode({
             username,
             password,
             captcha,

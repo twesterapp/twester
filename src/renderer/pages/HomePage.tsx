@@ -2,7 +2,7 @@ import { IconClock, IconPause, IconPlay, IconStar, Link } from 'renderer/ui';
 import styled, { useTheme } from 'styled-components';
 
 import React from 'react';
-import { core } from 'renderer/core';
+import { core } from 'renderer/core/core';
 import { formatMinutes } from 'renderer/utils/formatMinutes';
 import { logging } from 'renderer/core/logging';
 import { px2rem } from 'renderer/utils/px2rem';

@@ -1,11 +1,9 @@
 import { Storage } from '../utils/storage';
 import { Store } from '../utils/store';
-import { core } from './core';
+import { core } from 'renderer/core/core';
 import { logging } from './logging';
 
 const NAME = 'AUTH';
-
-const log = logging.getLogger('AUTH');
 
 export interface User {
     displayName: string;
@@ -18,6 +16,8 @@ interface State {
     user: User;
     accessToken: string;
 }
+
+const log = logging.getLogger('AUTH');
 
 export class Auth extends Store<State> {
     constructor() {
