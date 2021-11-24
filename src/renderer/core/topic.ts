@@ -20,6 +20,6 @@ export class Topic {
             return `${this.topic}.${auth.store.getState().user.id}`;
         }
 
-        return `${this.topic}.${this.streamer.id})}`;
+        return `${this.topic}.${this.streamer.id}`;
     }
 }
