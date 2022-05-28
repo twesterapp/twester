@@ -2,6 +2,10 @@
 
 ## Unversioned
 
+-   Major: Run/minimze to tray. ([#51](https://github.com/twesterapp/twester/pull/51))
+
+## 1.0.4 (12-12-2021)
+
 -   Minor: Logs viewer scrollbar to have a min height of 20% of the viewer container. ([#20](https://github.com/twesterapp/twester/pull/20))
 -   Minor: Added `getIpc` utility function to make our life better. ([#32](https://github.com/twesterapp/twester/pull/32))
 -   Minor: Added `Sleep` class. ([#33](https://github.com/twesterapp/twester/pull/33))
