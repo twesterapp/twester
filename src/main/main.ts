@@ -11,17 +11,26 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, Tray, Menu } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import electronDebug from 'electron-debug';
-import { resolveHtmlPath, print } from './util';
+import { resolveHtmlPath, print, Level, Hex } from './util';
 import { startServer } from './server';
 
 startServer();
 
 electronDebug({ isEnabled: true, showDevTools: false });
 
+// We add some functions to the `Tray` object, hence `MyTray` to help with TS.
+interface MyTray extends Tray {
+    updateContextMenu?: () => void;
+    toggleWindowVisibility?: () => void;
+}
+
 let mainWindow: BrowserWindow | null = null;
+let isQuiting = false;
+let tray: MyTray | null = null;
+let trayContextMenu: Menu | null = null;
 
 ipcMain.on('logging', async (_, args) => {
     print(args.date, args.level, args.hex, ...args.content);
@@ -54,26 +63,27 @@ const installExtensions = async () => {
         .catch(console.info);
 };
 
+const RESOURCES_PATH = app.isPackaged
+    ? path.join(process.resourcesPath, 'assets')
+    : path.join(__dirname, '../../assets');
+
+const getAssetPath = (...paths: string[]): string => {
+    return path.join(RESOURCES_PATH, ...paths);
+};
+
 const createWindow = async () => {
     if (isDevelopment) {
         await installExtensions();
     }
 
-    const RESOURCES_PATH = app.isPackaged
-        ? path.join(process.resourcesPath, 'assets')
-        : path.join(__dirname, '../../assets');
-
-    const getAssetPath = (...paths: string[]): string => {
-        return path.join(RESOURCES_PATH, ...paths);
-    };
-
     mainWindow = new BrowserWindow({
         show: false,
         width: 1100,
         height: 700,
-        autoHideMenuBar: true,
+        autoHideMenuBar: false,
         icon: getAssetPath('/icons/icon.png'),
         webPreferences: {
+            nodeIntegration: false,
             preload: path.join(__dirname, 'preload.js'),
         },
     });
@@ -113,11 +123,49 @@ const createWindow = async () => {
             autoUpdater.checkForUpdatesAndNotify();
         }
     });
+
+    // Emitted when the window is about to be closed.
+    mainWindow.on('close', (event: any) => {
+        // If the application is terminating, just do the default
+        if (isQuiting) {
+            return;
+        }
+
+        // On Mac, or on other platforms when the tray icon is in use, the window
+        // should be only hidden, not closed, when the user clicks the close button
+        if (process.platform === 'darwin') {
+            event.preventDefault();
+            if (mainWindow) {
+                mainWindow.hide();
+            }
+
+            // toggle the visibility of the show/hide tray icon menu entries
+            if (tray) {
+                tray?.updateContextMenu?.();
+            }
+        }
+    });
+
+    mainWindow.on('restore', () => {
+        mainWindow?.show();
+        tray?.destroy();
+    });
 };
 
 /**
  * Add event listeners...
  */
+
+// This method will be called when Electron has finished
+// initialization and is ready to create browser windows.
+// Some APIs can only be used after this event occurs.
+let ready = false;
+app.on('ready', () => {
+    print(new Date(), Level.DEBUG, Hex.DEBUG, 'Electron app is ready');
+    ready = true;
+    createWindow();
+    tray = createTray();
+});
 
 app.on('window-all-closed', () => {
     // Respect the OSX convention of having the application in memory even
@@ -128,9 +176,21 @@ app.on('window-all-closed', () => {
 });
 
 app.on('activate', () => {
-    // On macOS it's common to re-create a window in the app when the
+    if (!ready) {
+        return;
+    }
+
+    // On OS X it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
-    if (mainWindow === null) createWindow();
+    if (mainWindow) {
+        mainWindow.show();
+    } else {
+        createWindow();
+    }
+});
+
+app.on('before-quit', () => {
+    isQuiting = true;
 });
 
 const gotTheLock = app.requestSingleInstanceLock();
@@ -154,6 +214,25 @@ ipcMain.on('app_version', (event) => {
     event.sender.send('app_version', { version: app.getVersion() });
 });
 
+ipcMain.on('show-window', () => {
+    // Using focus() instead of show() seems to be important on Windows when our window
+    //   has been docked using Aero Snap/Snap Assist. A full .show() call here will cause
+    //   the window to reposition:
+    //   https://github.com/WhisperSystems/Signal-Desktop/issues/1429
+    if (mainWindow) {
+        if (mainWindow.isVisible()) {
+            mainWindow.focus();
+        } else {
+            mainWindow.show();
+        }
+    }
+
+    // toggle the visibility of the show/hide tray icon menu entries
+    if (tray) {
+        tray?.updateContextMenu?.();
+    }
+});
+
 autoUpdater.on('update-available', () => {
     if (mainWindow) {
         mainWindow.webContents.send('update_available');
@@ -173,3 +252,55 @@ autoUpdater.on('error', (message) => {
         mainWindow.webContents.send('update_failed');
     }
 });
+
+const createTray = () => {
+    // A smaller ion is needed on macOS
+    tray = new Tray(getAssetPath('/icons/icon_16.ico'));
+
+    tray.toggleWindowVisibility = () => {
+        if (mainWindow) {
+            if (mainWindow.isVisible()) {
+                mainWindow.hide();
+            } else {
+                mainWindow.show();
+
+                // On some versions of GNOME the window may not be on top when restored.
+                // This trick should fix it.
+                // Thanks to: https://github.com/Enrico204/Whatsapp-Desktop/commit/6b0dc86b64e481b455f8fce9b4d797e86d000dc1
+                mainWindow.setAlwaysOnTop(true);
+                mainWindow.focus();
+                mainWindow.setAlwaysOnTop(false);
+            }
+        }
+
+        tray?.updateContextMenu?.();
+    };
+
+    tray.updateContextMenu = () => {
+        // NOTE: we want to have the show/hide entry available in the tray icon
+        // context menu, since the 'click' event may not work on all platforms.
+        // For details please refer to:
+        // https://github.com/electron/electron/blob/master/docs/api/tray.md.
+        trayContextMenu = Menu.buildFromTemplate([
+            {
+                id: 'toggleWindowVisibility',
+                label: mainWindow?.isVisible() ? 'hide' : 'show',
+                click: tray?.toggleWindowVisibility,
+            },
+            {
+                id: 'quit',
+                label: 'Quit',
+                click: app.quit.bind(app),
+            },
+        ]);
+
+        tray?.setContextMenu(trayContextMenu);
+    };
+
+    tray.on('click', tray.toggleWindowVisibility);
+
+    tray.setToolTip('Twester');
+    tray.updateContextMenu();
+
+    return tray;
+};

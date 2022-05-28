@@ -33,6 +33,14 @@ if (process.env.NODE_ENV === 'development') {
  * behavior and look as the logging done in `renderer`.
  */
 
+export enum Level {
+    EXCEPTION = 'EXCEPTION',
+    ERROR = 'ERROR    ',
+    WARNING = 'WARNING  ',
+    INFO = 'INFO     ',
+    DEBUG = 'DEBUG    ',
+}
+
 export enum Hex {
     EXCEPTION = '#FF5252',
     ERROR = '#FF5C8A',
