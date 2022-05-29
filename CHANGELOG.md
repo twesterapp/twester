@@ -2,6 +2,8 @@
 
 ## Unversioned
 
+## 1.1.2 (pre-release 29-05-2022)
+
 -   Minor: Close to tray. ([#51](https://github.com/twesterapp/twester/pull/51))
 
 ## 1.0.4 (12-12-2021)
