@@ -133,16 +133,14 @@ const createWindow = async () => {
 
         // On Mac, or on other platforms when the tray icon is in use, the window
         // should be only hidden, not closed, when the user clicks the close button
-        if (process.platform === 'darwin') {
-            event.preventDefault();
-            if (mainWindow) {
-                mainWindow.hide();
-            }
+        event.preventDefault();
+        if (mainWindow) {
+            mainWindow.hide();
+        }
 
-            // toggle the visibility of the show/hide tray icon menu entries
-            if (tray) {
-                tray?.updateContextMenu?.();
-            }
+        // toggle the visibility of the show/hide tray icon menu entries
+        if (tray) {
+            tray?.updateContextMenu?.();
         }
     });
 
