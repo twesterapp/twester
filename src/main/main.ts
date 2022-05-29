@@ -133,6 +133,7 @@ const createWindow = async () => {
 
         // On Mac, or on other platforms when the tray icon is in use, the window
         // should be only hidden, not closed, when the user clicks the close button
+        // TODO: `shouldCloseToTray()` to check if this option is enabled in settings.
         event.preventDefault();
         if (mainWindow) {
             mainWindow.hide();
@@ -142,11 +143,6 @@ const createWindow = async () => {
         if (tray) {
             tray?.updateContextMenu?.();
         }
-    });
-
-    mainWindow.on('restore', () => {
-        mainWindow?.show();
-        tray?.destroy();
     });
 };
 
