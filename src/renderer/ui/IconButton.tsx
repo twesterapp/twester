@@ -15,13 +15,14 @@ export function IconButton({
     bgColorOnHover = '',
     icon,
     iconSize = 32,
+    iconColor = '',
     ...rest
 }: SidebarIconOptions) {
     const theme = useTheme();
     const Icon = icon;
     const getColor = () => {
-        if (rest.iconColor) {
-            return rest.iconColor;
+        if (iconColor) {
+            return iconColor;
         }
 
         return active ? theme.color.textPrimary : theme.color.brightBlue;

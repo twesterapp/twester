@@ -4,6 +4,7 @@ import {
     IconHome,
     IconSignOut,
     IconStreamers,
+    IconSettings,
     Tooltip,
 } from 'renderer/ui';
 import styled, { useTheme } from 'styled-components';
@@ -49,6 +50,7 @@ export function Sidebar({ currentPage }: SidebarOptions) {
 
     const onHomePage = currentPage === '/';
     const onStreamersPage = currentPage === '/streamers';
+    const onSettingsPage = currentPage === '/settings';
 
     return (
         <Container>
@@ -81,6 +83,23 @@ export function Sidebar({ currentPage }: SidebarOptions) {
                             icon={IconStreamers}
                             active={onStreamersPage}
                             onClick={() => history.push('/streamers')}
+                        />
+                    </i>
+                </Tooltip>
+
+                <i style={{ height: '11px' }} />
+
+                <Tooltip
+                    title="Settings"
+                    placement="right"
+                    enterDelay={1000}
+                    disableHoverListener={onSettingsPage}
+                >
+                    <i>
+                        <IconButton
+                            icon={IconSettings}
+                            active={onSettingsPage}
+                            onClick={() => history.push('/settings')}
                         />
                     </i>
                 </Tooltip>

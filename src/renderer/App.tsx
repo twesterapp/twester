@@ -2,7 +2,7 @@ import 'typeface-poppins';
 import 'typeface-karla';
 import 'typeface-roboto-mono';
 
-import { AuthPage, HomePage, StreamersPage } from './pages';
+import { AuthPage, HomePage, StreamersPage, SettingsPage } from './pages';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import React, { useRef } from 'react';
 import {
@@ -39,6 +39,7 @@ const Dashboard = () => {
                 <DashboardContainer>
                     <Route path="/" exact component={HomePage} />
                     <Route path="/streamers" component={StreamersPage} />
+                    <Route path="/settings" component={SettingsPage} />
                 </DashboardContainer>
             </Layout>
         </DndProvider>

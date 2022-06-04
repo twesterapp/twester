@@ -11,6 +11,7 @@ import {
     FaClock,
     FaStar,
     FaGithub,
+    FaWrench,
 } from 'react-icons/fa';
 import { ImCross } from 'react-icons/im';
 import { IconBaseProps } from 'react-icons';
@@ -36,3 +37,4 @@ export { FaClock as IconClock };
 export { FaStar as IconStar };
 export { FaHome as IconHome };
 export { FaGithub as IconGithub };
+export { FaWrench as IconSettings };
