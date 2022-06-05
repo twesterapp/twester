@@ -1,5 +1,3 @@
-/* eslint global-require: off, no-console: off */
-
 /**
  * This module executes inside of electron's main process. You can start
  * electron renderer process from here and communicate with the other processes
@@ -14,12 +12,8 @@ import path from 'path';
 import { app, BrowserWindow, shell, ipcMain, Tray, Menu } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import electronDebug from 'electron-debug';
-import { resolveHtmlPath, print, Level, Hex } from './util';
+import { resolveHtmlPath, print, Level, Hex, log } from './util';
 import { startServer } from './server';
-
-startServer();
-
-electronDebug({ isEnabled: true, showDevTools: false });
 
 // We add some functions to the `Tray` object, hence `MyTray` to help with TS.
 interface MyTray extends Tray {
@@ -31,18 +25,29 @@ let mainWindow: BrowserWindow | null = null;
 let isQuiting = false;
 let tray: MyTray | null = null;
 let trayContextMenu: Menu | null = null;
+let shouldCloseToTray = false;
+
+startServer();
+
+electronDebug({ isEnabled: true, showDevTools: false });
 
 ipcMain.on('logging', async (_, args) => {
     print(args.date, args.level, args.hex, ...args.content);
 });
 
+ipcMain.on('settings', async (event, args) => {
+    shouldCloseToTray = args.closeToTray;
+    event.reply('settings', args);
+});
+
 ipcMain.on('ipc-example', async (event, arg) => {
     const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
-    console.info(msgTemplate(arg));
+    log.info(msgTemplate(arg));
     event.reply('ipc-example', msgTemplate('pong'));
 });
 
 if (process.env.NODE_ENV === 'production') {
+    // eslint-disable-next-line global-require
     const sourceMapSupport = require('source-map-support');
     sourceMapSupport.install();
 }
@@ -51,6 +56,7 @@ const isDevelopment =
     process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
 
 const installExtensions = async () => {
+    // eslint-disable-next-line global-require
     const installer = require('electron-devtools-installer');
     const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
     const extensions = ['REACT_DEVELOPER_TOOLS'];
@@ -60,7 +66,7 @@ const installExtensions = async () => {
             extensions.map((name) => installer[name]),
             forceDownload
         )
-        .catch(console.info);
+        .catch(log.info);
 };
 
 const RESOURCES_PATH = app.isPackaged
@@ -126,20 +132,20 @@ const createWindow = async () => {
 
     // Emitted when the window is about to be closed.
     mainWindow.on('close', (event: any) => {
-        // If the application is terminating, just do the default
+        // If the application is terminating, just do the default.
         if (isQuiting) {
             return;
         }
 
-        // On Mac, or on other platforms when the tray icon is in use, the window
-        // should be only hidden, not closed, when the user clicks the close button
-        // TODO: `shouldCloseToTray()` to check if this option is enabled in settings.
-        event.preventDefault();
-        if (mainWindow) {
-            mainWindow.hide();
+        // We only close to tray if this is enabled in the settings.
+        if (shouldCloseToTray) {
+            event.preventDefault();
+            if (mainWindow) {
+                mainWindow.hide();
+            }
         }
 
-        // toggle the visibility of the show/hide tray icon menu entries
+        // Toggle the visibility of the show/hide tray icon menu entries.
         if (tray) {
             tray?.updateContextMenu?.();
         }
@@ -201,7 +207,7 @@ if (!gotTheLock) {
     });
 
     // Create window, load the rest of the app, etc...
-    app.whenReady().then(createWindow).catch(console.info);
+    app.whenReady().then(createWindow).catch(log.info);
 }
 
 ipcMain.on('app_version', (event) => {
@@ -240,8 +246,8 @@ autoUpdater.on('update-downloaded', () => {
 });
 
 autoUpdater.on('error', (message) => {
-    console.error('There was a problem updating the application');
-    console.error(message);
+    log.error('There was a problem updating the application');
+    log.error(message);
     if (mainWindow) {
         mainWindow.webContents.send('update_failed');
     }

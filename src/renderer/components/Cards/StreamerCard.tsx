@@ -98,8 +98,8 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
             ref={(node) => drag(drop(node))}
             style={{
                 opacity: isDragging ? 0 : 1,
+                cursor: canDrag ? 'move' : undefined,
             }}
-            canDrag={canDrag}
         >
             <Content>
                 <TopRight>
@@ -183,14 +183,13 @@ const StatInfo = styled.div`
     }
 `;
 
-const Card = styled.div<{ canDrag: boolean }>`
+const Card = styled.div`
     width: 405px;
     height: 92px;
     background: ${(props) => props.theme.color.background2};
     color: ${(props) => props.theme.color.textPrimary};
     border-radius: 4px;
     position: relative;
-    cursor: ${(props) => props.canDrag && 'move'};
 
     transition: background-color 200ms ease-out;
 

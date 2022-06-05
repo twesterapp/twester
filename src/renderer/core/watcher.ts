@@ -208,7 +208,7 @@ export class Watcher extends Store<State> {
                 ...savedState,
                 status: WatcherStatus.INIT,
             };
-        } catch (err) {
+        } catch (err: any) {
             log.error(
                 `Failed to load ${this.storeName} state from storage:`,
                 err.message

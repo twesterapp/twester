@@ -11,6 +11,7 @@ import { logging } from 'renderer/core/logging';
 import { render } from 'react-dom';
 import { streamers } from 'renderer/core/streamer-manager';
 import { watcher } from 'renderer/core/watcher';
+import { settings } from 'renderer/core/settings';
 
 render(
     <ErrorBoundary
@@ -54,6 +55,7 @@ const twester = {
     api,
     logging,
     ChannelPoints,
+    settings,
 };
 
 (globalThis as Global).twester = twester;

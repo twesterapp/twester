@@ -11,6 +11,9 @@ contextBridge.exposeInMainWorld('electron', {
         sendLog(log) {
             ipcRenderer.send('logging', log);
         },
+        sendSettings(settings) {
+            ipcRenderer.send('settings', settings);
+        },
         on(channel, func) {
             const validChannels = [
                 'ipc-example',
@@ -19,6 +22,8 @@ contextBridge.exposeInMainWorld('electron', {
                 'update_available',
                 'update_downloaded',
                 'update_failed',
+                'settings',
+                'get_settings',
             ];
             if (validChannels.includes(channel)) {
                 // Deliberately strip event as it includes `sender`
@@ -33,6 +38,8 @@ contextBridge.exposeInMainWorld('electron', {
                 'update_available',
                 'update_downloaded',
                 'update_failed',
+                'settings',
+                'get_settings',
             ];
             if (validChannels.includes(channel)) {
                 // Deliberately strip event as it includes `sender`

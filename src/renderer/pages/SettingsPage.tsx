@@ -4,9 +4,12 @@ import styled from 'styled-components';
 import { px2rem } from 'renderer/utils/px2rem';
 import { Version } from 'renderer/components/Version';
 import { Switch } from 'renderer/ui/Switch';
-import { Button, IconPlus, IconTrash } from 'renderer/ui';
+import { Button, IconTrash } from 'renderer/ui';
+import { settings } from 'renderer/core/settings';
 
 export function SettingsPage() {
+    const { closeToTray, developerMode } = settings.useStore();
+
     return (
         <PageWrapper>
             <Title>Settings</Title>
@@ -19,7 +22,10 @@ export function SettingsPage() {
                             Twester will minimize to tray instead of quitting.
                         </SettingDescription>
                     </div>
-                    <Switch />
+                    <Switch
+                        checked={closeToTray}
+                        onChange={() => settings.toggleCloseToTry()}
+                    />
                 </SettingRow>
 
                 <SettingRow>
@@ -30,7 +36,10 @@ export function SettingsPage() {
                             while reporting issues.
                         </SettingDescription>
                     </div>
-                    <Switch />
+                    <Switch
+                        checked={developerMode}
+                        onChange={() => settings.toggleDeveloperMode()}
+                    />
                 </SettingRow>
 
                 <SettingRow style={{ border: 'none' }}>
