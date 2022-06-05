@@ -41,6 +41,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
     );
 
     const originalIndex = streamers.findStreamerCard(streamer.id).index;
+    const canDrag = !!watcher.canPlay();
 
     const [{ isDragging }, drag] = useDrag(
         () => ({
@@ -49,7 +50,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
             collect: (monitor) => ({
                 isDragging: monitor.isDragging(),
             }),
-            canDrag: () => !!watcher.canPlay(),
+            canDrag,
             end: (item, monitor) => {
                 const { streamerId: droppedId, originalIndex } = item;
                 const didDrop = monitor.didDrop();
@@ -98,6 +99,7 @@ export function StreamerCard({ streamer }: StreamerCardProps) {
             style={{
                 opacity: isDragging ? 0 : 1,
             }}
+            canDrag={canDrag}
         >
             <Content>
                 <TopRight>
@@ -181,13 +183,14 @@ const StatInfo = styled.div`
     }
 `;
 
-const Card = styled.div`
+const Card = styled.div<{ canDrag: boolean }>`
     width: 405px;
     height: 92px;
     background: ${(props) => props.theme.color.background2};
     color: ${(props) => props.theme.color.textPrimary};
-    border-radius: 14px;
+    border-radius: 4px;
     position: relative;
+    cursor: ${(props) => props.canDrag && 'move'};
 
     transition: background-color 200ms ease-out;
 

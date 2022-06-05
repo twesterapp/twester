@@ -64,7 +64,7 @@ export const InputText = React.forwardRef(
                             right: '10px',
                             width: '32px',
                             height: '32px',
-                            borderRadius: '8px',
+                            borderRadius: '4px',
                         }}
                         icon={showingPassword ? IconEyeClose : IconEyeOpen}
                         iconSize={18}
@@ -88,7 +88,7 @@ const Container = styled.div`
 
 const StyledInput = styled.input<InputTextOptions & { ref: any }>`
     font-size: 0.875rem;
-    border-radius: 12px;
+    border-radius: 4px;
     padding: 0.875em;
     border: none;
     background: ${(props) => props.theme.color.disabled};

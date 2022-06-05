@@ -57,7 +57,7 @@ const ModalBox = styled.div`
     position: fixed;
     padding: 1.5rem;
     background: ${(props) => props.theme.color.background2};
-    border-radius: 12px;
+    border-radius: 4px;
 `;
 
 const ModalContainer = styled.div`

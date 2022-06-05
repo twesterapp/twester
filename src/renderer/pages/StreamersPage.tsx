@@ -143,6 +143,8 @@ const Info = styled.p`
 `;
 
 const PageWrapper = styled.div`
+    padding: ${`${px2rem(16)} ${px2rem(24)}`};
+    box-sizing: border-box;
     width: 100%;
     height: 100%;
     display: flex;

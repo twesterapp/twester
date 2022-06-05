@@ -7,6 +7,7 @@ interface Color {
     disabled: string;
     error: string;
     onDisabled: string;
+    onErrorHover: string;
     onPrimary: string;
     onPrimaryHover: string;
     primary: string;
@@ -33,6 +34,7 @@ export const darkTheme: Theme = {
         disabled: '#00477A',
         error: '#FF5252',
         onDisabled: '#A0A0A0',
+        onErrorHover: '#CC4141',
         onPrimary: '#FFFFFF',
         onPrimaryHover: '#1484CF',
         primary: '#3498DB',
@@ -40,6 +42,6 @@ export const darkTheme: Theme = {
         success: '#0AD48B',
         textAlter: '#040F0F',
         textPrimary: '#F1F1F1',
-        textFaded: '#979797',
+        textFaded: '#9196A8',
     },
 };

@@ -12,6 +12,7 @@ import {
     FaStar,
     FaGithub,
     FaWrench,
+    FaTrashAlt,
 } from 'react-icons/fa';
 import { ImCross } from 'react-icons/im';
 import { IconBaseProps } from 'react-icons';
@@ -38,3 +39,4 @@ export { FaStar as IconStar };
 export { FaHome as IconHome };
 export { FaGithub as IconGithub };
 export { FaWrench as IconSettings };
+export { FaTrashAlt as IconTrash };

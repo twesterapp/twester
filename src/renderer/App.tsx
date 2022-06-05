@@ -108,6 +108,7 @@ const SidebarContainer = styled.div`
 
 const DashboardContainer = styled.div`
     width: 100%;
+    position: relative;
 `;
 
 const Layout = styled.div`

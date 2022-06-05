@@ -86,9 +86,9 @@ export function Sidebar({ currentPage }: SidebarOptions) {
                         />
                     </i>
                 </Tooltip>
+            </Top>
 
-                <i style={{ height: '11px' }} />
-
+            <Bottom>
                 <Tooltip
                     title="Settings"
                     placement="right"
@@ -103,9 +103,9 @@ export function Sidebar({ currentPage }: SidebarOptions) {
                         />
                     </i>
                 </Tooltip>
-            </Top>
 
-            <Bottom>
+                <i style={{ height: '11px' }} />
+
                 <Tooltip
                     title="Sign out"
                     placement="right"
