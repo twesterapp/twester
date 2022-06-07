@@ -1,6 +1,8 @@
 # Changelog
 
-## Unversioned
+## 1.1.3 (08-06-2022)
+
+-   Minor: Added "Settings" tab. ([#61](https://github.com/twesterapp/twester/pull/61))
 
 ## 1.1.2 (pre-release 29-05-2022)
 
