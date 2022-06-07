@@ -244,7 +244,8 @@ function AskForLoginCredentials({
 
     const renderErrorInfoDialog = () => (
         <CaptchaSolvingErrorModal
-            closeModal={() => setShowErrorInfoDialog(false)}
+            open={showErrorInfoDialog}
+            onClose={() => setShowErrorInfoDialog(false)}
         />
     );
 
@@ -279,29 +280,28 @@ function AskForLoginCredentials({
 
                 <Form onSubmit={handleSubmit}>
                     <InputText
-                        width="300px"
                         placeholder="Username"
-                        style={{ marginBottom: px2rem(23) }}
+                        style={{ marginBottom: px2rem(23), width: '300px' }}
                         value={username}
                         onChange={handleUsernameOnChange}
                     />
                     <InputText
                         variant="password"
-                        width="300px"
                         placeholder="Password"
                         value={password}
                         onChange={handlePasswordOnChange}
+                        style={{ width: '300px' }}
                     />
                     {err && <ErrMsg>{err}</ErrMsg>}
                     <Button
-                        style={{ marginTop: px2rem(52) }}
-                        variant="submit"
-                        text="Login"
-                        width="300px"
+                        style={{ marginTop: px2rem(52), width: '300px' }}
+                        type="submit"
                         onClick={handleSubmit}
                         disabled={isButtonDisabled}
                         loading={sendingReq}
-                    />
+                    >
+                        Login
+                    </Button>
                 </Form>
             </FormContainer>
         </>
@@ -378,7 +378,7 @@ function VerifyWithCode({
                     variant="number"
                     value={code}
                     onChange={handleCodeInput}
-                    width="300px"
+                    style={{ width: '300px' }}
                 />
                 <Anchor
                     style={{
@@ -393,14 +393,14 @@ function VerifyWithCode({
                     Resend Code
                 </Anchor>
                 <Button
-                    style={{ marginTop: px2rem(52) }}
-                    text="Verify"
-                    variant="submit"
-                    width="300px"
+                    style={{ marginTop: px2rem(52), width: '300px' }}
+                    type="submit"
                     onClick={handleSubmit}
                     loading={sendingReq}
                     disabled={!code.trim()}
-                />
+                >
+                    Verify
+                </Button>
             </Form>
         </FormContainer>
     );
@@ -452,20 +452,20 @@ function VerifyWithTwoFa({ username, password, captcha }: VerifyOptions) {
                 <InputText
                     ref={inputRef}
                     placeholder="Token"
-                    width="300px"
                     variant="number"
                     value={twoFa}
                     onChange={handleTwoFaInput}
-                    style={{ marginBottom: px2rem(52) }}
+                    style={{ marginBottom: px2rem(52), width: '300px' }}
                 />
                 <Button
-                    width="300px"
-                    text="Verify"
-                    variant="submit"
+                    type="submit"
+                    style={{ width: '300px' }}
                     onClick={handleSubmit}
                     loading={sendingReq}
                     disabled={!twoFa.trim()}
-                />
+                >
+                    Verify
+                </Button>
             </Form>
         </FormContainer>
     );

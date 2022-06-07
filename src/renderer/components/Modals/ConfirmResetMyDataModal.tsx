@@ -13,8 +13,8 @@ interface Props extends Omit<ModalProps, 'children' | 'heading'> {}
 
 export function ConfirmResetMyDataModal({ onClose, ...rest }: Props) {
     const handleDelete = () => {
-        // Watcher must be paused before we can delete any data.
-        if (watcher.canPause()) return;
+        // Watcher must not be running before we proceed to delete any data.
+        if (!watcher.canPlay()) return;
 
         streamers.reset();
         watcher.reset();
@@ -35,10 +35,10 @@ export function ConfirmResetMyDataModal({ onClose, ...rest }: Props) {
                 </p>
             </Container>
             <ButtonsContainer>
-                <Button onClick={handleDelete}>Delete</Button>
-                <Button variant="secondary" onClick={onClose}>
-                    Cancel
+                <Button variant="error" onClick={handleDelete}>
+                    Delete
                 </Button>
+                <Button onClick={onClose}>Cancel</Button>
             </ButtonsContainer>
         </Modal>
     );

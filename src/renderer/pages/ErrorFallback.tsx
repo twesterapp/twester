@@ -1,5 +1,6 @@
 import React from 'react';
 import { FallbackProps } from 'react-error-boundary';
+import { Button } from 'renderer/ui';
 
 // This is very basic fallback just to let the user at least reload the app
 // if it breaks.
@@ -21,9 +22,9 @@ export function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
         >
             <h1>Something went wrong 😢</h1>
             <pre>{error.message}</pre>
-            <button type="button" onClick={resetErrorBoundary}>
+            <Button type="button" onClick={resetErrorBoundary}>
                 Reload App
-            </button>
+            </Button>
         </div>
     );
 }

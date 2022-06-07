@@ -57,7 +57,7 @@ export function HomePage() {
             color={
                 isPlayButtonActive()
                     ? theme.color.brightBlue
-                    : theme.color.disabled
+                    : theme.color.disabledPrimary
             }
             onClick={() => isPlayButtonActive() && watcher.play()}
         />
@@ -74,7 +74,7 @@ export function HomePage() {
             color={
                 isPauseButtonActive()
                     ? theme.color.brightBlue
-                    : theme.color.disabled
+                    : theme.color.disabledPrimary
             }
             onClick={() => isPauseButtonActive() && watcher.pause()}
         />

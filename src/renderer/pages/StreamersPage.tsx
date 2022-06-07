@@ -68,8 +68,8 @@ export function StreamersPage() {
                     hidePlaceholderOnFocus={false}
                 />
                 <Button
-                    width="46px"
-                    variant="submit"
+                    style={{ width: '46px' }}
+                    type="submit"
                     loading={fetchingStreamer}
                     disabled={!watcher.canPlay() ?? !searchText.trim()}
                 >

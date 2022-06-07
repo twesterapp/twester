@@ -1,63 +1,94 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { px2rem } from 'renderer/utils/px2rem';
 import { Version } from 'renderer/components/Version';
 import { Switch } from 'renderer/ui/Switch';
-import { Button, IconTrash } from 'renderer/ui';
+import { Button, IconTrash, Tooltip } from 'renderer/ui';
 import { settings } from 'renderer/core/settings';
+import { ConfirmResetMyDataModal } from 'renderer/components/Modals/ConfirmResetMyDataModal';
+import { watcher } from 'renderer/core/watcher';
 
 export function SettingsPage() {
+    const [showModal, setShowModal] = useState(false);
     const { closeToTray, developerMode } = settings.useStore();
 
+    const isDeleteDisabled = !watcher.canPlay();
+
     return (
-        <PageWrapper>
-            <Title>Settings</Title>
+        <>
+            <ConfirmResetMyDataModal
+                open={showModal}
+                onClose={() => setShowModal(false)}
+            />
 
-            <SettingsList>
-                <SettingRow>
-                    <div>
-                        <SettingTitle>Close to tray</SettingTitle>
-                        <SettingDescription>
-                            Twester will minimize to tray instead of quitting.
-                        </SettingDescription>
-                    </div>
-                    <Switch
-                        checked={closeToTray}
-                        onChange={() => settings.toggleCloseToTry()}
-                    />
-                </SettingRow>
+            <PageWrapper>
+                <Title>Settings</Title>
 
-                <SettingRow>
-                    <div>
-                        <SettingTitle>Developer Mode</SettingTitle>
-                        <SettingDescription>
-                            Enables logging in console. Helpful for debugging
-                            while reporting issues.
-                        </SettingDescription>
-                    </div>
-                    <Switch
-                        checked={developerMode}
-                        onChange={() => settings.toggleDeveloperMode()}
-                    />
-                </SettingRow>
+                <SettingsList>
+                    <SettingRow>
+                        <div>
+                            <SettingTitle>Close to tray</SettingTitle>
+                            <SettingDescription>
+                                Twester will minimize to tray instead of
+                                quitting.
+                            </SettingDescription>
+                        </div>
+                        <Switch
+                            checked={closeToTray}
+                            onChange={() => settings.toggleCloseToTry()}
+                        />
+                    </SettingRow>
 
-                <SettingRow style={{ border: 'none' }}>
-                    <div>
-                        <SettingTitle>Delete my data</SettingTitle>
-                        <SettingDescription>
-                            Deletes the list of added streamers, their stats and
-                            the watcher data.
-                        </SettingDescription>
-                    </div>
-                    <Button secondary style={{ marginRight: px2rem(8) }}>
-                        <IconTrash />
-                    </Button>
-                </SettingRow>
-            </SettingsList>
+                    <SettingRow>
+                        <div>
+                            <SettingTitle>Developer Mode</SettingTitle>
+                            <SettingDescription>
+                                Enables logging in console. Helpful for
+                                debugging while reporting issues.
+                            </SettingDescription>
+                        </div>
+                        <Switch
+                            checked={developerMode}
+                            onChange={() => settings.toggleDeveloperMode()}
+                        />
+                    </SettingRow>
 
-            <Version />
-        </PageWrapper>
+                    <SettingRow style={{ border: 'none' }}>
+                        <div>
+                            <SettingTitle>Delete my data</SettingTitle>
+                            <SettingDescription>
+                                Deletes the list of added streamers, their stats
+                                and the watcher data.
+                            </SettingDescription>
+                        </div>
+                        <Tooltip
+                            title="Pause the watcher to enable this button."
+                            disableHoverListener={!isDeleteDisabled}
+                        >
+                            <span>
+                                <Button
+                                    variant="error"
+                                    style={{
+                                        marginRight: px2rem(8),
+                                        // Without this the tooltip won't work correctly.
+                                        pointerEvents: isDeleteDisabled
+                                            ? 'none'
+                                            : undefined,
+                                    }}
+                                    onClick={() => setShowModal(true)}
+                                    disabled={isDeleteDisabled}
+                                >
+                                    <IconTrash />
+                                </Button>
+                            </span>
+                        </Tooltip>
+                    </SettingRow>
+                </SettingsList>
+
+                <Version />
+            </PageWrapper>
+        </>
     );
 }
 
