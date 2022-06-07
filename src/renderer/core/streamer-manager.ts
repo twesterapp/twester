@@ -87,8 +87,13 @@ export class StreamerManager extends Store<State> {
     }
 
     public update(id: StreamerId, payload: UpdateStreamerPayload): void {
-        this.getById(id).update(payload);
-        this.onStreamersUpdate();
+        try {
+            this.getById(id).update(payload);
+            this.onStreamersUpdate();
+        } catch {
+            // There are possibilities that the `update` function was called
+            // after the streamer was removed.
+        }
     }
 
     public getById(id: StreamerId): Streamer {
@@ -172,6 +177,15 @@ export class StreamerManager extends Store<State> {
         }
     }
 
+    public reset(): void {
+        this.streamers = [];
+        this.streamersIdCache = new Set();
+        this.store.setState({
+            streamers: [],
+        });
+        this.onStreamersUpdate();
+    }
+
     private getStorageKey(): string {
         return `${auth.store.getState().user.id}.streamers`;
     }
@@ -184,7 +198,7 @@ export class StreamerManager extends Store<State> {
 
             log.debug(`Loaded ${this.storeName} state from storage`);
             return { streamers };
-        } catch (err) {
+        } catch (err: any) {
             log.error(
                 `Failed to load ${this.storeName} state from storage:`,
                 err.message
