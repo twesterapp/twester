@@ -68,8 +68,8 @@ export function StreamersPage() {
                     hidePlaceholderOnFocus={false}
                 />
                 <Button
-                    width="46px"
-                    variant="submit"
+                    style={{ width: '46px' }}
+                    type="submit"
                     loading={fetchingStreamer}
                     disabled={!watcher.canPlay() ?? !searchText.trim()}
                 >
@@ -143,6 +143,8 @@ const Info = styled.p`
 `;
 
 const PageWrapper = styled.div`
+    padding: ${`${px2rem(16)} ${px2rem(24)}`};
+    box-sizing: border-box;
     width: 100%;
     height: 100%;
     display: flex;

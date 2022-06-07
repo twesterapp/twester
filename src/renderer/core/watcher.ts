@@ -165,6 +165,15 @@ export class Watcher extends Store<State> {
         this.syncStorageWithStore();
     }
 
+    public reset(): void {
+        this.store.setState({
+            status: WatcherStatus.INIT,
+            minutesWatched: 0,
+            pointsEarned: 0,
+        });
+        this.syncStorageWithStore();
+    }
+
     // This updates `watching` to `false` for streamers that are no longer being
     // watched as they are not in the top 2 among all the online streamers.
     private fixWatchingStatus(): void {
@@ -208,7 +217,7 @@ export class Watcher extends Store<State> {
                 ...savedState,
                 status: WatcherStatus.INIT,
             };
-        } catch (err) {
+        } catch (err: any) {
             log.error(
                 `Failed to load ${this.storeName} state from storage:`,
                 err.message

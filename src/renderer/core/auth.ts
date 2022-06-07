@@ -93,7 +93,7 @@ export class Auth extends Store<State> {
 
             log.debug(`Loaded ${this.storeName} state from storage`);
             return { user, accessToken };
-        } catch (err) {
+        } catch (err: any) {
             log.error(
                 `Failed to load ${this.storeName} state from storage:`,
                 err.message

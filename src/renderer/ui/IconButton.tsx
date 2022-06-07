@@ -15,13 +15,14 @@ export function IconButton({
     bgColorOnHover = '',
     icon,
     iconSize = 32,
+    iconColor = '',
     ...rest
 }: SidebarIconOptions) {
     const theme = useTheme();
     const Icon = icon;
     const getColor = () => {
-        if (rest.iconColor) {
-            return rest.iconColor;
+        if (iconColor) {
+            return iconColor;
         }
 
         return active ? theme.color.textPrimary : theme.color.brightBlue;
@@ -44,7 +45,7 @@ const IconContainer = styled.div<{ active: boolean; bgColorOnHover: string }>`
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 14px;
+    border-radius: 4px;
     box-sizing: border-box;
     cursor: pointer;
     background-color: ${(props) =>

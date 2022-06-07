@@ -8,7 +8,7 @@ export class Storage {
     public static set(key: string, value: string): void {
         try {
             localStorage.setItem(key, value);
-        } catch (err) {
+        } catch (err: any) {
             log.error(`Failed to save "${key}" to storage:`, err.message);
         }
     }
@@ -17,7 +17,7 @@ export class Storage {
         try {
             const val = localStorage.getItem(key);
             return val;
-        } catch (err) {
+        } catch (err: any) {
             log.error(`Failed to fetch "${key}" from storage:`, err.message);
             throw err;
         }
@@ -26,7 +26,7 @@ export class Storage {
     public static remove(key: string): void {
         try {
             localStorage.removeItem(key);
-        } catch (err) {
+        } catch (err: any) {
             log.error(`Failed to remove "${key}" from storage:`, err.message);
         }
     }

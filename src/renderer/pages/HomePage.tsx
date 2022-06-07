@@ -6,11 +6,9 @@ import { formatMinutes } from 'renderer/utils/formatMinutes';
 import { logging } from 'renderer/core/logging';
 import { px2rem } from 'renderer/utils/px2rem';
 import { streamers } from 'renderer/core/streamer-manager';
-import { useAppVersion } from 'renderer/hooks';
 import { watcher } from 'renderer/core/watcher';
 
 export function HomePage() {
-    const version = useAppVersion();
     const logsEndRef = React.useRef<HTMLDivElement>(null);
     const [isScrollAtBottom, setScrollAtBottom] = React.useState(true);
 
@@ -59,7 +57,7 @@ export function HomePage() {
             color={
                 isPlayButtonActive()
                     ? theme.color.brightBlue
-                    : theme.color.disabled
+                    : theme.color.disabledPrimary
             }
             onClick={() => isPlayButtonActive() && watcher.play()}
         />
@@ -76,7 +74,7 @@ export function HomePage() {
             color={
                 isPauseButtonActive()
                     ? theme.color.brightBlue
-                    : theme.color.disabled
+                    : theme.color.disabledPrimary
             }
             onClick={() => isPauseButtonActive() && watcher.pause()}
         />
@@ -101,20 +99,6 @@ export function HomePage() {
 
     return (
         <PageWrapper>
-            {version && (
-                <p
-                    style={{
-                        fontSize: '14px',
-                        fontFamily: 'Roboto Mono',
-                        color: theme.color.borderOnDisabled,
-                        position: 'absolute',
-                        bottom: '4px',
-                        left: '12px',
-                    }}
-                >
-                    v{version}
-                </p>
-            )}
             <Content>
                 <StatsContainer>
                     <StatInfo>
@@ -170,6 +154,7 @@ const StatsContainer = styled.div`
     align-items: center;
     width: 100%;
     padding: ${px2rem(16)} ${px2rem(32)};
+    border-radius: 4px;
 `;
 
 const StatInfo = styled.div`
@@ -212,6 +197,7 @@ const LogContainer = styled.div`
     display: flex;
     flex-direction: column;
     overflow-y: scroll;
+    border-radius: 4px;
 
     &::-webkit-scrollbar {
         width: 0.69rem;
@@ -256,7 +242,7 @@ const InfoBox = styled.div`
     box-sizing: border-box;
     max-width: 535px;
     margin: auto auto;
-    border-radius: 14px;
+    border-radius: 4px;
 
     a {
         color: ${(props) => props.theme.color.textAlter};

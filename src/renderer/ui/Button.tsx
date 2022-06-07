@@ -1,49 +1,57 @@
-import React, { ReactNode } from 'react';
+import React, { forwardRef, ReactNode } from 'react';
 import styled from 'styled-components';
 
 import { Spinner } from './Spinner';
 
 export interface ButtonOptions extends React.HTMLAttributes<HTMLButtonElement> {
     children?: ReactNode;
-    text?: string;
     disabled?: boolean;
     loading?: boolean;
-    width?: string;
-    variant?: 'submit' | 'reset' | 'button';
+    type?: 'submit' | 'reset' | 'button';
+    variant?: 'primary' | 'secondary' | 'error';
 }
 
-export function Button({
-    text = '',
-    children,
-    width = '',
-    disabled = false,
-    loading = false,
-    variant = 'button',
-    ...rest
-}: Omit<ButtonOptions, 'type'>) {
-    return (
-        <StyledButton
-            {...rest}
-            disabled={disabled || loading}
-            type={variant}
-            width={width}
-        >
-            {loading ? (
-                <Spinner />
-            ) : (
-                <StyledText>{children || text}</StyledText>
-            )}
-        </StyledButton>
-    );
-}
+export const Button = forwardRef<HTMLButtonElement, ButtonOptions>(
+    (
+        {
+            children,
+            disabled = false,
+            loading = false,
+            type = 'submit',
+            variant = 'primary',
+            ...rest
+        },
+        ref
+    ) => {
+        return (
+            <StyledButton
+                ref={ref}
+                {...rest}
+                disabled={disabled || loading}
+                variant={variant}
+                type={type}
+            >
+                {loading ? <Spinner /> : children}
+            </StyledButton>
+        );
+    }
+);
 
-const StyledText = styled.span``;
+Button.displayName = 'Button';
 
-const StyledButton = styled.button<Omit<ButtonOptions, 'text'>>`
+const StyledButton = styled.button<ButtonOptions>`
     position: relative;
     background: ${(props) =>
-        props.disabled
-            ? props.theme.color.disabled
+        props.disabled && props.variant === 'primary'
+            ? props.theme.color.disabledPrimary
+            : props.disabled && props.variant === 'secondary'
+            ? props.theme.color.disabledSecondary
+            : props.disabled && props.variant === 'error'
+            ? props.theme.color.disabledError
+            : props.variant === 'secondary'
+            ? props.theme.color.secondary
+            : props.variant === 'error'
+            ? props.theme.color.error
             : props.theme.color.primary};
     color: ${(props) =>
         props.disabled
@@ -52,8 +60,7 @@ const StyledButton = styled.button<Omit<ButtonOptions, 'text'>>`
     font-size: 1rem;
     font-weight: 700;
     padding: 0.875em;
-    width: ${(props) => props.width};
-    border-radius: 14px;
+    border-radius: 4px;
     border: none;
     cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
     box-sizing: border-box;
@@ -64,10 +71,23 @@ const StyledButton = styled.button<Omit<ButtonOptions, 'text'>>`
 
     &:hover {
         background: ${(props) =>
-            !props.disabled && props.theme.color.onPrimaryHover};
+            props.disabled
+                ? undefined
+                : props.variant === 'error'
+                ? props.theme.color.onErrorHover
+                : props.variant === 'secondary'
+                ? props.theme.color.onSecondaryHover
+                : props.theme.color.onPrimaryHover};
     }
 
     &:active {
-        background: ${(props) => !props.disabled && props.theme.color.primary};
+        background: ${(props) =>
+            props.disabled
+                ? undefined
+                : props.variant === 'error'
+                ? props.theme.color.error
+                : props.variant === 'secondary'
+                ? props.theme.color.secondary
+                : props.theme.color.primary};
     }
 `;

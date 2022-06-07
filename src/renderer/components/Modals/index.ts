@@ -1,2 +1,2 @@
-export * from './BaseModal';
+export * from './Modal';
 export * from './CaptchaSolvingErrorModal';

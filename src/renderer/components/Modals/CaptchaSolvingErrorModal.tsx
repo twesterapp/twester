@@ -1,15 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { BaseModal } from './BaseModal';
+import { Modal, ModalProps } from './Modal';
 
-interface Props {
-    closeModal: () => void;
-}
+interface Props extends Omit<ModalProps, 'children' | 'heading'> {}
 
-export function CaptchaSolvingErrorModal({ closeModal }: Props) {
+export function CaptchaSolvingErrorModal(props: Props) {
     return (
-        <BaseModal heading="Twitch login information" closeModal={closeModal}>
+        <Modal heading="Twitch login information" {...props}>
             <Container>
                 <p>Twester uses Twitch API to allow you to login.</p>
                 <br />
@@ -58,7 +56,7 @@ export function CaptchaSolvingErrorModal({ closeModal }: Props) {
                     Solving.
                 </p>
             </Container>
-        </BaseModal>
+        </Modal>
     );
 }
 

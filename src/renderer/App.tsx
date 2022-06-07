@@ -2,9 +2,9 @@ import 'typeface-poppins';
 import 'typeface-karla';
 import 'typeface-roboto-mono';
 
-import { AuthPage, HomePage, StreamersPage } from './pages';
+import { AuthPage, HomePage, StreamersPage, SettingsPage } from './pages';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
     Route,
     MemoryRouter as Router,
@@ -22,6 +22,7 @@ import { auth } from './core/auth';
 import { getIpc } from './utils/ipc';
 import { injectStyle } from 'react-toastify/dist/inject-style';
 import styled from 'styled-components';
+import { settings } from './core/settings';
 
 injectStyle();
 
@@ -29,6 +30,10 @@ const queryClient = new QueryClient();
 
 const Dashboard = () => {
     const history = useHistory();
+
+    // We want to let the electron's main process know the last saved settings.
+    // We also send this message to main process when changing settings.
+    useEffect(() => getIpc().sendSettings(settings.store.getState()), []);
 
     return (
         <DndProvider backend={HTML5Backend}>
@@ -39,6 +44,7 @@ const Dashboard = () => {
                 <DashboardContainer>
                     <Route path="/" exact component={HomePage} />
                     <Route path="/streamers" component={StreamersPage} />
+                    <Route path="/settings" component={SettingsPage} />
                 </DashboardContainer>
             </Layout>
         </DndProvider>
@@ -107,6 +113,7 @@ const SidebarContainer = styled.div`
 
 const DashboardContainer = styled.div`
     width: 100%;
+    position: relative;
 `;
 
 const Layout = styled.div`

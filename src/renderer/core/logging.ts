@@ -2,6 +2,16 @@ import { Store } from '../utils/store';
 import { getIpc } from '../utils/ipc';
 import { v4 as uuid } from 'uuid';
 
+let developerMode = process.env.NODE_ENV === 'development';
+
+// When trying to import `settings` to read the state for `developerMode`,
+// the app crashes because logging.getLogger throws error in `settings.js`.
+// I'm pretty sure, this has something to do with circular dependency. So this
+// event based method works without problems.
+getIpc().on('settings', (settings: any) => {
+    developerMode = settings.developerMode;
+});
+
 enum Level {
     EXCEPTION = 'EXCEPTION',
     ERROR = 'ERROR    ',
@@ -47,10 +57,13 @@ class Log {
         this.level = level;
         this.hex = this.getHexBasedOnLevel(level);
         this.content = [...args];
-        this.print();
 
-        if (sendToMain && process.env.NODE_ENV !== 'test') {
-            getIpc().sendLog(this);
+        if (developerMode) {
+            this.print();
+
+            if (sendToMain && process.env.NODE_ENV !== 'test') {
+                getIpc().sendLog(this);
+            }
         }
     }
 

@@ -13,7 +13,6 @@ export interface InputTextOptions
         | 'tel'
         | 'text'
         | 'url';
-    width?: string;
     value?: string | number;
     hidePlaceholderOnFocus?: boolean;
 }
@@ -21,7 +20,6 @@ export interface InputTextOptions
 export const InputText = React.forwardRef(
     (
         {
-            width = '',
             variant = 'text',
             placeholder = '',
             onFocus,
@@ -53,7 +51,6 @@ export const InputText = React.forwardRef(
                     placeholder={placeholderText}
                     ref={ref}
                     type={showingPassword ? 'text' : variant}
-                    width={width}
                     onFocus={handleOnFocus}
                     onBlur={handleOnBlur}
                 />
@@ -64,7 +61,7 @@ export const InputText = React.forwardRef(
                             right: '10px',
                             width: '32px',
                             height: '32px',
-                            borderRadius: '8px',
+                            borderRadius: '4px',
                         }}
                         icon={showingPassword ? IconEyeClose : IconEyeOpen}
                         iconSize={18}
@@ -88,10 +85,10 @@ const Container = styled.div`
 
 const StyledInput = styled.input<InputTextOptions & { ref: any }>`
     font-size: 0.875rem;
-    border-radius: 12px;
+    border-radius: 4px;
     padding: 0.875em;
     border: none;
-    background: ${(props) => props.theme.color.disabled};
+    background: ${(props) => props.theme.color.disabledPrimary};
     border: 2px solid transparent;
     transition: border 200ms ease-out, background-color 200ms ease-out;
     box-sizing: border-box;

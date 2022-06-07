@@ -3,14 +3,9 @@ import express, { Application, NextFunction, Request, Response } from 'express';
 import querystring from 'querystring';
 import { createServer } from 'http';
 import chalk from 'chalk';
-import { print, Hex } from './util';
+import { log as utilLog, Hex } from './util';
 
-const SERVER = 'SERVER   ';
-const SERVER_HEX = '#0066AE';
-
-function log(...args: any) {
-    print(new Date(), SERVER, SERVER_HEX, ...args);
-}
+const log = utilLog.server;
 
 const client = axios.create({
     headers: {
@@ -170,7 +165,7 @@ async function makeRequest(body: AuthBody): Promise<TwitchAuthResponse> {
             body
         );
         twitchResponse = result.data;
-    } catch (e) {
+    } catch (e: any) {
         twitchResponse = e.response.data;
     }
 
@@ -329,7 +324,7 @@ async function resendCode(req: Request, res: Response): Promise<Response> {
         );
 
         return res.status(200).json({});
-    } catch (e) {
+    } catch (e: any) {
         return res.status(200).json(e.response?.data);
     }
 }

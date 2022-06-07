@@ -34,11 +34,12 @@ if (process.env.NODE_ENV === 'development') {
  */
 
 export enum Level {
-    EXCEPTION = 'EXCEPTION',
-    ERROR = 'ERROR    ',
-    WARNING = 'WARNING  ',
-    INFO = 'INFO     ',
-    DEBUG = 'DEBUG    ',
+    EXCEPTION = 'MAIN_EXCEPTION',
+    ERROR = 'MAIN_ERROR',
+    WARNING = 'MAIN_WARNING',
+    INFO = 'MAIN_INFO',
+    DEBUG = 'MAIN_DEBUG',
+    SERVER = 'SERVER   ',
 }
 
 export enum Hex {
@@ -47,6 +48,7 @@ export enum Hex {
     WARNING = '#FFB703',
     INFO = '#8CD3FF',
     DEBUG = '#26ABFF',
+    SERVER = '#0066AE',
 }
 
 export function print(
@@ -61,6 +63,21 @@ export function print(
         `[${timestamp}] [${chalk.hex(hex)(level)}] ${content.join(' ')}`
     );
 }
+
+export const log = {
+    server: (...content: any[]) =>
+        print(new Date(), Level.SERVER, Hex.SERVER, ...content),
+    debug: (...content: any[]) =>
+        print(new Date(), Level.DEBUG, Hex.DEBUG, ...content),
+    info: (...content: any[]) =>
+        print(new Date(), Level.INFO, Hex.INFO, ...content),
+    warning: (...content: any[]) =>
+        print(new Date(), Level.WARNING, Hex.WARNING, ...content),
+    error: (...content: any[]) =>
+        print(new Date(), Level.ERROR, Hex.ERROR, ...content),
+    exception: (...content: any[]) =>
+        print(new Date(), Level.EXCEPTION, Hex.EXCEPTION, ...content),
+};
 
 function formatDate(date: Date): string {
     return `${date.getDate()}-${

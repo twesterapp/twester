@@ -6,6 +6,7 @@ interface Ipc {
     once: (channel: any, func: any) => void;
     sendVersion: () => void;
     sendLog: (log: any) => void;
+    sendSettings: (settings: any) => void;
 }
 
 export function getIpc(): Ipc {

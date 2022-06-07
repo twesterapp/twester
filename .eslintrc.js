@@ -26,6 +26,7 @@ module.exports = {
         '@typescript-eslint/no-empty-interface': 'off',
         'import/order': 'off',
         'import/no-cycle': 'off',
+        'no-nested-ternary': 'off',
     },
     parserOptions: {
         ecmaVersion: 2020,
