@@ -61,37 +61,37 @@ class Log {
     public print() {
         // Example - [11-10-2021 04:19:10:394] [INFO] Starting Watcher
         const timestamp = this.formatDate(this.date);
-        const str = `[${timestamp}] [${this.level}] ${this.content.join(' ')}`;
+        const prefix = `[${timestamp}] [${this.level}]`;
 
         // Trying to have better semantics
         switch (this.level) {
             case Level.EXCEPTION: {
-                console.error(str);
+                console.error(prefix, ...this.content);
                 break;
             }
 
             case Level.ERROR: {
-                console.error(str);
+                console.error(prefix, ...this.content);
                 break;
             }
 
             case Level.WARNING: {
-                console.warn(str);
+                console.warn(prefix, ...this.content);
                 break;
             }
 
             case Level.INFO: {
-                console.info(str);
+                console.info(prefix, ...this.content);
                 break;
             }
 
             case Level.DEBUG: {
-                console.info(str);
+                console.info(prefix, ...this.content);
                 break;
             }
 
             default: {
-                console.log(str);
+                console.log(prefix, ...this.content);
             }
         }
     }

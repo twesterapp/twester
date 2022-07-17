@@ -56,10 +56,9 @@ export function print(
     ...content: any[]
 ) {
     const timestamp = formatDate(date);
+    const prefix = `[${timestamp}] [${chalk.hex(hex)(level)}]`;
     // [11-10-2021 04:19:10:394] [INFO] Starting Watcher
-    console.log(
-        `[${timestamp}] [${chalk.hex(hex)(level)}] ${content.join(' ')}`
-    );
+    console.log(prefix, ...content);
 }
 
 function formatDate(date: Date): string {
