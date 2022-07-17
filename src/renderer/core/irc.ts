@@ -4,6 +4,7 @@ import { logging } from './logging';
 
 /**
  * Twitch's IRC chat.
+ * NOTE: The `IRC_URL` and `IRC_PORT` are taken from tmi.js. @see https://github.com/tmijs/tmi.js/blob/4f05e4786b679badc7972ccb58abc378d6f44f26/lib/ClientBase.js#L1116
  */
 
 const IRC_URL = 'irc-ws.chat.twitch.tv';
@@ -24,6 +25,7 @@ export class IRC {
 
         const url = `wss://${IRC_URL}:${IRC_PORT}`;
 
+        // TODO: Do this we join streamer's chat via `streamer.joinChat()`.
         this.ws = new WebSocket(url);
         this.ws.onopen = this.onOpen.bind(this);
         this.ws.onmessage = this.onMessage.bind(this);
@@ -171,6 +173,8 @@ export class IRC {
         this.ws.send(`JOIN ${channel}`);
     }
 
+    // Sends a message in the chat. This is important to show presence in the
+    // chat. You should do this at least once when you join a streamer's chat.
     private sendMessage(channel: string, message: string): void {
         log.debug(`Sending message: '${message}' to channel: ${channel}`);
         // PRIVMSG #<channel name> :This is a sample message
