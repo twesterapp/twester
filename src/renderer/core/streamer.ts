@@ -2,6 +2,7 @@ import { Stream } from './stream';
 import { StreamerIsOfflineError } from './errors';
 import { logging } from './logging';
 import { rightNowInSecs } from '../utils/rightNowInSecs';
+import { IRC } from './irc';
 
 export enum OnlineStatus {
     ONLINE = 'ONLINE',
@@ -60,6 +61,8 @@ export class Streamer implements StreamerPayload {
 
     public stream?: Stream;
 
+    private irc: IRC;
+
     constructor(payload: StreamerPayload) {
         this.login = payload.login;
         this.id = payload.id;
@@ -72,6 +75,8 @@ export class Streamer implements StreamerPayload {
         this.lastMinuteWatchedEventTime = payload.lastMinuteWatchedEventTime;
         this.minutesWatched = payload.minutesWatched;
         this.pointsEarned = payload.pointsEarned;
+
+        this.irc = new IRC(payload.login);
     }
 
     public setOnlineStatus(
