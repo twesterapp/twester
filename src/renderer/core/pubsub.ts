@@ -33,6 +33,7 @@ import { watcher } from './watcher';
  *    listening to topics for the new streamer.
  */
 
+const PUBSUB_URL = 'wss://pubsub-edge.twitch.tv/v1';
 const RECONNECTION_INTERVAL = 30 * 1000;
 const PING_INTERVAL = 4.5 * 60 * 1000;
 
@@ -138,7 +139,7 @@ export class PubSub {
     private createNewWebSocket() {
         log.debug('PubSub is connecting');
 
-        this.ws = new WebSocket('wss://pubsub-edge.twitch.tv/v1');
+        this.ws = new WebSocket(PUBSUB_URL);
         this.isOpened = false;
         this.isClosed = false;
         this.closedOnPurpose = false;
