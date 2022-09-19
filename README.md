@@ -22,7 +22,7 @@
 
 ## Download
 
-Latest releases are available at [https://twester.co](https://twester.co). You can also download from [GitHub Releases](https://github.com/twesterapp/twester/releases) as well.
+You can download from [GitHub Releases](https://github.com/twesterapp/twester/releases).
 
 ## What is this app all about?
 
