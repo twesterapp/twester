@@ -179,4 +179,12 @@ export class Streamer implements StreamerPayload {
             }
         }
     }
+
+    public async joinChat(): Promise<boolean> {
+        return true;
+    }
+
+    public async leaveChat(): Promise<boolean> {
+        return true;
+    }
 }
